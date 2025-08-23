@@ -1,0 +1,12 @@
+.home-layout {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background-color: #FCF0DF;
+}
+
+.home-body {
+  grid-row: 2/2;
+}
+
+
+
