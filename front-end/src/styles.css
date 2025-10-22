@@ -1,20 +1,57 @@
 @import "tailwindcss";
 @import '../node_modules/quill/dist/quill.snow.css';
+@import url('https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 
 body, html{
   height: 100%;
   width: 100%;
     margin: 0;
   padding: 0;
-    background-color: #FCF0DF;
+    background-color: #f9ecd9;
 
 }
 
-@font-face {
-  font-family: 'Merriweather';
-  src: url('../src/assets/fonts/merriweather/Merriweather_24pt_SemiCondensed-Bold.woff2') format('truetype');
-  font-weight: bold;
+.title  {
+    font-family: "Averia Serif Libre", serif;
+  font-weight: 400;
+  font-style: normal;
 }
+.averia-serif-libre-light {
+  font-family: "Averia Serif Libre", serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.averia-serif-libre-regular {
+  font-family: "Averia Serif Libre", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.averia-serif-libre-bold {
+  font-family: "Averia Serif Libre", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.averia-serif-libre-light-italic {
+  font-family: "Averia Serif Libre", serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.averia-serif-libre-regular-italic {
+  font-family: "Averia Serif Libre", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.averia-serif-libre-bold-italic {
+  font-family: "Averia Serif Libre", serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
 
 .title {
   font-family: 'Merriweather', serif;
