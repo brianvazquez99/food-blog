@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-recipes',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './recipes.html',
   styleUrl: './recipes.css',
   changeDetection: ChangeDetectionStrategy.OnPush

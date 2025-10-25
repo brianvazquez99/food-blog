@@ -1,4 +1,4 @@
-  <div class=" h-1/5 w-full mt-10 home ">
+  <div class=" h-1/2 w-full mt-10 home ">
 
 
 
@@ -10,11 +10,11 @@
 
 <div class="h-1/2 w-full">
   <div class="text-center mb-4">
-    <span class="text-4xl title text-amber-600 font-bold">Recent Posts</span>
+    <span class="text-5xl title text-amber-600 font-bold">Recent Posts</span>
   </div>
   <div class="flex flex-wrap gap-10 justify-center">
     @for (item of posts; track $index) {
-      <div class="flex hover:cursor-pointer hover:shadow-lg transition-all h-full bg-white rounded-lg">
+      <div class="flex flex-col hover:cursor-pointer hover:shadow-lg transition-all h-full  rounded-lg">
         <div class="rounded-lg">
           <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsd27h9jA52lPtslWSawiDle1Qiq0tgg7FXg&s" alt="TEST">
         </div>
@@ -23,5 +23,13 @@
         </div>
       </div>
     }
+  </div>
+  <div class="flex mt-4 w-full justify-center p-2">
+    <a routerLink="recipes" class="hover:cursor-pointer">
+    <button class="rounded p-4 bg-amber-700 text-white title">
+      View All
+    </button>
+
+  </a>
   </div>
 </div>

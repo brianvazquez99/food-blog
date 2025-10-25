@@ -120,7 +120,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 		}
 
 		query := `INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED)
-	 			VALUES (?,?, date(now))`
+	 			VALUES (?,?, date('now'))`
 
 		result, err := db.Exec(query, post.TITLE, post.BODY)
 

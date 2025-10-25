@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
@@ -11,7 +12,7 @@ export class Home implements OnInit {
 
   http = inject(HttpClient)
 
-  posts = Array(20).fill({
+  posts = Array(5).fill({
     TITLE: 'A very delicios recipie',
     DESCRIPTION: 'TEST'
   })
