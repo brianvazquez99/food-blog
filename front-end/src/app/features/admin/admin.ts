@@ -2,29 +2,37 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
+import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
+import { RECIPE } from '../../types';
 
 @Component({
   selector: 'app-admin',
-  imports: [QuillModule, FormsModule],
+  imports: [QuillModule, FormsModule, RecipeDetails],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
   standalone: true,
 })
 export class Admin {
 
-  title = signal<string | undefined>(undefined)
-  body = signal<string | undefined>(undefined)
+  post = signal<RECIPE>({
+    ID: null,
+    TITLE: '',
+    BODY: '',
+    THUMBNAIL: new Blob(),
+    DATE_ADDED: ''
+  })
+
+  previewOn = signal<boolean>(false)
 
   http = inject(HttpClient)
 
   onSave() {
-    console.log("title", this.title())
-    console.log("body", this.body())
-    if (this.title() == null || this.body() == null) {
-      alert("Please Enter a" + this.title() ? "Title" : "Content")
+
+    if (this.post().TITLE == null || this.post().BODY == null || this.post().THUMBNAIL == null) {
+      alert("Not all content has been filled!")
       return
     }
-    this.http.post("/api/postBlog", {title: this.title(), body: this.body()}).subscribe( {
+    this.http.post("/api/postBlog", this.post()).subscribe( {
       next: value => {
         console.log(value)
       },

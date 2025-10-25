@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { RECIPE } from '../../../types';
 
 @Component({
@@ -9,7 +9,7 @@ import { RECIPE } from '../../../types';
 })
 export class RecipeDetails {
 
-  recipe = signal<RECIPE>({
+  recipe = input<RECIPE>({
     ID: 1,
     TITLE: 'Choco Cookies',
     THUMBNAIL: new Blob(),

@@ -1,7 +1,7 @@
 export type RECIPE = {
-  ID: number,
-  TITLE: string,
-  THUMBNAIL: Blob,
-  BODY: string,
-  DATE_ADDED: string
+  ID: number | null,
+  TITLE: string | null,
+  THUMBNAIL: Blob | null,
+  BODY: string | null,
+  DATE_ADDED: string | null
 }
