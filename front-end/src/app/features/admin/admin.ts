@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
 import { RECIPE } from '../../types';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-admin',
@@ -22,24 +23,31 @@ export class Admin {
     DATE_ADDED: ''
   })
 
+    test = effect(() => {
+    console.log(this.post().BODY)
+  })
+
   previewOn = signal<boolean>(false)
 
   http = inject(HttpClient)
 
+
   onSave() {
+
+    console.log(this.post().BODY)
 
     if (this.post().TITLE == null || this.post().BODY == null || this.post().THUMBNAIL == null) {
       alert("Not all content has been filled!")
       return
     }
-    this.http.post("/api/postBlog", this.post()).subscribe( {
-      next: value => {
-        console.log(value)
-      },
-      error: err => {
-        console.log(err)
-      }
-    })
+    // this.http.post("/api/postBlog", this.post()).subscribe( {
+    //   next: value => {
+    //     console.log(value)
+    //   },
+    //   error: err => {
+    //     console.log(err)
+    //   }
+    // })
   }
 
 }

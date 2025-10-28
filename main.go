@@ -3,13 +3,23 @@ package main
 import (
 	"context"
 	"database/sql"
+	"html/template"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
 )
+
+		type BLOG struct {
+			TITLE        string
+			BODY         template.HTML
+			ID           int
+			DATE_ADDED   *string
+			DATE_UPDATED *string
+		}
 
 func main() {
 	r := gin.Default()
@@ -17,6 +27,7 @@ func main() {
 		db, err := sql.Open("sqlite", "./blog.db")
 
 	defer db.Close()
+
 
 
 
@@ -34,12 +45,15 @@ func main() {
     {
         api.POST("/postBlog", uploadBlog(ctx, db))
         api.GET("/getBlogs", getBlogs(ctx, db))
+        api.GET("/getBlogDetails/", getBlogDetails(ctx, db))
     }
 
 	// r.POST("api/postBlog", uploadBlog(ctx, db))
 	// r.GET("api/getBlogs", getBlogs(ctx, db))
 
 	// r.Static("/", "front-end\\dist\\front-end\\browser")
+
+	r.LoadHTMLGlob("templates/*.html")
 
 
 
@@ -62,13 +76,7 @@ func main() {
 
 func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 	return func(g *gin.Context) {
-		type BLOG struct {
-			TITLE        string
-			BODY         string
-			ID           int
-			DATE_ADDED   *string
-			DATE_UPDATED *string
-		}
+
 
 		var blogs []BLOG
 
@@ -98,6 +106,42 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 		}
 
 		g.JSON(http.StatusOK, blogs)
+
+	}
+}
+
+
+func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
+			re := regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
+
+	return func (g *gin.Context) {
+		var blog BLOG
+
+		id := g.Query("ID")
+
+		query := `SELECT ID, TITLE, BODY, DATE_ADDED
+				FROM BLOG_POSTS
+				WHERE ID = ?`
+
+		row := db.QueryRow(query,id)
+
+		var rawBody string;
+
+		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED)
+
+		cleaned := re.ReplaceAllString(rawBody, "")
+
+		blog.BODY = template.HTML(cleaned)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message" : "Failed to scan row"})
+			return
+		}
+
+		g.HTML(http.StatusOK, "blog_detail.html", blog)
+
+		// g.JSON(http.StatusOK, blog)
+
 
 	}
 }

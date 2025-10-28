@@ -1,8 +1,17 @@
-<div class="px-100 py-5 h-full w-full m-auto  flex gap-10 flex-col">
+<div class="px-30 py-5 h-full w-full m-auto  flex gap-10 flex-col">
 
-  <span class="text-4xl text-center title">{{recipe().TITLE}}</span>
+  @if (blog()) {
 
-  <div [innerHTML]="recipe().BODY">
+ <div  [innerHTML]="blog()">
+
+ </div>
+  }
+  @defer (when previewRecipe()) {
+      <span class="text-4xl text-center title">{{previewRecipe()!.TITLE}}</span>
+
+  <div class="blog-body whitespace-pre-wrap blog-body" [innerHTML]="previewRecipe()!.BODY">
 
   </div>
+  }
+
 </div>

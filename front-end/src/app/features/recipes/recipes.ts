@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { RECIPE } from '../../types';
 
 @Component({
   selector: 'app-recipes',
@@ -13,10 +14,10 @@ export class Recipes implements OnInit {
 
   http = inject(HttpClient)
 
-  posts = signal<any>(undefined)
+  posts = signal<RECIPE[]| undefined>(undefined)
 
     ngOnInit(): void {
-      this.http.get("/api/getBlogs").subscribe( {
+      this.http.get<RECIPE[]>("/api/getBlogs").subscribe( {
         next: value => {
           console.log(value)
           this.posts.set(value)

@@ -31,11 +31,11 @@
     </div>
   </div>
 
-    <div class="flex flex-wrap gap-10 justify-center items-start h-full w-full">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 justify-center items-start h-full w-full">
     @for (item of posts(); track $index) {
-      <div routerLink="../recipe" class="flex hover:cursor-pointer hover:shadow-lg  transition-all bg-white rounded-lg">
-        <div class="rounded-lg">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsd27h9jA52lPtslWSawiDle1Qiq0tgg7FXg&s" alt="TEST">
+      <div [routerLink]="['../recipe']" [queryParams]="{'ID': item.ID}" class="flex items-center flex-col gap-4 hover:cursor-pointer hover:shadow-lg  transition-all  rounded-lg">
+        <div class="rounded-lg w-full">
+          <img class="" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsd27h9jA52lPtslWSawiDle1Qiq0tgg7FXg&s" alt="TEST">
         </div>
         <div>
           <span class="text-xl p-4">{{item.TITLE}}</span>

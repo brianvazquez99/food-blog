@@ -1,3 +1,5 @@
+import { SafeHtml } from "@angular/platform-browser"
+
 export type RECIPE = {
   ID: number | null,
   TITLE: string | null,
