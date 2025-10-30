@@ -17,7 +17,7 @@ export class RecipeDetails implements OnInit {
 
   router = inject(ActivatedRoute)
 
-  blogId = signal<number | undefined>(undefined)
+  blogSlug = signal<string | undefined>(undefined)
 
   sanitizer = inject(DomSanitizer)
 
@@ -39,11 +39,11 @@ export class RecipeDetails implements OnInit {
 
 
   ngOnInit(): void {
-    this.router.queryParamMap.subscribe({
-      next:value => {
-        const id = value.get("ID")
-        if(id) {
-          this.blogId.set(Number(id))
+    this.router.paramMap.subscribe({
+      next:param => {
+        const slug = param.get("slug")
+        if(slug) {
+          this.blogSlug.set(slug)
           this.getData()
         }
       }
@@ -63,13 +63,16 @@ export class RecipeDetails implements OnInit {
 
 
   getData() {
-    const param = new HttpParams().set("ID", this.blogId()!)
-    this.http.get("/api/getBlogDetails", {params: param, responseType: 'text'}).subscribe({
+    if (this.blogSlug()) {
+    const param = new HttpParams().set("ID", this.blogSlug()!)
+    this.http.get("/api/getBlogDetails/"+ this.blogSlug(), {params: param, responseType: 'text'}).subscribe({
       next:value => {
         console.log(value)
         this.blog.set( this.sanitizer.bypassSecurityTrustHtml(value.replace(/<p>(?:\s|&nbsp;|<br>|<span><br><\/span>)*<\/p>/g, '<p>&nbsp;</p>')))
       }
     })
+    }
+
 
   }
 

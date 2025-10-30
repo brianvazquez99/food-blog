@@ -45,7 +45,7 @@ func main() {
     {
         api.POST("/postBlog", uploadBlog(ctx, db))
         api.GET("/getBlogs", getBlogs(ctx, db))
-        api.GET("/getBlogDetails/", getBlogDetails(ctx, db))
+        api.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
     }
 
 	// r.POST("api/postBlog", uploadBlog(ctx, db))
@@ -117,13 +117,15 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 	return func (g *gin.Context) {
 		var blog BLOG
 
-		id := g.Query("ID")
+		slug := g.Param("slug")
+
+		cleanedSlug := strings.ReplaceAll(slug, "-", "")
 
 		query := `SELECT ID, TITLE, BODY, DATE_ADDED
 				FROM BLOG_POSTS
-				WHERE ID = ?`
+				WHERE LOWER(REPLACE(TITLE, ' ', '')) = ?`
 
-		row := db.QueryRow(query,id)
+		row := db.QueryRow(query,cleanedSlug)
 
 		var rawBody string;
 
