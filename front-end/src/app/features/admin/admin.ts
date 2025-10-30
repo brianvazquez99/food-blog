@@ -5,10 +5,12 @@ import { QuillModule } from 'ngx-quill';
 import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
 import { RECIPE } from '../../types';
 import { DomSanitizer } from '@angular/platform-browser';
+import { sign } from 'crypto';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-admin',
-  imports: [QuillModule, FormsModule, RecipeDetails],
+  imports: [QuillModule, FormsModule, RecipeDetails, NgOptimizedImage],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
   standalone: true,
@@ -23,6 +25,10 @@ export class Admin {
     DATE_ADDED: ''
   })
 
+  thumbnail!: File;
+
+  imgSrc = signal<any>(null)
+
     test = effect(() => {
     console.log(this.post().BODY)
   })
@@ -30,6 +36,24 @@ export class Admin {
   previewOn = signal<boolean>(false)
 
   http = inject(HttpClient)
+
+  onFileChange(event: Event) {
+    const input = event.target as HTMLInputElement
+
+    this.thumbnail = input.files![0]
+
+    if (this.thumbnail) {
+     const reader = new FileReader()
+
+     reader.readAsDataURL(this.thumbnail)
+
+     reader.onload = () => {
+      this.imgSrc.set(reader.result)
+     }
+
+    }
+
+  }
 
 
   onSave() {
