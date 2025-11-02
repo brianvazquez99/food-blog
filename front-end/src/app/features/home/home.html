@@ -13,8 +13,8 @@
     <span class="text-5xl title text-amber-600 font-bold">Recent Posts</span>
   </div>
   <div class="flex flex-wrap gap-10 justify-center">
-    @for (item of posts; track $index) {
-      <div class="flex flex-col hover:cursor-pointer hover:shadow-lg transition-all h-full  rounded-lg">
+    @for (item of posts(); track $index) {
+      <div [routerLink]="['recipe', item.SLUG]" class="flex flex-col hover:cursor-pointer hover:shadow-lg transition-all h-full  rounded-lg">
         <div class="rounded-lg">
           <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsd27h9jA52lPtslWSawiDle1Qiq0tgg7FXg&s" alt="TEST">
         </div>

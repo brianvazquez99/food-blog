@@ -77,11 +77,26 @@ func main() {
 func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 	return func(g *gin.Context) {
 
+		recent := g.Query("recent")
+
 
 		var blogs []BLOG
 
-		var query string = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED
-							FROM BLOG_POSTS`
+		var query string
+
+		if recent != "" {
+
+				 query  = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED
+								FROM BLOG_POSTS
+								ORDER BY DATE_ADDED DESC
+								LIMIT 5`
+
+		}else {
+
+			 query  = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED
+								FROM BLOG_POSTS`
+		}
+
 
 		rows, err := db.Query(query)
 

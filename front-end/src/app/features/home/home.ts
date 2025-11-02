@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from "@angular/router";
+import { RECIPE } from '../../types';
 
 @Component({
   selector: 'app-home',
@@ -12,18 +13,26 @@ export class Home implements OnInit {
 
   http = inject(HttpClient)
 
-  posts = Array(5).fill({
-    TITLE: 'A very delicios recipie',
-    DESCRIPTION: 'TEST'
-  })
+  posts = signal<RECIPE[] | undefined>(undefined)
 
 
   ngOnInit(): void {
-      this.http.get("/api/getBlogs").subscribe( {
+
+    const params = new HttpParams().set("recent", 1);
+      this.http.get<RECIPE[]>("/api/getBlogs", {params: params}).subscribe( {
         next: value => {
           console.log(value)
+          this.posts.set(value.map((el) => { return {...el, SLUG: this.getSlug(el.TITLE!)}} ))
         }
       })
+  }
+
+    getSlug(title:string):string {
+
+    const slug = title.replaceAll(" ", "-").toLowerCase();
+    console.log(slug)
+    return slug
+
   }
 
 

@@ -22,7 +22,6 @@ export class Recipes implements OnInit {
         next: value => {
           console.log(value)
           this.posts.set(value.map((el) => { return {...el, SLUG: this.getSlug(el.TITLE!)}} ))
-          console.log(value.map((el) => { return {...el, SLUG: this.getSlug(el.TITLE!)}} ))
         }
       })
   }
