@@ -3,6 +3,7 @@ import { Component, effect, inject, input, model, OnInit, signal } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { RECIPE } from '../../../types';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { BlogService } from '../../../blog-service';
 
 @Component({
   selector: 'app-recipe-details',
@@ -13,7 +14,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 export class RecipeDetails implements OnInit {
 
 
-  http = inject(HttpClient)
+  blogService = inject(BlogService)
 
   router = inject(ActivatedRoute)
 
@@ -26,16 +27,9 @@ export class RecipeDetails implements OnInit {
 
   previewRecipe = model<RECIPE | undefined>(undefined)
 
-  // previewEffect = effect(() => {
 
-  //   let body = this.previewRecipe()?.BODY!.replace(/<p>(?:\s|&nbsp;|<br>|<span><br><\/span>)*<\/p>/g, '<p>&nbsp;</p>')
-
-  //   body?.replace(/<p>(?:\s|&nbsp;|<br>|<span><br><\/span>)*<\/p>/g, '<p>&nbsp;</p>')
-
-  //   this.previewRecipe.set({...this.previewRecipe()!, BODY:body!})
-
-  // })
   blog = signal<SafeHtml | undefined>(undefined)
+
 
 
   ngOnInit(): void {
@@ -64,8 +58,7 @@ export class RecipeDetails implements OnInit {
 
   getData() {
     if (this.blogSlug()) {
-    const param = new HttpParams().set("ID", this.blogSlug()!)
-    this.http.get("/api/getBlogDetails/"+ this.blogSlug(), {params: param, responseType: 'text'}).subscribe({
+    this.blogService.getBlogDetails(this.blogSlug()!).subscribe({
       next:value => {
         console.log(value)
         this.blog.set( this.sanitizer.bypassSecurityTrustHtml(value.replace(/<p>(?:\s|&nbsp;|<br>|<span><br><\/span>)*<\/p>/g, '<p>&nbsp;</p>')))

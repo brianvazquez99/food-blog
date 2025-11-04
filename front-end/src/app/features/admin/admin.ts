@@ -2,15 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
-import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
 import { RECIPE } from '../../types';
-import { DomSanitizer } from '@angular/platform-browser';
-import { sign } from 'crypto';
-import { NgOptimizedImage } from '@angular/common';
+import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
 
 @Component({
   selector: 'app-admin',
-  imports: [QuillModule, FormsModule, RecipeDetails, NgOptimizedImage],
+  imports: [QuillModule, FormsModule, RecipeDetails],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
   standalone: true,
@@ -64,14 +61,19 @@ export class Admin {
       alert("Not all content has been filled!")
       return
     }
-    // this.http.post("/api/postBlog", this.post()).subscribe( {
-    //   next: value => {
-    //     console.log(value)
-    //   },
-    //   error: err => {
-    //     console.log(err)
-    //   }
-    // })
+
+    const formData = new FormData()
+    formData.append('TITLE', this.post().TITLE!)
+    formData.append('BODY', this.post().BODY!)
+    formData.append('THUMBNAIL', this.thumbnail)
+    this.http.post("/api/postBlog", formData).subscribe( {
+      next: value => {
+        console.log(value)
+      },
+      error: err => {
+        console.log(err)
+      }
+    })
   }
 
 }

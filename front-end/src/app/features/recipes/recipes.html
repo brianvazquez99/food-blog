@@ -35,7 +35,7 @@
     @for (item of posts(); track $index) {
       <div [routerLink]="['../recipe', item.SLUG]"  class="flex justify-center items-center flex-col gap-4 hover:cursor-pointer hover:shadow-lg  transition-all  rounded-lg">
         <div class="rounded-lg w-full flex justify-center">
-          <img class="" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsd27h9jA52lPtslWSawiDle1Qiq0tgg7FXg&s" alt="TEST">
+          <img [src]="'/api/getThumbnail/' + item.ID" height="200" width="200" alt="TEST">
         </div>
         <div>
           <span class="text-xl title p-4">{{item.TITLE}}</span>
