@@ -11,6 +11,11 @@ font-size: 36px; /* 2.25rem (36px) */
 line-height: calc(2.5 / 2.25); /*  */
 }
 
+#thumbnail {
+  display: flex;
+  justify-content: center;
+}
+
 #body {
   white-space: pre wrap;
     background-color: transparent  !important
@@ -18,6 +23,9 @@ line-height: calc(2.5 / 2.25); /*  */
 </style>
 <div id="blog-container">
   <h3 id="title">{{ .TITLE }}</h1>
+    <div id="thumbnail">
+            <img src="/api/getThumbnail/{{ .ID }}" height="200" width="200" alt="TEST">
+    </div>
   <div id="body">{{ .BODY }}</div>
 </div>
 
