@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -45,6 +46,7 @@ func main() {
     {
         api.POST("/postBlog", uploadBlog(ctx, db))
         api.GET("/getBlogs", getBlogs(ctx, db))
+        api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
         api.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
     }
 
@@ -125,6 +127,31 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
+	return func (g *gin.Context) {
+		id := g.Param("id")
+
+		var thumbNail []byte
+
+		query := `SELECT THUMBNAIL
+				FROM BLOG_POSTS
+				WHERE ID = ?`
+
+		row := db.QueryRow(query, id)
+
+		err := row.Scan(&thumbNail)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "error getting thumbnail"})
+		}
+
+
+  g.Header("Content-Type", "image/jpeg")
+	g.Header("Content-Disposition", "inline; filename=image.jpg")
+
+  g.Data(http.StatusOK, "image/jpeg", thumbNail)	}
+}
+
 
 func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 			re := regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
@@ -173,17 +200,43 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		var post BLOG_POST
 
-		err := g.ShouldBindJSON(&post)
+		err := g.ShouldBind(&post)
 
 		if err != nil {
 			g.JSON(http.StatusBadRequest, gin.H{"message": "Incorrect format to post blog!"})
 			return
 		}
 
-		query := `INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED)
-	 			VALUES (?,?, date('now'))`
+		thumbNail, err := g.FormFile("THUMBNAIL")
 
-		result, err := db.Exec(query, post.TITLE, post.BODY)
+		if err != nil {
+			g.JSON(http.StatusBadRequest, gin.H{"message": "Unable to bind thumbnail"})
+			return
+		}
+
+		f, err := thumbNail.Open()
+
+			if err != nil {
+			g.JSON(http.StatusBadRequest, gin.H{"message": "Unable to open thumbnail"})
+			return
+		}
+
+		defer f.Close()
+
+		bytes, err := io.ReadAll(f)
+
+		if err != nil {
+			g.JSON(http.StatusBadRequest, gin.H{"message": "Unable to read all thumbnail"})
+			return
+		}
+
+
+
+
+		query := `INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL)
+	 			VALUES (?,?, date('now'), ?)`
+
+		result, err := db.Exec(query, post.TITLE, post.BODY, bytes)
 
 		if err != nil {
 			println(err.Error())
