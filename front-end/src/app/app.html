@@ -1,8 +1,8 @@
 <div class="home-layout h-full w-full">
-  <nav style="background-color: #3f5f3f;" class="flex  justify-between  items-center  px-8 py-4">
+  <nav style="background-color: #3f5f3f;" class="flex  justify-between  items-center relative  px-8 py-4">
 
     <div>
-      <img src="/app/assets/logo.avif" height="100px" width="100px" alt="logo">
+      <img src="/app/assets/logo.avif" height="65px" width="65px" alt="logo">
     </div>
     <ul class="flex gap-5 justify-between w-1/2 title items-center me-6">
       <li routerLink="" routerLinkActive="text-amber-800"
@@ -12,7 +12,7 @@
       <li class="hover:underline text-xl transition-all hover:cursor-pointer text-white title">Contact</li>
       <li class="flex gap-2">
         <a href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
-          <svg width="30px" height="30px" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <svg width="25px" height="25px" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
             <g id="SVGRepo_iconCarrier">
@@ -23,7 +23,7 @@
           </svg>
         </a>
         <a href="https://www.instagram.com/mailanhomebakery/#" target="_blank">
-          <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
             <g id="SVGRepo_iconCarrier">
@@ -40,7 +40,7 @@
           </svg>
         </a>
         <a>
-          <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
             <g id="SVGRepo_iconCarrier">
@@ -51,8 +51,8 @@
           </svg>
         </a>
       </li>
-      <li class="flex items-center gap-1 text-white">
-        <svg width="25" height="25" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+      <li (click)="isSearchOpen.set(!isSearchOpen())" class="flex items-center gap-1 text-white hover:cursor-pointer ">
+        <svg width="25px" height="25px" viewBox="0 0 24 24"  xmlns="http://www.w3.org/2000/svg" fill="#000000">
           <g id="SVGRepo_iconCarrier">
             <defs>
               <style>
@@ -71,9 +71,53 @@
       </li>
     </ul>
 
+    @if (isSearchOpen()) {
+
+    <div class=" search-bar absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2" style="bottom: -206%;">
+      <div class="border-b p-2 gap-3 flex items-center w-full">
+        <div>
+          <svg width="15px" height="15px" viewBox="0 0 24 24"  xmlns="http://www.w3.org/2000/svg" fill="#000000">
+          <g id="SVGRepo_searchCarrier">
+            <defs>
+              <style>
+                .cls-1 {
+                  fill: none;
+                  stroke: black;
+                  stroke-miterlimit: 10;
+                  stroke-width: 1.91px;
+                }
+              </style>
+            </defs>
+            <circle class="cls-1" cx="9.14" cy="9.14" r="7.64"></circle>
+            <line class="cls-1" x1="22.5" y1="22.5" x2="14.39" y2="14.39"></line>
+          </g>
+        </svg>
+        </div>
+        <div class="grow">
+
+          <input type="text" class="p-1 w-full text-sm placeholder:text-gray-600" placeholder="What are you looking for ?">
+        </div>
+      </div>
+      <div class="p-2 grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-auto">
+        @for (item of items; track $index) {
+          <div class="flex flex-col">
+            <div>
+              <img height="100" width="100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/2ChocolateChipCookies.jpg/1200px-2ChocolateChipCookies.jpg" alt="">
+            </div>
+            <div>
+              <span class="title">{{item.TITLE}}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+    </div>
+    }
+
+
   </nav>
 
-  <div class="home-body ">
+  <div class="home-body container mx-auto">
 
     <router-outlet></router-outlet>
 

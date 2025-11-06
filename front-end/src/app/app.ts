@@ -10,4 +10,11 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('front-end');
+
+  items = new Array(5).fill({
+    TITLE: 'SDFAFADSFADS'
+
+  })
+
+  isSearchOpen = signal<boolean>(false)
 }

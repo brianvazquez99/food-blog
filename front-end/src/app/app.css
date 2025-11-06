@@ -6,3 +6,19 @@
 .home-body {
   grid-row: 2/2;
 }
+
+.search-bar {
+animation: slideDown 0.35s ease-out forwards;
+}
+
+
+@keyframes slideDown {
+0% {
+  transform: translateY(-10%);
+  opacity: 0;
+}
+100% {
+  transform: translateY(0%);
+  opacity: 1;
+}
+}
