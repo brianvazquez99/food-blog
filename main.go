@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
+	"github.com/dgraph-io/ristretto/v2"
 	"github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
 )
@@ -22,13 +24,22 @@ import (
 			DATE_UPDATED *string
 		}
 
-func main() {
-	r := gin.Default()
+		var cache *ristretto.Cache[string, *BLOG]
 
-		db, err := sql.Open("sqlite", "./blog.db")
 
-	defer db.Close()
+		func main() {
+			r := gin.Default()
 
+			db, err := sql.Open("sqlite", "./blog.db")
+
+			defer db.Close()
+
+
+			cache, err = ristretto.NewCache(&ristretto.Config[string, *BLOG]{
+				NumCounters: 10,
+				MaxCost: 1 << 27,
+				BufferItems: 64,
+			})
 
 
 
@@ -161,7 +172,12 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		slug := g.Param("slug")
 
-		cleanedSlug := strings.ReplaceAll(slug, "-", "")
+		cachedBlog, found := cache.Get(slug)
+
+		if (found) {
+					g.HTML(http.StatusOK, "blog_detail.html", cachedBlog)
+		}else {
+cleanedSlug := strings.ReplaceAll(slug, "-", "")
 
 		query := `SELECT ID, TITLE, BODY, DATE_ADDED
 				FROM BLOG_POSTS
@@ -177,12 +193,19 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		blog.BODY = template.HTML(cleaned)
 
+		cache.SetWithTTL(slug, &blog, int64(len(blog.BODY)), 10 * time.Minute)
+
+		cache.Wait()
+
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message" : "Failed to scan row"})
 			return
 		}
 
 		g.HTML(http.StatusOK, "blog_detail.html", blog)
+
+		}
+
 
 		// g.JSON(http.StatusOK, blog)
 
