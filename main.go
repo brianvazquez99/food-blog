@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
+  "github.com/gin-contrib/gzip"
 	"github.com/dgraph-io/ristretto/v2"
 	"github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
@@ -24,18 +24,20 @@ import (
 			DATE_UPDATED *string
 		}
 
-		var cache *ristretto.Cache[string, *BLOG]
+		var cache *ristretto.Cache[string, any]
 
 
 		func main() {
 			r := gin.Default()
+
+			r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 			db, err := sql.Open("sqlite", "./blog.db")
 
 			defer db.Close()
 
 
-			cache, err = ristretto.NewCache(&ristretto.Config[string, *BLOG]{
+			cache, err = ristretto.NewCache(&ristretto.Config[string, any]{
 				NumCounters: 10,
 				MaxCost: 1 << 27,
 				BufferItems: 64,
@@ -59,6 +61,7 @@ import (
         api.GET("/getBlogs", getBlogs(ctx, db))
         api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
         api.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
+        api.GET("/searchBlogs", searchBlogs(ctx, db))
     }
 
 	// r.POST("api/postBlog", uploadBlog(ctx, db))
@@ -144,6 +147,13 @@ func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		var thumbNail []byte
 
+		cachedThumbnail, found := cache.Get(id + "-thumbnail")
+
+		if (found) {
+  g.Data(http.StatusOK, "image/jpeg",  cachedThumbnail.([]byte) )
+
+		}
+
 		query := `SELECT THUMBNAIL
 				FROM BLOG_POSTS
 				WHERE ID = ?`
@@ -160,7 +170,9 @@ func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
   g.Header("Content-Type", "image/jpeg")
 	g.Header("Content-Disposition", "inline; filename=image.jpg")
 
-  g.Data(http.StatusOK, "image/jpeg", thumbNail)	}
+  g.Data(http.StatusOK, "image/jpeg", thumbNail)
+
+}
 }
 
 
@@ -279,4 +291,49 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 	}
 
+}
+
+
+func searchBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
+
+	type BLOG_SEARCH struct {
+		ID int
+		TITLE string
+	}
+
+	return func (g *gin.Context) {
+
+		var searchResults []BLOG_SEARCH
+
+		searchTerm := "%" + g.Query("search") + "%"
+
+		query := `SELECT ID, TITLE
+				from BLOG_POSTS
+				WHERE TITLE LIKE ?`
+
+		rows, err := db.Query(query, searchTerm)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch search"})
+		}
+
+		defer rows.Close()
+
+		for rows.Next() {
+			var blog BLOG_SEARCH
+
+			err := rows.Scan(&blog.ID, &blog.TITLE)
+
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to scan item after search"})
+			}
+
+			searchResults = append(searchResults, blog)
+
+	}
+
+	g.JSON(http.StatusOK, searchResults)
+
+
+	}
 }
