@@ -14,7 +14,6 @@ export class Home implements OnInit {
 
   blogService = inject(BlogService)
 
-  posts = signal<RECIPE[] | undefined>(undefined)
 
 
   ngOnInit(): void {
@@ -22,19 +21,13 @@ export class Home implements OnInit {
     this.blogService.getBlogList(true).subscribe({
         next: value => {
           console.log(value)
-          this.posts.set(value.map((el) => { return {...el, SLUG: this.getSlug(el.TITLE!)}} ))
+          this.blogService.posts.set(value.map((el) => { return {...el, SLUG: this.blogService.getSlug(el.TITLE!)}} ))
         }
       })
 
   }
 
-    getSlug(title:string):string {
 
-    const slug = title.replaceAll(" ", "-").toLowerCase();
-    console.log(slug)
-    return slug
-
-  }
 
 
 

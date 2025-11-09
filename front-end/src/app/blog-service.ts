@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RECIPE } from './types';
 
@@ -8,6 +8,9 @@ import { RECIPE } from './types';
 })
 export class BlogService {
   http = inject(HttpClient);
+
+
+  posts = signal<RECIPE[] | undefined>(undefined)
 
   getBlogList(recent: boolean = false): Observable<RECIPE[]> {
     switch (recent) {
@@ -21,7 +24,23 @@ export class BlogService {
 
 
   getBlogDetails(slug:string): Observable<string> {
-        const param = new HttpParams().set("ID", slug)
-    return this.http.get("/api/getBlogDetails/"+ slug, {params: param, responseType: 'text'})
+    return this.http.get("/api/getBlogDetails/"+ slug, {responseType: 'text'})
+  }
+
+
+  searchBlogs(search:string): Observable<any[]> {
+
+            const params = new HttpParams().set('search', search);
+
+    return this.http.get<any[]>("/api/searchBlogs", {params: params})
+  }
+
+
+      getSlug(title:string):string {
+
+    const slug = title.replaceAll(" ", "-").toLowerCase();
+    console.log(slug)
+    return slug
+
   }
 }

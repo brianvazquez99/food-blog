@@ -73,7 +73,7 @@
 
     @if (isSearchOpen()) {
 
-    <div class=" search-bar absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2" style="bottom: -206%;">
+    <div class=" search-bar absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2" [style.bottom]="searchResults() && (searchResults() && searchResults()!.length > 0) ? '-192%' : '-88%'">
       <div class="border-b p-2 gap-3 flex items-center w-full">
         <div>
           <svg width="15px" height="15px" viewBox="0 0 24 24"  xmlns="http://www.w3.org/2000/svg" fill="#000000">
@@ -95,19 +95,22 @@
         </div>
         <div class="grow">
 
-          <input type="text" class="p-1 w-full text-sm placeholder:text-gray-600" placeholder="What are you looking for ?">
+          <input [(ngModel)]="searchText"  type="text" class="p-1 w-full text-sm placeholder:text-gray-600" placeholder="What are you looking for ?">
         </div>
       </div>
       <div class="p-2 grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-auto">
-        @for (item of items; track $index) {
-          <div class="flex flex-col">
+        @for (item of searchResults(); track $index) {
+          <div (click)="isSearchOpen.set(false)" [routerLink]="['recipe', item.SLUG]" class="flex flex-col">
             <div>
-              <img height="100" width="100" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/2ChocolateChipCookies.jpg/1200px-2ChocolateChipCookies.jpg" alt="">
+          <img [src]="'/api/getThumbnail/' + item.ID" height="100" width="100" alt="thumbnail">
             </div>
             <div>
               <span class="title">{{item.TITLE}}</span>
             </div>
           </div>
+        }
+        @empty {
+          <span>No Results</span>
         }
       </div>
 
