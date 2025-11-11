@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { RECIPE } from '../../types';
 import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin',
@@ -12,7 +13,7 @@ import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
   styleUrl: './admin.css',
   standalone: true,
 })
-export class Admin {
+export class Admin implements OnInit {
 
   post = signal<RECIPE>({
     ID: null,
@@ -33,6 +34,25 @@ export class Admin {
   previewOn = signal<boolean>(false)
 
   http = inject(HttpClient)
+
+  router = inject(Router)
+
+
+  ngOnInit(): void {
+      let pass = prompt("Please enter the password")
+
+      if (pass != null || pass != '') {
+        this.http.post("/api/admin", {PASSWORD: pass}).subscribe({
+          next:value => {
+            console.log(value)
+          },
+          error: err => {
+            this.router.navigate([''])
+          }
+        })
+      }
+  }
+
 
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement

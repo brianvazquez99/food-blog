@@ -60,7 +60,6 @@ export class RecipeDetails implements OnInit {
     if (this.blogSlug()) {
     this.blogService.getBlogDetails(this.blogSlug()!).subscribe({
       next:value => {
-        console.log(value)
         this.blog.set( this.sanitizer.bypassSecurityTrustHtml(value.replace(/<p>(?:\s|&nbsp;|<br>|<span><br><\/span>)*<\/p>/g, '<p>&nbsp;</p>')))
       }
     })
