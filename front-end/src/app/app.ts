@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { BlogService } from './blog-service';
+import { SwUpdate } from '@angular/service-worker';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +25,7 @@ export class App {
   isSearchOpen = signal<boolean>(false)
 
 
+
   firstLoad:boolean = true
 
   initialSearchEffect = effect(() => {
@@ -41,6 +43,18 @@ export class App {
       this.searchBlogs()
     }
   })
+
+
+  constructor(private swUpdate: SwUpdate) {
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.versionUpdates.subscribe({
+        next:value => {
+          console.log(value)
+          console.log("hi")
+        }
+      })
+    }
+  }
 
   ngAfterContentInit(): void {
     console.log(this.blogService.posts())
