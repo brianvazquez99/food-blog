@@ -2,16 +2,20 @@ package main
 
 import (
 	"context"
+	"crypto/subtle"
 	"database/sql"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
-  "github.com/gin-contrib/gzip"
+		"github.com/didip/tollbooth/v7"
+	"github.com/didip/tollbooth/v7/limiter"
 	"github.com/dgraph-io/ristretto/v2"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
 )
@@ -56,12 +60,16 @@ import (
 		ctx := context.Background()
 
 		    api := r.Group("/api")
-    {
+
+	lmt := tollbooth.NewLimiter(5, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Minute})
+
+	{
         api.POST("/postBlog", uploadBlog(ctx, db))
         api.GET("/getBlogs", getBlogs(ctx, db))
         api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
         api.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
         api.GET("/searchBlogs", searchBlogs(ctx, db))
+        api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
     }
 
 	// r.POST("api/postBlog", uploadBlog(ctx, db))
@@ -336,4 +344,47 @@ func searchBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 
 	}
+
+
+}
+
+
+func verifyAdminPass(g *gin.Context) {
+
+		type PASS struct {
+			PASSWORD string
+		}
+
+		var pass PASS
+
+		actualPass := os.Getenv("FOOD_BLOG_ADMIN_PASS")
+		err := g.BindJSON(&pass)
+
+		if err != nil {
+			g.JSON(http.StatusBadRequest, gin.H{"message": "invalid params"})
+			return
+		}
+
+		if (subtle.ConstantTimeCompare([]byte(pass.PASSWORD), []byte(actualPass)) == 1) {
+			g.JSON(http.StatusOK, gin.H{"message": "success"})
+			return
+		}else {
+			g.JSON(http.StatusForbidden, gin.H{"message": "you do not have access!!"})
+			return
+		}
+}
+
+func LimitMiddleware(lmt *limiter.Limiter) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		httpError := tollbooth.LimitByRequest(lmt, c.Writer, c.Request)
+		if httpError != nil {
+			c.Header("Content-Type", "application/json")
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+				"message": "Too many login attempts, please try again later.",
+			})
+			return
+		}
+		c.Next()
+	}
+
 }
