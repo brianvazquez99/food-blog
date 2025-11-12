@@ -7,5 +7,6 @@ export const routes: Routes = [
   {path: 'admin', loadComponent:()=> import('./features/admin/admin').then(m => m.Admin) },
   {path: 'recipes', loadComponent:()=> import('./features/recipes/recipes').then(m => m.Recipes) },
   {path: 'recipe/:slug', loadComponent:()=> import('./features/recipes/recipe-details/recipe-details').then(m => m.RecipeDetails) },
+  {path: 'about', loadComponent:()=> import('./features/about/about').then(m => m.About) },
 
 ];
