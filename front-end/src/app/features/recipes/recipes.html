@@ -1,5 +1,6 @@
 <div class="h-full w-full flex flex-col gap-10 p-4">
-  <div class="flex items-center justify-center-safe gap-2">
+  <div class="flex flex-col">
+      <div class="flex items-center justify-center-safe gap-2">
     <div>
       <svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.031 512.031" xml:space="preserve" width="75px"
@@ -29,7 +30,38 @@
     <div>
       <span class="text-5xl text-amber-600 title "> Recipes</span>
     </div>
+
+
   </div>
+    <div class="flex flex-wrap justify-center gap-3 mt-6 px-4">
+    <button class="px-6 py-2 rounded-full bg-[#E4B52E] text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      All
+    </button>
+    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      Cookies
+    </button>
+    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      Desserts
+    </button>
+    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      Asian Desserts
+    </button>
+    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      Buns
+    </button>
+    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      Cakes
+    </button>
+    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      Savory
+    </button>
+    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      Occassions
+    </button>
+  </div>
+  </div>
+
+
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 justify-center items-start h-full w-full">
     @for (item of posts(); track $index) {

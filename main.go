@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/subtle"
 	"database/sql"
 	"html/template"
 	"io"
@@ -18,6 +17,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
+	"golang.org/x/crypto/bcrypt"
 )
 
 		type BLOG struct {
@@ -33,6 +33,7 @@ import (
 
 		func main() {
 			r := gin.Default()
+
 
 			r.Use(gzip.Gzip(gzip.DefaultCompression))
 
@@ -365,7 +366,10 @@ func verifyAdminPass(g *gin.Context) {
 			return
 		}
 
-		if (subtle.ConstantTimeCompare([]byte(pass.PASSWORD), []byte(actualPass)) == 1) {
+		err = bcrypt.CompareHashAndPassword([]byte(actualPass), []byte(pass.PASSWORD))
+
+
+		if (err == nil) {
 			g.JSON(http.StatusOK, gin.H{"message": "success"})
 			return
 		}else {
