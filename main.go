@@ -23,6 +23,7 @@ import (
 		type BLOG struct {
 			TITLE        string
 			BODY         template.HTML
+			CATEGORY 	*[]string
 			ID           int
 			DATE_ADDED   *string
 			DATE_UPDATED *string
@@ -111,14 +112,14 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		if recent != "" {
 
-				 query  = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED
+				 query  = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED, CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC
 								LIMIT 5`
 
 		}else {
 
-			 query  = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED
+			 query  = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED, CATEGORY
 								FROM BLOG_POSTS`
 		}
 
@@ -135,11 +136,18 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 		for rows.Next() {
 			var blog BLOG
 
-			err = rows.Scan(&blog.TITLE, &blog.BODY, &blog.ID, &blog.DATE_ADDED, &blog.DATE_UPDATED)
+			var categories *string
+
+			err = rows.Scan(&blog.TITLE, &blog.BODY, &blog.ID, &blog.DATE_ADDED, &blog.DATE_UPDATED, &categories)
 
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "Error scanning rows!"})
 				return
+			}
+
+			if categories != nil {
+				categoryArr := strings.Split(strings.ToUpper(*categories), ",")
+				blog.CATEGORY = &categoryArr
 			}
 
 			blogs = append(blogs, blog)
@@ -240,6 +248,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 		type BLOG_POST struct {
 			TITLE string
 			BODY  string
+			CATEGORY string
 		}
 
 		var post BLOG_POST
@@ -277,10 +286,10 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 
 
-		query := `INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL)
-	 			VALUES (?,?, date('now'), ?)`
+		query := `INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY)
+	 			VALUES (?,?, date('now'), ?, ?)`
 
-		result, err := db.Exec(query, post.TITLE, post.BODY, bytes)
+		result, err := db.Exec(query, post.TITLE, post.BODY, bytes, post.CATEGORY)
 
 		if err != nil {
 			println(err.Error())
