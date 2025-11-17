@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { AfterContentInit, AfterViewInit, Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { debounceTime } from 'rxjs';
-import { BlogService } from './blog-service';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
+import { debounceTime, filter } from 'rxjs';
+import { BlogService } from './blog-service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +13,7 @@ import { SwUpdate } from '@angular/service-worker';
   styleUrl: './app.css',
   standalone: true
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('front-end');
 
   searchResults = signal<any[] | undefined>(undefined)
@@ -23,6 +23,8 @@ export class App {
   searchText = signal<string | undefined>(undefined)
 
   isSearchOpen = signal<boolean>(false)
+
+  router = inject(Router)
 
 
 
@@ -56,9 +58,13 @@ export class App {
     }
   }
 
-  ngAfterContentInit(): void {
-    console.log(this.blogService.posts())
-      this.searchResults.set(this.blogService.posts()!)
+
+  ngOnInit(): void {
+      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe({
+        next:value => {
+          this.isSearchOpen.set(false )
+        }
+      })
   }
 
 
