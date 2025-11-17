@@ -20,7 +20,8 @@ export class Admin implements OnInit {
     TITLE: '',
     BODY: '',
     THUMBNAIL: new Blob(),
-    DATE_ADDED: ''
+    DATE_ADDED: '',
+    CATEGORY: []
   })
 
   thumbnail!: File;
@@ -37,20 +38,44 @@ export class Admin implements OnInit {
 
   router = inject(Router)
 
+  selectedCategories = signal<string[] >([])
+
+  showCategories = signal<boolean>(false)
+
 
   ngOnInit(): void {
-      let pass = prompt("Please enter the password")
+      // let pass = prompt("Please enter the password")
 
-      if (pass != null || pass != '') {
-        this.http.post("/api/admin", {PASSWORD: pass}).subscribe({
-          next:value => {
-            console.log(value)
-          },
-          error: err => {
-            this.router.navigate([''])
-          }
-        })
-      }
+      // if (pass != null || pass != '') {
+      //   this.http.post("/api/admin", {PASSWORD: pass}).subscribe({
+      //     next:value => {
+      //       console.log(value)
+      //     },
+      //     error: err => {
+      //       this.router.navigate([''])
+      //     }
+      //   })
+      // }
+  }
+
+
+  updateCategories(cat:string) {
+    console.log(this.selectedCategories())
+
+    let categories = this.selectedCategories()
+
+    if(categories.includes(cat)) {
+
+      categories.splice(categories.indexOf(cat), 1)
+
+    }
+    else {
+      categories.push(cat)
+    }
+
+    this.selectedCategories.set([...categories])
+    console.log(this.selectedCategories())
+
   }
 
 
@@ -86,6 +111,7 @@ export class Admin implements OnInit {
     formData.append('TITLE', this.post().TITLE!)
     formData.append('BODY', this.post().BODY!)
     formData.append('THUMBNAIL', this.thumbnail)
+    formData.append('CATEGORY', this.selectedCategories().join())
     this.http.post("/api/postBlog", formData).subscribe( {
       next: value => {
         console.log(value)

@@ -1,4 +1,4 @@
-<div class="h-full w-full flex flex-col gap-10 p-4">
+<div class="h-full w-full flex flex-col gap-10 p-4 container mx-auto">
   <div class="flex flex-col">
       <div class="flex items-center justify-center-safe gap-2">
     <div>
@@ -34,29 +34,29 @@
 
   </div>
     <div class="flex flex-wrap justify-center gap-3 mt-6 px-4">
-    <button class="px-6 py-2 rounded-full bg-[#E4B52E] text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+    <button (click)="updateFilter('ALL')" [class.selected]="categoryFilter().includes('ALL')" class="px-6 py-2 rounded-full bg-gray-200  hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
       All
     </button>
-    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+    <button (click)="updateFilter('COOKIES')" [class.selected]="categoryFilter().includes('COOKIES')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
       Cookies
     </button>
-    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+    <button (click)="updateFilter('DESSERTS')" [class.selected]="categoryFilter().includes('DESSERTS')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
       Desserts
     </button>
-    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+    <button (click)="updateFilter('ASIAN DESSERTS')" [class.selected]="categoryFilter().includes('ASIAN DESSERTS')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
       Asian Desserts
     </button>
-    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+    <button (click)="updateFilter('BUNS')" [class.selected]="categoryFilter().includes('BUNS')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
       Buns
     </button>
-    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+    <button (click)="updateFilter('CAKES')" [class.selected]="categoryFilter().includes('CAKES')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
       Cakes
     </button>
-    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+    <button (click)="updateFilter('SAVORY')" [class.selected]="categoryFilter().includes('SAVORY')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
       Savory
     </button>
-    <button class="px-6 py-2 rounded-full bg-gray-200 text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      Occassions
+    <button (click)="updateFilter('OCCASSIONS')" [class.selected]="categoryFilter().includes('OCCASSIONS')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+      Occasions
     </button>
   </div>
   </div>
@@ -64,7 +64,7 @@
 
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 justify-center items-start h-full w-full">
-    @for (item of posts(); track $index) {
+    @for (item of postsCopy(); track $index) {
       <div [routerLink]="['../recipe', item.SLUG]"  class="flex justify-center items-center flex-col gap-4 hover:cursor-pointer hover:shadow-lg  transition-all  rounded-lg">
         <div class="rounded-lg w-full flex justify-center">
           <img [src]="'/api/getThumbnail/' + item.ID" height="200" width="200" alt="TEST">
@@ -72,6 +72,11 @@
         <div>
           <span class="text-xl title p-4">{{item.TITLE}}</span>
         </div>
+      </div>
+    }
+    @if (!loading() && postsCopy()?.length == 0) {
+      <div class="flex justify-center p-4 md:col-span-2 lg:col-span-4">
+        <span class="text-xl">No Blogs Match the selected filter</span>
       </div>
     }
 

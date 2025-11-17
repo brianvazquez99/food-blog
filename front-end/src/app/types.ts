@@ -7,4 +7,5 @@ export type RECIPE = {
   BODY: string | null,
   DATE_ADDED: string | null
   SLUG?:string
+  CATEGORY: string[]
 }

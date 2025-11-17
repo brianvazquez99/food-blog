@@ -30,7 +30,68 @@
 
     </div>
     }
-    <div class="flex justify-end grow">
+    <div class="flex justify-end grow items-center">
+      <div (click)="showCategories.set(!showCategories())" class="flex flex-col  relative">
+        <div class=" ">
+          Category
+        </div>
+        <div class="border w-2xs border-gray-200 rounded-lg items-center gap-4 bg-white  justify-between px-4 py-2">
+          <div class="flex flex-wrap h-full gap-2">
+            @for (item of selectedCategories(); track $index) {
+              <span (click)="updateCategories(item)" class="bg-blue-500 hover:cursor-pointer text-xs text-white px-4 py-2">
+                {{item}}
+              </span>
+            }
+
+          </div>
+
+   <div>
+              <svg width="16" height="16">
+      <path d="M2 5 L8 11 L14 5" stroke="black" fill="none" />
+    </svg>
+        </div>
+        </div>
+
+        <!-- <label for="category">Category</label>
+        <select class="border border-gray-200 rounded p-2 bg-white" name="category" id="category">
+          <option ></option>
+
+        </select> -->
+
+        @if (showCategories()) {
+          <div class="absolute top-[100%] left-[-4%] bg-white z-50 rounded p-4 border border-gray-300">
+          <div (click)="updateCategories('Cookies')"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
+            <input  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Cookies')" type="checkbox" name="cookies" id="cookies">
+             <label for="cookies">Cookies</label>
+          </div>
+          <div (click)="updateCategories('Cakes')"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
+            <input  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Cakes')" type="checkbox" name="Cakes" id="Cakes">
+             <label for="Cakes">Cakes</label>
+          </div>
+          <div (click)="updateCategories('Asian Desserts')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
+            <input  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Asian Desserts')" type="checkbox" name="AsianDesserts" id="AsianDesserts">
+             <label for="AsianDesserts">Asian Desserts</label>
+          </div>
+          <div (click)="updateCategories('Bread')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
+            <input  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Bread')" type="checkbox" name="Bread" id="Bread">
+             <label for="Bread">Bread</label>
+          </div>
+          <div (click)="updateCategories('Holidays')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
+            <input  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Holidays')" type="checkbox" name="Holidays" id="Holidays">
+             <label for="Holidays">Holidays</label>
+          </div>
+          <div (click)="updateCategories('Everyday Baking')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
+            <input  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Everyday Baking')" type="checkbox" name="EverydayBaking" id="EverydayBaking">
+             <label for="EverydayBaking">Everyday Baking</label>
+          </div>
+          <div (click)="updateCategories('Gifting')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
+            <input  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Gifting')" type="checkbox" name="Gifting" id="Gifting">
+             <label for="Gifting">Gifting</label>
+          </div>
+          </div>
+        }
+
+      </div>
       <div (click)="thumbnail.click()" (change)="onFileChange($event)"
         class="me-2 p-2 relative group hover:cursor-pointer">
         <svg width="30px" height="30px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"
