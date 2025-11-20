@@ -96,8 +96,14 @@ import (
 		}
 	})
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "10000"
+	}
 
-	r.Run(":8080")
+
+ r.Run("0.0.0.0:" + port)
+
 }
 
 func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
