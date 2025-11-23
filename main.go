@@ -16,6 +16,7 @@ import (
 	"github.com/dgraph-io/ristretto/v2"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/static"
 	_ "modernc.org/sqlite"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -83,8 +84,7 @@ import (
 
 
 
-  r.StaticFS("/app", gin.Dir("front-end/dist/front-end/browser", false))
-
+r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
 
 
 
