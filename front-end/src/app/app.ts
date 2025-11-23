@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -11,7 +11,8 @@ import { BlogService } from './blog-service';
   imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css',
-  standalone: true
+  standalone: true,
+  changeDetection:ChangeDetectionStrategy.OnPush
 })
 export class App implements OnInit {
   protected readonly title = signal('front-end');
@@ -29,6 +30,8 @@ export class App implements OnInit {
 
 
   firstLoad:boolean = true
+
+  hamburgerOpen = signal<boolean>(false)
 
   initialSearchEffect = effect(() => {
     if (this.blogService.posts()) {
@@ -63,6 +66,7 @@ export class App implements OnInit {
       this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe({
         next:value => {
           this.isSearchOpen.set(false )
+          this.hamburgerOpen.set(false)
         }
       })
   }

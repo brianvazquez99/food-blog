@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { RECIPE } from '../../types';
@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
   templateUrl: './admin.html',
   styleUrl: './admin.css',
   standalone: true,
+    changeDetection:ChangeDetectionStrategy.OnPush
+
 })
 export class Admin  {
 

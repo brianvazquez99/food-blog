@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, effect, inject, input, model, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, model, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RECIPE } from '../../../types';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -9,7 +9,9 @@ import { BlogService } from '../../../blog-service';
   selector: 'app-recipe-details',
   imports: [],
   templateUrl: './recipe-details.html',
-  styleUrl: './recipe-details.css'
+  styleUrl: './recipe-details.css',
+    changeDetection:ChangeDetectionStrategy.OnPush
+
 })
 export class RecipeDetails implements OnInit {
 

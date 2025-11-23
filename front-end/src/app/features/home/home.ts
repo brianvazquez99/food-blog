@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { AfterViewInit, Component, inject, OnInit, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from "@angular/router";
 import { RECIPE } from '../../types';
 import { BlogService } from '../../blog-service';
@@ -8,7 +8,9 @@ import { BlogService } from '../../blog-service';
   selector: 'app-home',
   imports: [RouterLink],
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrl: './home.css',
+    changeDetection:ChangeDetectionStrategy.OnPush
+
 })
 export class Home implements OnInit, AfterViewInit {
 
