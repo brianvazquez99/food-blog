@@ -43,21 +43,6 @@ export class Admin implements OnInit {
   showCategories = signal<boolean>(false)
 
 
-  ngOnInit(): void {
-      let pass = prompt("Please enter the password")
-
-      if (pass != null || pass != '') {
-        this.http.post("/api/admin", {PASSWORD: pass}).subscribe({
-          next:value => {
-            console.log(value)
-          },
-          error: err => {
-            this.router.navigate([''])
-          }
-        })
-      }
-  }
-
 
   updateCategories(cat:string) {
     console.log(this.selectedCategories())
