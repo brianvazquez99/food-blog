@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   styleUrl: './admin.css',
   standalone: true,
 })
-export class Admin implements OnInit {
+export class Admin  {
 
   post = signal<RECIPE>({
     ID: null,
