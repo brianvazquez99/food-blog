@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { SwUpdate } from '@angular/service-worker';
+import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { debounceTime, filter } from 'rxjs';
 import { BlogService } from './blog-service';
 
@@ -52,12 +52,11 @@ export class App implements OnInit {
 
   constructor(private swUpdate: SwUpdate) {
     if (this.swUpdate.isEnabled) {
-      this.swUpdate.versionUpdates.subscribe({
-        next:value => {
-          console.log(value)
-          console.log("hi")
-        }
-      })
+      this.swUpdate.versionUpdates.pipe(filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY'))
+      .subscribe((evt) => {
+          // Reload the page to update to the latest version.
+          document.location.reload();
+      });
     }
   }
 
