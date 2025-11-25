@@ -7,7 +7,7 @@
 
     <div  class="lg:hidden relative">
       <!-- From Uiverse.io by ahmedyasserdev -->
-<input [(ngModel)]="hamburgerOpen" id="burger-checkbox" type="checkbox" />
+<input [(ngModel)]="hamburgerOpen" (ngModelChange)="isSearchOpen.set(false)" id="burger-checkbox" type="checkbox" />
 <label class="burger" for="burger-checkbox">
   <span></span>
   <span></span>
@@ -16,9 +16,9 @@
 
 
 @if (hamburgerOpen()) {
-<div class="absolute bottom-[-90%] right-[415%] w-full h-full ">
+<div class="absolute z-100 bottom-[-90%] right-[415%] w-full h-full ">
   <!-- Dropdown menu -->
-<div id="dropdown" class="z-100  bg-white border border-default-medium rounded-base shadow-lg w-44">
+<div id="dropdown" class="  bg-white border border-default-medium rounded-base shadow-lg w-44">
     <ul class="p-2 text-sm text-body font-medium" aria-labelledby="dropdownDefaultButton">
        <li routerLink="" routerLinkActive="text-amber-800"
         class="charcoal text-xl hover:underline transition-all hover:cursor-pointer  title">Home</li>
@@ -66,7 +66,7 @@
           </svg>
         </a>
       </li>
-      <li (click)="isSearchOpen.set(!isSearchOpen())" class="flex items-center gap-1 charcoal hover:cursor-pointer ">
+      <li (click)="isSearchOpen.set(!isSearchOpen()); hamburgerOpen.set(false)" class="flex items-center gap-1 charcoal hover:cursor-pointer ">
         <svg width="25px" height="25px" viewBox="0 0 24 24"  xmlns="http://www.w3.org/2000/svg" fill="#000000">
           <g id="SVGRepo_iconCarrier">
             <defs>

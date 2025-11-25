@@ -15,7 +15,7 @@ import { BlogService } from './blog-service';
   changeDetection:ChangeDetectionStrategy.OnPush
 })
 export class App implements OnInit {
-  protected readonly title = signal('front-end');
+  protected readonly title = signal('MailanHomeBakery');
 
   searchResults = signal<any[] | undefined>(undefined)
 
