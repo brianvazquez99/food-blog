@@ -1,5 +1,5 @@
 <div class="home-layout h-full w-full">
-  <nav style="background-color: #FAF3E3;" class="flex  justify-between  items-center relative  px-8 py-4">
+  <nav style="background-color: #FAF3E3;" class="flex border-b border-b-gray-300 justify-between  items-center relative  px-8 py-4">
 
     <div routerLink="" class="hover:cursor-pointer">
       <img src="/assets/logo.avif" height="65px" width="65px" alt="logo">
@@ -24,7 +24,7 @@
         class="charcoal text-xl hover:underline transition-all hover:cursor-pointer  title">Home</li>
       <li routerLink="about" class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">About</li>
       <li  routerLink="recipes" routerLinkActive="text-amber-800" class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Recipes</li>
-      <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li>
+      <!-- <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li> -->
       <li class="flex gap-2">
         <a href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
           <svg width="25px" height="25px" viewBox="0 0 24 24" fill="#3B2F2F" xmlns="http://www.w3.org/2000/svg">
@@ -97,7 +97,7 @@
         class="charcoal text-xl hover:underline transition-all hover:cursor-pointer  title">Home</li>
       <li routerLink="about" class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">About</li>
       <li  routerLink="recipes" routerLinkActive="text-amber-800" class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Recipes</li>
-      <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li>
+      <!-- <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li> -->
       <li class="flex gap-2">
         <a href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
           <svg width="25px" height="25px" viewBox="0 0 24 24" fill="#3B2F2F" xmlns="http://www.w3.org/2000/svg">
@@ -161,7 +161,7 @@
 
     @if (isSearchOpen()) {
 
-    <div class=" search-bar absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2" [style.bottom]="searchResults() && (searchResults() && searchResults()!.length > 0) ? '-192%' : '-88%'">
+    <div class=" search-bar rounded-lg shadow-lg absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2" [style.bottom]="searchResults() && (searchResults() && searchResults()!.length > 0) ? '-192%' : '-88%'">
       <div class="border-b p-2 gap-3 flex items-center w-full">
         <div>
           <svg width="15px" height="15px" viewBox="0 0 24 24"  xmlns="http://www.w3.org/2000/svg" fill="#000000">
