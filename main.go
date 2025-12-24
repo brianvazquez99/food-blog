@@ -49,6 +49,22 @@ import (
 				log.Fatal(err)
 			}
 
+			blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
+						ID BIGSERIAL PRIMARY KEY
+						TITLE TEXT
+						BODY TEXT
+						THUMBNAIL BYTEA
+						DATE_ADDED DATE
+						DATE_UPDATED DATE
+						CATEGORY TEXT
+							)`
+
+			_, err = db.Exec(context.Background(), blogQuery)
+
+			if err != nil {
+				panic(err)
+			}
+
 
 			r.Use(gzip.Gzip(gzip.DefaultCompression))
 
