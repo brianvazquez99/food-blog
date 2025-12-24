@@ -173,6 +173,7 @@ func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			err = rows.Scan(&blog.TITLE, &blog.BODY, &blog.ID, &blog.DATE_ADDED, &blog.DATE_UPDATED, &categories)
 
 			if err != nil {
+				log.Print(err)
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "Error scanning rows!"})
 				return
 			}
