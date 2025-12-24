@@ -144,14 +144,14 @@ func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		if recent != "" {
 
-				 query  = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED, CATEGORY
+				 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), TO_CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC
 								LIMIT 5`
 
 		}else {
 
-			 query  = `SELECT TITLE, BODY, ID, DATE_ADDED, DATE_UPDATED, CATEGORY
+			 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), TO_CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS`
 		}
 
@@ -241,7 +241,7 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		}else {
 cleanedSlug := strings.ReplaceAll(slug, "-", "")
 
-		query := `SELECT ID, TITLE, BODY, DATE_ADDED
+		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD')
 				FROM BLOG_POSTS
 				WHERE LOWER(REPLACE(TITLE, ' ', '')) = $1`
 
