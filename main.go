@@ -11,13 +11,16 @@ import (
 	"regexp"
 	"strings"
 	"time"
-		"github.com/didip/tollbooth/v7"
-	"github.com/didip/tollbooth/v7/limiter"
+
 	"github.com/dgraph-io/ristretto/v2"
+	"github.com/didip/tollbooth/v7"
+	"github.com/didip/tollbooth/v7/limiter"
 	"github.com/gin-contrib/gzip"
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/static"
-	_ "modernc.org/sqlite"
+	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -36,12 +39,22 @@ import (
 		func main() {
 			r := gin.Default()
 
+			database_url := os.Getenv("DATABASE_URL")
+
+			config, err := pgxpool.ParseConfig(database_url)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			db, err := pgxpool.NewWithConfig(context.Background(), config)
+				if err != nil {
+				log.Fatal(err)
+			}
+
 
 			r.Use(gzip.Gzip(gzip.DefaultCompression))
 
-			db, err := sql.Open("sqlite", "./blog.db")
-
-			defer db.Close()
 
 
 			cache, err = ristretto.NewCache(&ristretto.Config[string, any]{
@@ -52,7 +65,7 @@ import (
 
 
 
-	if err := db.Ping(); err != nil {
+	if err := db.Ping(context.Background()); err != nil {
 		panic(err)
 	}
 
@@ -106,7 +119,7 @@ r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", fal
 
 }
 
-func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
+func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 	return func(g *gin.Context) {
 
 		recent := g.Query("recent")
@@ -130,7 +143,7 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 		}
 
 
-		rows, err := db.Query(query)
+		rows, err := db.Query(context.Background(),query)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching blogs!"})
@@ -164,7 +177,7 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
+func getThumbnail(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 	return func (g *gin.Context) {
 		id := g.Param("id")
 
@@ -179,9 +192,9 @@ func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		query := `SELECT THUMBNAIL
 				FROM BLOG_POSTS
-				WHERE ID = ?`
+				WHERE ID = $1`
 
-		row := db.QueryRow(query, id)
+		row := db.QueryRow(context.Background(),query, id)
 
 		err := row.Scan(&thumbNail)
 
@@ -199,7 +212,7 @@ func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
 }
 
 
-func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
+func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			re := regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
 
 	return func (g *gin.Context) {
@@ -216,9 +229,9 @@ cleanedSlug := strings.ReplaceAll(slug, "-", "")
 
 		query := `SELECT ID, TITLE, BODY, DATE_ADDED
 				FROM BLOG_POSTS
-				WHERE LOWER(REPLACE(TITLE, ' ', '')) = ?`
+				WHERE LOWER(REPLACE(TITLE, ' ', '')) = $1`
 
-		row := db.QueryRow(query,cleanedSlug)
+		row := db.QueryRow(context.Background(),query,cleanedSlug)
 
 		var rawBody string;
 
@@ -248,7 +261,7 @@ cleanedSlug := strings.ReplaceAll(slug, "-", "")
 	}
 }
 
-func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
+func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 	return func(g *gin.Context) {
 		type BLOG_POST struct {
@@ -293,9 +306,11 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 
 		query := `INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY)
-	 			VALUES (?,?, date('now'), ?, ?)`
+	 			VALUES ($1,$2, NOW(), $3, $4)
+				returning ID`
 
-		result, err := db.Exec(query, post.TITLE, post.BODY, bytes, post.CATEGORY)
+		var id int
+		err = db.QueryRow(context.Background(),query, post.TITLE, post.BODY, bytes, post.CATEGORY).Scan(&id)
 
 		if err != nil {
 			println(err.Error())
@@ -303,7 +318,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		id, err := result.LastInsertId()
+
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
@@ -318,7 +333,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 }
 
 
-func searchBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
+func searchBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 	type BLOG_SEARCH struct {
 		ID int
@@ -333,9 +348,9 @@ func searchBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		query := `SELECT ID, TITLE
 				from BLOG_POSTS
-				WHERE TITLE LIKE ?`
+				WHERE TITLE LIKE $1`
 
-		rows, err := db.Query(query, searchTerm)
+		rows, err := db.Query(context.Background(),query, searchTerm)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch search"})

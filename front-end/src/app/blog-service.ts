@@ -12,6 +12,8 @@ export class BlogService {
 
   posts = signal<RECIPE[] | undefined>(undefined)
 
+  isLoading = signal<boolean>(false)
+
   getBlogList(recent: boolean = false): Observable<RECIPE[]> {
     switch (recent) {
       case true:
