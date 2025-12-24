@@ -1,3 +1,4 @@
+import { BlogService } from './../../blog-service';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -19,21 +20,25 @@ export class Recipes implements OnInit {
   posts = signal<RECIPE[] | undefined>(undefined)
   postsCopy = signal<RECIPE[] | undefined>(undefined)
   loading = signal<boolean>(false)
+  blogservice = inject(BlogService)
 
 
   categoryFilter = signal<string[]>(['ALL'])
 
     ngOnInit(): void {
       this.loading.set(true)
-      this.http.get<RECIPE[]>("/api/getBlogs").subscribe( {
-        next: value => {
-          console.log(value)
-          this.posts.set(value.map((el) => { return {...el, SLUG: this.getSlug(el.TITLE!) }} ))
+      this.blogservice.getBlogList().subscribe({
+        next:value => {
+           this.posts.set(value.map((el) => { return {...el, SLUG: this.getSlug(el.TITLE!) }} ))
           this.postsCopy.set(structuredClone(this.posts()))
             this.loading.set(false)
-
+        },
+           error: value => {
+          console.error(value)
+          this.blogservice.isLoading.set(false)
         }
       })
+
   }
 
 

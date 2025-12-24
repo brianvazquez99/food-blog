@@ -12,7 +12,7 @@ import { BlogService } from '../../blog-service';
     changeDetection:ChangeDetectionStrategy.OnPush
 
 })
-export class Home implements OnInit, AfterViewInit {
+export class Home implements OnInit {
 
   blogService = inject(BlogService)
 
@@ -20,26 +20,19 @@ export class Home implements OnInit, AfterViewInit {
 
 
 
-    ngAfterViewInit() {
-    // If the Instagram embed script hasn’t been added, add it
-    if (!document.querySelector('script[src="//www.instagram.com/embed.js"]')) {
-      const script = document.createElement('script');
-      script.src = "//www.instagram.com/embed.js";
-      script.async = true;
-      script.onload = () => this.instgrm?.Embeds?.process();
-      document.body.appendChild(script);
-    } else {
-      // If it already exists, just process embeds again
-      this.instgrm?.Embeds?.process();
-    }
-  }
 
   ngOnInit(): void {
 
+    this.blogService.isLoading.set(true)
     this.blogService.getBlogList(true).subscribe({
         next: value => {
+          this.blogService.isLoading.set(false)
           console.log(value)
           this.blogService.posts.set(value.map((el) => { return {...el, SLUG: this.blogService.getSlug(el.TITLE!)}} ))
+        },
+        error: value => {
+          console.error(value)
+          this.blogService.isLoading.set(false)
         }
       })
 
