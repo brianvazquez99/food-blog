@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { QuillModule } from 'ngx-quill';
+import { BlogService } from '../../blog-service';
 import { RECIPE } from '../../types';
 import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin',
@@ -26,6 +27,8 @@ export class Admin  {
     CATEGORY: []
   })
 
+
+  showToast = signal<boolean>(false)
   thumbnail!: File;
 
   imgSrc = signal<any>(null)
@@ -39,6 +42,8 @@ export class Admin  {
   http = inject(HttpClient)
 
   router = inject(Router)
+
+  blogService = inject(BlogService)
 
   selectedCategories = signal<string[] >([])
 
@@ -99,9 +104,11 @@ export class Admin  {
     formData.append('BODY', this.post().BODY!)
     formData.append('THUMBNAIL', this.thumbnail)
     formData.append('CATEGORY', this.selectedCategories().join())
+
     this.http.post("/api/postBlog", formData).subscribe( {
       next: value => {
-        console.log(value)
+        this.showToast.set(true)
+        this.router.navigate(['recipie', this.blogService.getSlug(this.post().TITLE!)])
       },
       error: err => {
         console.log(err)
