@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"html/template"
 	"io"
 	"log"
@@ -18,9 +17,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	_ "github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
 
