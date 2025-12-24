@@ -22,7 +22,7 @@
   </div>
   <div class="flex flex-wrap gap-10 justify-center">
     @for (item of blogService.posts(); track $index) {
-      <div [routerLink]="['recipe', item.SLUG]" class="flex flex-col hover:cursor-pointer hover:shadow-lg transition-all h-full  rounded-lg">
+      <div [routerLink]="['recipe', item.SLUG]" class="flex items-center p-2 flex-col hover:cursor-pointer hover:shadow-lg transition-all h-full  rounded-lg">
         <div class="rounded-lg">
           <img [src]="'/api/getThumbnail/' + item.ID" height="200" width="200" alt="thumbnail">
         </div>
