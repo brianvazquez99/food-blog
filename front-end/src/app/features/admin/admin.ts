@@ -108,7 +108,10 @@ export class Admin  {
     this.http.post("/api/postBlog", formData).subscribe( {
       next: value => {
         this.showToast.set(true)
-        this.router.navigate(['recipe', this.blogService.getSlug(this.post().TITLE!)])
+        setTimeout(() => {
+
+          this.router.navigate(['recipe', this.blogService.getSlug(this.post().TITLE!)])
+        }, 3000);
       },
       error: err => {
         console.log(err)
