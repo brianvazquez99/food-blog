@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 
 export const adminGuard: CanActivateFn = (route, state) => {
 
@@ -9,17 +10,16 @@ export const adminGuard: CanActivateFn = (route, state) => {
 
         let pass = prompt("Please enter the password")
 
-      if (pass != null || pass != '') {
-        http.post("/api/admin", {PASSWORD: pass}).subscribe({
-          next:value => {
-            return true;
-          },
-          error: err => {
-            return router.createUrlTree([''])
-            // return false
-          }
-        })
-      }
+        if (!pass) {
+          return router.createUrlTree([''])
+        }
 
-            return router.createUrlTree([''])
+
+        return http.post("/api/admin", {PASSWORD: pass}).pipe(map(value => {return true}),
+      catchError((err => {
+        return of(router.createUrlTree(['']))
+      })))
+
+
+
 };
