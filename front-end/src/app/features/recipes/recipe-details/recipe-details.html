@@ -1,15 +1,33 @@
 <div class="px-30 py-5 h-full w-full m-auto  flex gap-10 flex-col">
 
   @if (blog()) {
+  <div class="flex gap-2 justify-center">
+    <button class="hover:cursor-pointer rounded-lg bg-[#E4B52E]  font-semibold">
+      <a href="#recipe" class=" flex gap-1 items-center text-[#6E3E6F] title  p-2">Jump To Recipe <svg fill="#6E3E6F" xmlns="http://www.w3.org/2000/svg"
+          width="15px" height="15px" viewBox="0 0 52 52" enable-background="new 0 0 52 52" xml:space="preserve">
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+          <g id="SVGRepo_iconCarrier">
+            <g>
+              <path
+                d="M40.6,30.4L27.1,44c-0.6,0.6-1.6,0.6-2.2,0L11.4,30.4c-0.6-0.6-0.6-1.6,0-2.2l2.2-2.2 c0.6-0.6,1.6-0.6,2.2,0l9.1,9.4c0.6,0.6,1.6,0.6,2.2,0l9.1-9.3c0.6-0.6,1.6-0.6,2.2,0l2.2,2.2C41.1,28.9,41.1,29.8,40.6,30.4z">
+              </path>
+              <path
+                d="M40.6,12.3L27.1,26.1c-0.6,0.6-1.6,0.6-2.2,0L11.4,12.3c-0.6-0.6-0.6-1.6,0-2.2l2.2-2.2 c0.6-0.6,1.6-0.6,2.2,0l9.1,9.4c0.6,0.6,1.6,0.6,2.2,0L36.2,8c0.6-0.6,1.6-0.6,2.2,0l2.2,2.2C41.1,10.8,41.1,11.8,40.6,12.3z">
+              </path>
+            </g>
+          </g>
+        </svg></a>
+    </button>
+  </div>
 
 
+  <div [innerHTML]="blog()">
 
- <div  [innerHTML]="blog()">
-
- </div>
+  </div>
   }
   @defer (when previewRecipe()) {
-      <span class="text-4xl text-center title">{{previewRecipe()!.TITLE}}</span>
+  <span class="text-4xl text-center title">{{previewRecipe()!.TITLE}}</span>
 
   <div class="blog-body whitespace-pre-wrap blog-body" [innerHTML]="previewRecipe()!.BODY">
 
