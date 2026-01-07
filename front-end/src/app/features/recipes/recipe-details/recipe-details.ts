@@ -58,6 +58,13 @@ export class RecipeDetails implements OnInit {
   }
 
 
+  jumpToRecipe() {
+
+    document.getElementById('recipe')?.scrollIntoView({
+      behavior:'smooth'
+    })
+  }
+
   getData() {
     if (this.blogSlug()) {
     this.blogService.getBlogDetails(this.blogSlug()!).subscribe({
