@@ -200,18 +200,18 @@ this.quill.insertEmbed(range.index, 'recipe', htmlLines, 'user');
     formData.append('THUMBNAIL', this.thumbnail)
     formData.append('CATEGORY', this.selectedCategories().join())
 
-    // this.http.post("/api/postBlog", formData).subscribe( {
-    //   next: value => {
-    //     this.showToast.set(true)
-    //     setTimeout(() => {
+    this.http.post("/api/postBlog", formData).subscribe( {
+      next: value => {
+        this.showToast.set(true)
+        setTimeout(() => {
 
-    //       this.router.navigate(['recipe', this.blogService.getSlug(this.post().TITLE!)])
-    //     }, 3000);
-    //   },
-    //   error: err => {
-    //     console.log(err)
-    //   }
-    // })
+          this.router.navigate(['recipe', this.blogService.getSlug(this.post().TITLE!)])
+        }, 3000);
+      },
+      error: err => {
+        console.log(err)
+      }
+    })
   }
 
 }
