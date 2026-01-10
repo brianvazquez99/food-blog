@@ -31,3 +31,10 @@
   font-family: Arial, sans-serif;
   font-size: 14px;
 }
+
+
+dialog {
+  position: static;
+  left: 40%;
+  top: 25%;
+}

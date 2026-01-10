@@ -1,3 +1,33 @@
+
+<dialog #addCat >
+  <div class="bg-white px-2" (click)="$event.stopPropagation()">
+    <div class="border-b border-b-gray-300 p-2 flex justify-between">
+      <span class="text-lg title">
+        Add Category
+      </span>
+      <span (click)="addCat.close()" class="text-lg hover:cursor-pointer">
+        X
+      </span>
+    </div>
+    <div class="py-3 flex flex-col gap-1">
+      <label for="newCat">Category</label>
+      <input type="text" class="px-2 border border-gray-300 rounded" name="newcat" id="newcat">
+
+    </div>
+    <div class="border-t border-t-gray-300 flex gap-2 py-2 items-center  justify-end">
+      <button class="px-2 py-1 rounded bg-red-400">
+        Cancel
+
+      </button>
+      <button class="px-2 py-1 rounded bg-green-400">
+        Save
+      </button>
+    </div>
+
+  </div>
+
+</dialog>
+
 <div class="flex flex-col p-4 relative">
 
   @if (showToast()) {
@@ -55,8 +85,13 @@
         <div class=" ">
           Category
         </div>
-        <div class="border w-2xs border-gray-200 rounded-lg items-center gap-4 bg-white  justify-between px-4 py-2">
-          <div class="flex flex-wrap h-full gap-2">
+        <div class="border flex w-2xs border-gray-200 rounded-lg items-center gap-4 bg-white  justify-between px-4 py-2">
+             <div>
+              <svg width="16" height="16">
+      <path d="M2 5 L8 11 L14 5" stroke="black" fill="none" />
+    </svg>
+        </div>
+          <div class="flex grow justify-start flex-wrap h-full gap-2">
             @for (item of selectedCategories(); track $index) {
               <span (click)="updateCategories(item)" class="bg-blue-500 hover:cursor-pointer text-xs text-white px-4 py-2">
                 {{item}}
@@ -65,11 +100,12 @@
 
           </div>
 
-   <div>
-              <svg width="16" height="16">
-      <path d="M2 5 L8 11 L14 5" stroke="black" fill="none" />
-    </svg>
-        </div>
+
+
+
+      <div (click)="$event.stopPropagation(); openAddCat()" class="bg-green-400 text-white flex items-center hover:cursor-pointer font-semibold px-2 py-1">
+            +
+          </div>
         </div>
 
         <!-- <label for="category">Category</label>
@@ -79,28 +115,14 @@
         </select> -->
 
         @if (showCategories()) {
-          <div class="absolute top-[100%] left-[-4%] bg-white z-50 rounded p-4 border border-gray-300">
-          <div (click)="$event.stopPropagation(); updateCategories('Cookies')"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-             <label for="cookies">Cookies</label>
-          </div>
-          <div (click)="$event.stopPropagation();updateCategories('Cakes')"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-             <label for="Cakes">Cakes</label>
-          </div>
-          <div (click)="$event.stopPropagation();updateCategories('Asian Desserts')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-             <label for="AsianDesserts">Asian Desserts</label>
-          </div>
-          <div (click)="$event.stopPropagation();updateCategories('Bread')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-             <label for="Bread">Bread</label>
-          </div>
-          <div (click)="$event.stopPropagation();updateCategories('Holidays')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-             <label for="Holidays">Holidays</label>
-          </div>
-          <div (click)="$event.stopPropagation();updateCategories('Everyday Baking')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-             <label for="EverydayBaking">Everyday Baking</label>
-          </div>
-          <div (click)="$event.stopPropagation();updateCategories('Gifting')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-             <label for="Gifting">Gifting</label>
-          </div>
+          <div class="absolute top-[100%] w-full bg-white z-50 rounded p-4 border border-gray-300">
+            @for (cat of categories; track $index) {
+              <div (click)="$event.stopPropagation(); updateCategories(cat)"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
+                 <label for="cookies">{{cat}}</label>
+              </div>
+
+            }
+
           </div>
         }
 
@@ -136,7 +158,7 @@
               class="absolute left-1/2 -translate-x-1/2 bottom-full h-0 w-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-black">
             </div>
           </div>
-          <input #thumbnail style="display: none;" type="file" name="thumbnail" id="thumbnail">
+          <input #thumbnail style="display: none;" type="file" accept="image/*" name="thumbnail" id="thumbnail">
         </div>
 
         <div (click)="previewOn.set(!previewOn())" class="me-2 p-2 relative group hover:cursor-pointer">

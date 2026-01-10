@@ -15,8 +15,11 @@ import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { BlogService } from '../../blog-service';
 import { RECIPE } from '../../types';
 import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
+import {toSignal} from '@angular/core/rxjs-interop'
 
 import './quill-recipe-blot';
+import { catchError, of } from 'rxjs';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-admin',
@@ -108,7 +111,19 @@ export class Admin implements OnInit {
     },
   };
 
+  addCat = viewChild<ElementRef<HTMLDialogElement>>('addCat')
   editor = viewChild<ElementRef<QuillEditorComponent>>('editor');
+
+  // categories = toSignal(this.http.get<string[]>("/api/getCategories").pipe(
+  //   catchError((err) => {
+  //     console.error(err)
+  //     return of([])
+  //   })
+  // ), {initialValue: []})
+
+  categories = Array(5).fill("test")
+
+  sanitizer = inject(DomSanitizer)
 
   quill: any;
 
@@ -116,6 +131,9 @@ export class Admin implements OnInit {
     const closeCat = () => {
       if (this.showCategories()) {
         this.showCategories.set(false);
+      }
+      if(this.addCat() && this.addCat()?.nativeElement.open) {
+        this.addCat()?.nativeElement.close()
       }
     };
     document.addEventListener('click', closeCat);
@@ -164,13 +182,10 @@ export class Admin implements OnInit {
     this.thumbnail = input.files![0];
 
     if (this.thumbnail) {
-      const reader = new FileReader();
 
-      reader.readAsDataURL(this.thumbnail);
+      const blobUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(this.thumbnail))
 
-      reader.onload = () => {
-        this.imgSrc.set(reader.result);
-      };
+      this.imgSrc.set(blobUrl)
     }
   }
 
@@ -199,5 +214,10 @@ export class Admin implements OnInit {
         console.log(err);
       },
     });
+  }
+
+
+  openAddCat() {
+    this.addCat()?.nativeElement.showModal()
   }
 }
