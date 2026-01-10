@@ -95,6 +95,7 @@ import (
 	{
         api.POST("/postBlog", uploadBlog(ctx, db))
         api.GET("/getBlogs", getBlogs(ctx, db))
+        api.GET("/getCategories", getCategories(ctx, db))
         api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
         api.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
         api.GET("/searchBlogs", searchBlogs(ctx, db))
@@ -132,6 +133,45 @@ r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", fal
 
 }
 
+
+func getCategories(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
+	return func (g *gin.Context) {
+
+		var categories []string
+		query := `SELECT DISTINCT CATEGORY
+				FROM BLOG_POSTS`
+
+		rows, err := db.Query(context.Background(), query)
+
+			if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching categories!"})
+			return
+		}
+
+		defer rows.Close()
+
+		for rows.Next() {
+			var category string
+
+			err := rows.Scan(&category)
+
+					if err != nil {
+				log.Print(err)
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "Error scanning rows!"})
+				return
+			}
+
+			categories = append(categories, category)
+		}
+
+
+
+		 g.JSON(http.StatusOK, categories)
+
+
+
+	}
+}
 func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 	return func(g *gin.Context) {
 
