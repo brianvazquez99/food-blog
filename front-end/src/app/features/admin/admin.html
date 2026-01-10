@@ -51,7 +51,7 @@
     </div>
     }
     <div class="flex flex-col gap-2 justify-end grow items-center">
-      <div (click)="showCategories.set(!showCategories())" class="flex flex-col  relative">
+      <div (click)="$event.stopPropagation(); this.showCategories.set(!this.showCategories())" class="flex flex-col  relative">
         <div class=" ">
           Category
         </div>
