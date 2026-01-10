@@ -80,32 +80,25 @@
 
         @if (showCategories()) {
           <div class="absolute top-[100%] left-[-4%] bg-white z-50 rounded p-4 border border-gray-300">
-          <div (click)="updateCategories('Cookies')"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-            <input (click)="updateCategories('Cookies')"  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Cookies')" type="checkbox" name="cookies" id="cookies">
+          <div (click)="$event.stopPropagation(); updateCategories('Cookies')"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
              <label for="cookies">Cookies</label>
           </div>
-          <div (click)="updateCategories('Cakes')"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-            <input (click)="updateCategories('Cakes')"  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Cakes')" type="checkbox" name="Cakes" id="Cakes">
+          <div (click)="$event.stopPropagation();updateCategories('Cakes')"  class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
              <label for="Cakes">Cakes</label>
           </div>
-          <div (click)="updateCategories('Asian Desserts')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-            <input  (click)="updateCategories('Asian Desserts')"  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Asian Desserts')" type="checkbox" name="AsianDesserts" id="AsianDesserts">
+          <div (click)="$event.stopPropagation();updateCategories('Asian Desserts')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
              <label for="AsianDesserts">Asian Desserts</label>
           </div>
-          <div (click)="updateCategories('Bread')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-            <input  (click)="updateCategories('Bread')"  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Bread')" type="checkbox" name="Bread" id="Bread">
+          <div (click)="$event.stopPropagation();updateCategories('Bread')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
              <label for="Bread">Bread</label>
           </div>
-          <div (click)="updateCategories('Holidays')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-            <input (click)="updateCategories('Holidays')"   (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Holidays')" type="checkbox" name="Holidays" id="Holidays">
+          <div (click)="$event.stopPropagation();updateCategories('Holidays')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
              <label for="Holidays">Holidays</label>
           </div>
-          <div (click)="updateCategories('Everyday Baking')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-            <input (click)="updateCategories('Everyday Baking')"  (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Everyday Baking')" type="checkbox" name="EverydayBaking" id="EverydayBaking">
+          <div (click)="$event.stopPropagation();updateCategories('Everyday Baking')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
              <label for="EverydayBaking">Everyday Baking</label>
           </div>
-          <div (click)="updateCategories('Gifting')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
-            <input (click)="updateCategories('Gifting')" (click)="$event.stopPropagation()" [checked]="selectedCategories().includes('Gifting')" type="checkbox" name="Gifting" id="Gifting">
+          <div (click)="$event.stopPropagation();updateCategories('Gifting')" class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2" >
              <label for="Gifting">Gifting</label>
           </div>
           </div>
