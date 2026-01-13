@@ -14,16 +14,21 @@ import { Router } from '@angular/router';
 import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { BlogService } from '../../blog-service';
 import { RECIPE } from '../../types';
-import { RecipeDetails } from '../recipes/recipe-details/recipe-details';
-import {toSignal} from '@angular/core/rxjs-interop'
 
-import './quill-recipe-blot';
-import { catchError, of } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
+import './quill-recipe-blot';
+import { sign } from 'crypto';
+
+
+type INGREDIENT = {
+  NAME:string | null;
+  AMOUNT: number| null;
+  UNIT: string| null;
+}
 
 @Component({
   selector: 'app-admin',
-  imports: [QuillModule, FormsModule, RecipeDetails],
+  imports: [QuillModule, FormsModule],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
   standalone: true,
@@ -113,6 +118,7 @@ export class Admin implements OnInit {
 
   addCat = viewChild<ElementRef<HTMLDialogElement>>('addCat')
   editor = viewChild<ElementRef<QuillEditorComponent>>('editor');
+  loading = signal<boolean>(false)
 
   // categories = toSignal(this.http.get<string[]>("/api/getCategories").pipe(
   //   catchError((err) => {
@@ -127,7 +133,18 @@ export class Admin implements OnInit {
 
   quill: any;
 
+  newCat = signal<string | undefined>(undefined)
+
+  newIngredient = signal<INGREDIENT>({
+    NAME: null,
+    AMOUNT: null,
+    UNIT: null
+  })
+
+  ingredients = signal<INGREDIENT[]>([])
+
   ngOnInit(): void {
+
     const closeCat = () => {
       if (this.showCategories()) {
         this.showCategories.set(false);
@@ -141,6 +158,34 @@ export class Admin implements OnInit {
     this.destroy.onDestroy(() => {
       document.removeEventListener('click', closeCat);
     });
+  }
+
+
+  addCategory() {
+    if(this.newCat()) {
+      this.categories.push(this.newCat( ))
+      this.selectedCategories.set([...this.selectedCategories(), this.newCat()!])
+      this.addCat()?.nativeElement.close()
+      this.newCat.set('')
+    }
+  }
+
+  addIngredient() {
+    if(this.newIngredient().AMOUNT == null || this.newIngredient().NAME == null || this.newIngredient().UNIT == null ) {
+      return
+    }
+    this.ingredients.set([...this.ingredients(), this.newIngredient()])
+    this.newIngredient.set({
+      NAME: null,
+      AMOUNT: null,
+      UNIT: null
+    })
+  }
+
+  removeIngredient(index:number) {
+    const ingredients = this.ingredients()
+    ingredients.splice(index, 1)
+    this.ingredients.set([...ingredients])
   }
 
   // use this to change button title
@@ -202,16 +247,18 @@ export class Admin implements OnInit {
     formData.append('BODY', this.post().BODY!);
     formData.append('THUMBNAIL', this.thumbnail);
     formData.append('CATEGORY', this.selectedCategories().join());
-
+    this.loading.set(true)
     this.http.post('/api/postBlog', formData).subscribe({
       next: (value) => {
         this.showToast.set(true);
+        this.loading.set(false)
         setTimeout(() => {
           this.router.navigate(['recipe', this.blogService.getSlug(this.post().TITLE!)]);
         }, 3000);
       },
       error: (err) => {
         console.log(err);
+        this.loading.set(false)
       },
     });
   }
