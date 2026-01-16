@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"html/template"
 	"io"
 	"log"
@@ -54,12 +55,40 @@ import (
 						TITLE TEXT,
 						BODY TEXT,
 						THUMBNAIL BYTEA,
+						SERVINGS TEXT,
+						PREP TIME TEXT,
+						COOK TIME TEXT,
 						DATE_ADDED DATE,
 						DATE_UPDATED DATE,
 						CATEGORY TEXT
 							)`
 
 			_, err = db.Exec(context.Background(), blogQuery)
+
+			if err != nil {
+				panic(err)
+			}
+
+						recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
+						BLOG_ID BIGSERIAL REFERENCES BLOG_POSTS(ID),
+						NAME TEXT,
+						AMOUNT NUMERIC,
+						UNIT TEXT
+							)`
+
+			_, err = db.Exec(context.Background(), recipeQuery)
+
+			if err != nil {
+				panic(err)
+			}
+
+			instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
+						BLOG_ID BIGSERIAL REFERENCESBLOG_POSTS(ID),
+						ORDER NUMERIC,
+						CONTENT TEXT
+							)`
+
+			_, err = db.Exec(context.Background(), instructionsQuery)
 
 			if err != nil {
 				panic(err)
@@ -270,7 +299,29 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			re := regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
 
 	return func (g *gin.Context) {
-		var blog BLOG
+				type INGREDIENT struct {
+			NAME string
+			AMOUNT int64
+			UNIT string
+		}
+		type INSTRUCTION struct {
+			ORDER int64
+			CONTENT string
+		}
+
+		type BLOG_POST struct {
+			TITLE string
+			ID int64
+			BODY  template.HTML
+			DATE_ADDED string
+			CATEGORY string
+			INGREDIENTS []INGREDIENT
+			INSTRCTIONS []INSTRUCTION
+		}
+
+		var blog BLOG_POST
+		var ingredients []INGREDIENT
+		var instructions []INSTRUCTION
 
 		slug := g.Param("slug")
 
@@ -279,7 +330,7 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		if (found) {
 					g.HTML(http.StatusOK, "blog_detail.html", cachedBlog)
 		}else {
-cleanedSlug := strings.ReplaceAll(slug, "-", "")
+		cleanedSlug := strings.ReplaceAll(slug, "-", "")
 
 		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD')
 				FROM BLOG_POSTS
@@ -291,9 +342,65 @@ cleanedSlug := strings.ReplaceAll(slug, "-", "")
 
 		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED)
 
+		ingredientsQuery := `SELECT I.NAME, I.AMOUNT,I.UNIT
+									FROM BLOG_INGREDIENTS I
+									where I.BLOG_ID = $1`
+
+		ingredientRows, err := db.Query(context.Background(),ingredientsQuery, blog.ID)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
+			log.Print(err)
+			return
+		}
+
+		defer ingredientRows.Close()
+		for ingredientRows.Next() {
+			var ingredient INGREDIENT
+			err := ingredientRows.Scan(&ingredient.NAME,&ingredient.AMOUNT,&ingredient.UNIT)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan ingredient"})
+			log.Print(err)
+			return
+		}
+
+		ingredients = append(ingredients, ingredient)
+		}
+
+		instructionsQuery := `SELECT "ORDER", CONTENT
+							FROM BLOG_INSTRUCTIONS
+							WHERE BLOG_ID = $1`
+
+
+		instructionRows, err := db.Query(context.Background(),instructionsQuery, blog.ID)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
+			log.Print(err)
+			return
+		}
+
+		defer instructionRows.Close()
+		for instructionRows.Next() {
+			var instruction INSTRUCTION
+			err := instructionRows.Scan(&instruction.ORDER, &instruction.CONTENT)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan instruction"})
+			log.Print(err)
+			return
+		}
+
+		instructions = append(instructions, instruction)
+		}
+
 		cleaned := re.ReplaceAllString(rawBody, "")
 
 		blog.BODY = template.HTML(cleaned)
+
+		blog.INGREDIENTS = ingredients
+		blog.INSTRCTIONS = instructions
 
 		cache.SetWithTTL(slug, &blog, int64(len(blog.BODY)), 10 * time.Minute)
 
@@ -318,15 +425,45 @@ cleanedSlug := strings.ReplaceAll(slug, "-", "")
 func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 	return func(g *gin.Context) {
+
+		type INGREDIENT struct {
+			NAME string
+			AMOUNT int64
+			UNIT string
+		}
+		type INSTRUCTION struct {
+			ORDER int64
+			CONTENT string
+		}
+
+		type BLOG_POST_FORM struct {
+			TITLE string
+			BODY  string
+			CATEGORY string
+			INGREDIENTS string
+			INSTRCTIONS string
+		}
 		type BLOG_POST struct {
 			TITLE string
 			BODY  string
 			CATEGORY string
+			INGREDIENTS []INGREDIENT
+			INSTRCTIONS []INSTRUCTION
 		}
 
+		var postForm BLOG_POST_FORM
 		var post BLOG_POST
 
-		err := g.ShouldBind(&post)
+		err := g.ShouldBind(&postForm)
+
+		post = BLOG_POST{
+			TITLE: postForm.TITLE,
+			BODY: postForm.BODY,
+			CATEGORY: postForm.CATEGORY,
+		}
+
+		json.Unmarshal([]byte(postForm.INGREDIENTS, ), &post.INGREDIENTS)
+		json.Unmarshal([]byte(postForm.INSTRCTIONS, ), &post.INSTRCTIONS)
 
 		if err != nil {
 			g.JSON(http.StatusBadRequest, gin.H{"message": "Incorrect format to post blog!"})
@@ -359,18 +496,14 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 
 
-		query := `INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY)
+		query := `
+				INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY)
 	 			VALUES ($1,$2, NOW(), $3, $4)
-				returning ID`
+				returning ID
+		`
 
 		var id int
 		err = db.QueryRow(context.Background(),query, post.TITLE, post.BODY, bytes, post.CATEGORY).Scan(&id)
-
-		if err != nil {
-			println(err.Error())
-			g.JSON(http.StatusInternalServerError, gin.H{"message": err})
-			return
-		}
 
 
 
@@ -378,6 +511,31 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
 			return
 
+		}
+
+		recipeQuery := `INSERT INTO BLOG_INGREDIENTS (BLOG_ID, NAME, AMOUNT, UNIT)
+						VALUES (ID,$1, $2, $3)`
+
+		for _, r := range post.INGREDIENTS {
+
+			_, err := db.Exec(context.Background(), recipeQuery, r.NAME, r.AMOUNT, r.UNIT )
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert recipes"})
+				return
+
+		}
+
+		}
+
+		instructionQuery := `INSERT INTO BLOG_INSTRUCTIONS (BLOG_ID, ORDER, CONTENT)
+						VALUES(ID, $1, $1)`
+
+		for _, instruction := range post.INSTRCTIONS {
+			_, err := db.Exec(context.Background(), instructionQuery, instruction.ORDER, instruction.CONTENT)
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert instruction"})
+				return
+			}
 		}
 
 		g.JSON(http.StatusOK, gin.H{"ID": id})
