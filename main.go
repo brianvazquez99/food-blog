@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"regexp"
@@ -19,6 +20,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+
 	// "github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 	_ "modernc.org/sqlite"
@@ -37,7 +39,11 @@ import (
 
 
 		func main() {
+				mime.AddExtensionType(".wasm", "application/wasm",)
+			mime.AddExtensionType(".js", "text/javascript")
 			r := gin.Default()
+
+
 
 			// database_url := os.Getenv("DATABASE_URL")
 
@@ -181,17 +187,21 @@ import (
 
 
 
-r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
+	r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
 
 
 
-	r.NoRoute(func(g *gin.Context) {
-		if !strings.HasPrefix(g.Request.URL.Path, "/api/") {
-			g.File("front-end\\dist\\front-end\\browser\\index.html")
-		} else {
-			g.JSON(http.StatusNotFound, gin.H{"message": "No Content"})
-		}
-	})
+		r.NoRoute(func(g *gin.Context) {
+			if !strings.HasPrefix(g.Request.URL.Path, "/api/") {
+				g.File("front-end\\dist\\front-end\\browser\\index.html")
+			} else if strings.Contains(g.Request.URL.Path, ".") {
+				g.Status(404)
+				return
+			}else {
+				g.JSON(http.StatusNotFound, gin.H{"message": "No Content"})
+			}
+
+		})
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -258,7 +268,7 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 				 query  = `SELECT TITLE, BODY, ID, CHAR(DATE_ADDED, 'YYYY-MM-DD'), CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC
-								LIMIT 5`
+								LIMIT 3`
 
 		}else {
 
@@ -355,6 +365,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 		type BLOG_POST struct {
 			TITLE string
 			ID int64
+			SLUG string
 			BODY  template.HTML
 			DATE_ADDED string
 			CATEGORY string
@@ -374,6 +385,8 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 					g.HTML(http.StatusOK, "blog_detail.html", cachedBlog)
 		}else {
 		cleanedSlug := strings.ReplaceAll(slug, "-", "")
+
+		blog.SLUG = slug
 
 		query := `SELECT ID, TITLE, BODY, CHAR(DATE_ADDED, 'YYYY-MM-DD')
 				FROM BLOG_POSTS
@@ -603,6 +616,7 @@ func searchBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 	type BLOG_SEARCH struct {
 		ID int
 		TITLE string
+		SLUG string
 	}
 
 	return func (g *gin.Context) {
@@ -631,6 +645,8 @@ func searchBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to scan item after search"})
 			}
+
+			blog.SLUG = strings.ReplaceAll(blog.TITLE, " ", "-")
 
 			searchResults = append(searchResults, blog)
 
