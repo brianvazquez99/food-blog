@@ -168,8 +168,8 @@
 
     @if (isSearchOpen()) {
 
-    <div class=" search-bar rounded-lg shadow-lg absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2"
-      [style.bottom]="searchResults() && (searchResults() && searchResults()!.length > 0) ? '-192%' : '-88%'">
+    <div class=" search-bar z-50 rounded-lg shadow-lg absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2"
+      [style.bottom]="searchResults() && (searchResults() && searchResults()!.length > 0) ? '-135%' : '-88%'">
       <div class="border-b p-2 gap-3 flex items-center w-full">
         <div>
           <svg width="15px" height="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
@@ -197,7 +197,7 @@
       </div>
       <div class="p-2 grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-auto">
         @for (item of searchResults(); track $index) {
-        <div (click)="isSearchOpen.set(false)" [routerLink]="['recipe', item.SLUG]"
+        <a (click)="isSearchOpen.set(false)" [href]="'/api/getBlogDetails/'+ item.SLUG"
           class="flex hover:cursor-pointer flex-col">
           <div>
             <img [src]="'/api/getThumbnail/' + item.ID" height="100" width="100" alt="thumbnail">
@@ -205,7 +205,7 @@
           <div>
             <span class="title">{{item.TITLE}}</span>
           </div>
-        </div>
+        </a>
         }
         @empty {
         <span>No Results</span>

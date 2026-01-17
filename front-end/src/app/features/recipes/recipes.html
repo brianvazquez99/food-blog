@@ -65,14 +65,14 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 justify-center items-start h-full w-full">
     @for (item of postsCopy(); track $index) {
-      <div [routerLink]="['../recipe', item.SLUG]"  class="flex justify-center items-center flex-col gap-4 hover:cursor-pointer hover:shadow-lg  transition-all  rounded-lg">
+      <a target="_self" rel="noreferrer" [href]="'/api/getBlogDetails/'+ item.SLUG"  class="flex justify-center items-center flex-col gap-4 hover:cursor-pointer  transition-all  rounded-lg">
         <div class="rounded-lg w-full flex justify-center">
           <img [src]="'/api/getThumbnail/' + item.ID" height="200" width="200" alt="TEST">
         </div>
         <div>
           <span class="text-xl title p-4">{{item.TITLE}}</span>
         </div>
-      </div>
+      </a>
     }
     @if (!loading() && postsCopy()?.length == 0) {
       <div class="flex justify-center p-4 md:col-span-2 lg:col-span-4">
