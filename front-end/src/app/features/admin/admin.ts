@@ -25,6 +25,10 @@ type INGREDIENT = {
   AMOUNT: number| null;
   UNIT: string| null;
 }
+type INSTRUCTION = {
+  ORDER: number,
+  CONTENT:string
+}
 
 @Component({
   selector: 'app-admin',
@@ -134,6 +138,7 @@ export class Admin implements OnInit {
   quill: any;
 
   newCat = signal<string | undefined>(undefined)
+  newInstruction = signal<string | undefined>(undefined)
 
   newIngredient = signal<INGREDIENT>({
     NAME: null,
@@ -142,6 +147,7 @@ export class Admin implements OnInit {
   })
 
   ingredients = signal<INGREDIENT[]>([])
+  instructions = signal<INSTRUCTION[]>([])
 
   ngOnInit(): void {
 
@@ -172,6 +178,7 @@ export class Admin implements OnInit {
 
   addIngredient() {
     if(this.newIngredient().AMOUNT == null || this.newIngredient().NAME == null || this.newIngredient().UNIT == null ) {
+      console.log(this.newIngredient())
       return
     }
     this.ingredients.set([...this.ingredients(), this.newIngredient()])
@@ -186,6 +193,29 @@ export class Admin implements OnInit {
     const ingredients = this.ingredients()
     ingredients.splice(index, 1)
     this.ingredients.set([...ingredients])
+  }
+
+  addInstruction() {
+    if(!this.newInstruction()) return
+
+    const instruction: INSTRUCTION = {
+      ORDER: this.instructions().length + 1,
+      CONTENT: this.newInstruction()!
+    }
+
+    this.instructions.set([...this.instructions(), instruction])
+    this.newInstruction.set(undefined)
+  }
+
+  removeInstruction(index:number) {
+    const instructions = this.instructions()
+    instructions.splice(index, 1)
+    for (let index = 0; index < instructions.length; index++) {
+      const element = instructions[index]
+      element.ORDER = index + 1;
+    }
+    console.log(instructions)
+    this.instructions.set([...instructions])
   }
 
   // use this to change button title
@@ -247,6 +277,8 @@ export class Admin implements OnInit {
     formData.append('BODY', this.post().BODY!);
     formData.append('THUMBNAIL', this.thumbnail);
     formData.append('CATEGORY', this.selectedCategories().join());
+    formData.append('INGREDIENTS', JSON.stringify(this.ingredients()));
+    formData.append('INSTRUCTIONS', JSON.stringify(this.instructions()));
     this.loading.set(true)
     this.http.post('/api/postBlog', formData).subscribe({
       next: (value) => {

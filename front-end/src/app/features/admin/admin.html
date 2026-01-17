@@ -371,7 +371,15 @@
               <div class="my-2 h-full px-4 w-full">
                 <ul class="w-full p-2 list-disc">
                   @for (ingredient of ingredients(); track $index) {
-                    <li>{{ingredient.AMOUNT}} {{ingredient.UNIT}} of {{ingredient.NAME}}</li>
+                    <li>
+
+                        <div class="flex justify-between items-center">
+                     {{ingredient.AMOUNT}} {{ingredient.UNIT}} of {{ingredient.NAME}}
+                      <button (click)="removeIngredient($index)" class="bg-red-600 font-semibold px-4 py-2 rounded">
+                        X
+                      </button>
+                      </div>
+                    </li>
                   }
                   @empty {
                     <div class="text-gray-400 text-center w-full">No Ingredients Added Yet</div>
@@ -379,6 +387,31 @@
                 </ul>
 
               </div>
+            </div>
+            <div class="w-full">
+              <span class="text-lg">Cooking Instructions</span>
+              <div class="flex gap-2">
+                <textarea [(ngModel)]="newInstruction" name="instr" id="instr" class="bg-gray-200 px-2 w-full"></textarea>
+                <button (click)="addInstruction()" class="bg-black px-2 text-white font-semibold">
+                  +
+                </button>
+              </div>
+              <div class="my-2 h-full px-4 w-full">
+  <ol class="list-decimal">
+                @for (instruction of instructions(); track $index) {
+                  <li class="my-2" >
+                    <div class="flex justify-between items-center">
+                      {{instruction.CONTENT}}
+                      <button (click)="removeInstruction($index)" class="bg-red-600 font-semibold px-4 py-2 rounded">
+                        X
+                      </button>
+                    </div>
+
+                </li>
+                }
+              </ol>
+              </div>
+
             </div>
           </div>
 
