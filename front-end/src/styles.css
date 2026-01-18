@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import '../node_modules/quill/dist/quill.snow.css';
-@import url('https://fonts.googleapis.com/css2?family=Averia+Serif+Libre:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 
 body, html{
   height: 100%;
@@ -11,47 +10,103 @@ body, html{
 
 }
 
+.search-bar {
+animation: slideDown 0.35s ease-out forwards;
+}
+
+
+@keyframes slideDown {
+0% {
+  transform: translateY(-10%);
+  opacity: 0;
+}
+100% {
+  transform: translateY(0%);
+  opacity: 1;
+}
+}
+
+
+/* From Uiverse.io by ahmedyasserdev */
+.burger {
+  display: inline-block;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.burger span {
+  display: block;
+  width: 30px;
+  height: 3px;
+  background: #333;
+  margin: 6px 0;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+    opacity 0.3s ease;
+}
+
+#burger-checkbox {
+  display: none;
+}
+
+#burger-checkbox:checked + .burger span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+#burger-checkbox:checked + .burger span:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+#burger-checkbox:checked + .burger span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+
+.resultsContainer {
+  view-transition-name: resultsContainer;
+}
+
 .charcoal {
   color: #3B2F2F;
 }
 
 .title  {
-    font-family: "Averia Serif Libre", serif;
+  font-family: "Fuzzy Bubbles", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
-.averia-serif-libre-light {
-  font-family: "Averia Serif Libre", serif;
+.fuzzy-bubbles-light {
+  font-family: "Fuzzy Bubbles", sans-serif;
   font-weight: 300;
   font-style: normal;
 }
 
-.averia-serif-libre-regular {
-  font-family: "Averia Serif Libre", serif;
+.fuzzy-bubbles-regular {
+  font-family: "Fuzzy Bubbles", sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
-.averia-serif-libre-bold {
-  font-family: "Averia Serif Libre", serif;
+.fuzzy-bubbles-bold {
+  font-family: "Fuzzy Bubbles", sans-serif;
   font-weight: 700;
   font-style: normal;
 }
 
-.averia-serif-libre-light-italic {
-  font-family: "Averia Serif Libre", serif;
+.fuzzy-bubbles-light-italic {
+  font-family: "Fuzzy Bubbles", sans-serif;
   font-weight: 300;
   font-style: italic;
 }
 
-.averia-serif-libre-regular-italic {
-  font-family: "Averia Serif Libre", serif;
+.fuzzy-bubbles-regular-italic {
+  font-family: "Fuzzy Bubbles", sans-serif;
   font-weight: 400;
   font-style: italic;
 }
 
-.averia-serif-libre-bold-italic {
-  font-family: "Averia Serif Libre", serif;
+.fuzzy-bubbles-bold-italic {
+  font-family: "Fuzzy Bubbles", sans-serif;
   font-weight: 700;
   font-style: italic;
 }
@@ -164,5 +219,5 @@ body, html{
 
 
 /* .title {
-  font-family: 'Merriweather', serif;
+  font-family: 'Merriweather', sans-serif;
 } */
