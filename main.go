@@ -174,6 +174,7 @@ import (
         api.GET("/getCategories", getCategories(ctx, db))
         api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
         api.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
+        api.GET("/getAbout", getAbout)
         api.GET("/searchBlogs", searchBlogs(ctx, db))
         api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
     }
@@ -366,6 +367,9 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 			TITLE string
 			ID int64
 			SLUG string
+			SERVINGS string
+			PREP_TIME string
+			COOK_TIME string
 			BODY  template.HTML
 			DATE_ADDED string
 			CATEGORY string
@@ -388,7 +392,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		blog.SLUG = slug
 
-		query := `SELECT ID, TITLE, BODY, CHAR(DATE_ADDED, 'YYYY-MM-DD')
+		query := `SELECT ID, TITLE, BODY, CHAR(DATE_ADDED, 'YYYY-MM-DD'), SERVINGS, PREP_TIME, COOK_TIME
 				FROM BLOG_POSTS
 				WHERE LOWER(REPLACE(TITLE, ' ', '')) = ?`
 
@@ -396,7 +400,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		var rawBody string;
 
-		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED)
+		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME)
 
 		ingredientsQuery := `SELECT I.NAME, I.AMOUNT,I.UNIT
 									FROM BLOG_INGREDIENTS I
@@ -424,6 +428,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 		ingredients = append(ingredients, ingredient)
 		}
 
+		
 		instructionsQuery := `SELECT INSTRUCTION_ORDER, CONTENT
 							FROM BLOG_INSTRUCTIONS
 							WHERE BLOG_ID = ?`
@@ -478,6 +483,10 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 	}
 }
 
+func getAbout(g *gin.Context) {
+	g.HTML(http.StatusOK, "about.html", nil)
+}
+
 func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 	return func(g *gin.Context) {
@@ -495,6 +504,9 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 		type BLOG_POST_FORM struct {
 			TITLE string
 			BODY  string
+			SERVINGS  string
+			PREP_TIME  string
+			COOK_TIME  string
 			CATEGORY string
 			INGREDIENTS string
 			INSTRCTIONS string
@@ -502,6 +514,9 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 		type BLOG_POST struct {
 			TITLE string
 			BODY  string
+			SERVINGS  string
+			PREP_TIME  string
+			COOK_TIME  string
 			CATEGORY string
 			INGREDIENTS []INGREDIENT
 			INSTRCTIONS []INSTRUCTION
@@ -516,6 +531,9 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 			TITLE: postForm.TITLE,
 			BODY: postForm.BODY,
 			CATEGORY: postForm.CATEGORY,
+			SERVINGS: postForm.SERVINGS,
+			PREP_TIME: postForm.PREP_TIME,
+			COOK_TIME: postForm.COOK_TIME,
 		}
 
 		json.Unmarshal([]byte(postForm.INGREDIENTS, ), &post.INGREDIENTS)
@@ -553,13 +571,13 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 
 		query := `
-				INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY)
-	 			VALUES (?,?, CURRENT_TIMESTAMP, ?, ?)
+				INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY, SERVINGS, PREP_TIME, COOK_TIME)
+	 			VALUES (?,?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
 		`
 
 		// var id int
 		// err = db.QueryRow(query, post.TITLE, post.BODY, bytes, post.CATEGORY).Scan(&id)
-		res, err := db.Exec(query, post.TITLE, post.BODY, bytes, post.CATEGORY)
+		res, err := db.Exec(query, post.TITLE, post.BODY, bytes, post.CATEGORY,  post.SERVINGS,  post.PREP_TIME ,post.COOK_TIME)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})

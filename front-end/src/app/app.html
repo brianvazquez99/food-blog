@@ -24,8 +24,11 @@
           <ul class="p-2 text-sm text-body font-medium" aria-labelledby="dropdownDefaultButton">
             <li routerLink="" routerLinkActive="text-amber-800"
               class="charcoal text-xl hover:underline transition-all hover:cursor-pointer  title">Home</li>
-            <li routerLink="about" class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
-              About</li>
+            <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
+              <a target="_self" href="/api/getAbout">
+              About
+              </a>
+              </li>
             <li routerLink="recipes" routerLinkActive="text-amber-800"
               class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Recipes</li>
             <!-- <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li> -->
@@ -100,7 +103,10 @@
     <ul class="hidden  lg:flex lg:justify-between lg:w-1/2 lg:title lg:items-center lg:me-6">
       <li routerLink="" routerLinkActive="text-amber-800"
         class="charcoal text-xl hover:underline transition-all hover:cursor-pointer  title">Home</li>
-      <li routerLink="about" class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">About
+      <li  class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
+        <a target="_self" href="/api/getAbout">
+              About
+              </a>
       </li>
       <li routerLink="recipes" routerLinkActive="text-amber-800"
         class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Recipes</li>
