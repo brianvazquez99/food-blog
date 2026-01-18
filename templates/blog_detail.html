@@ -1,52 +1,40 @@
 {{ define "blog_detail.html" }}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <!-- BASIC DOCUMENT META -->
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- PRIMARY SEO -->
   <title>{{ .TITLE }} | Mailan Home Bakery</title>
 
   <meta name="robots" content="index, follow">
 
-  <!-- CANONICAL URL -->
   <link rel="canonical" href="https://mailan-home-bakery.onrender.com/{{ .SLUG }}">
 
-    <link rel="icon" type="image/x-icon" href=" http://localhost:8080/assets/logo.png">
+  <link rel="icon" type="image/x-icon" href=" http://localhost:8080/assets/logo.png">
 
-  <!-- OPEN GRAPH (FACEBOOK, LINK PREVIEWS) -->
   <meta property="og:type" content="article">
   <meta property="og:title" content="{{ .TITLE }}">
   <meta property="og:image" content="https://mailan-home-bakery.onrender.com/api/getThumbnail/{{ .ID }}">
   <meta property="og:url" content="https://mailan-home-bakery.onrender.com/{{ .SLUG }}">
   <meta property="og:site_name" content="My Blog">
 
-  <!-- TWITTER CARD -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{{ .TITLE }}">
   <meta name="twitter:image" content="https://mailan-home-bakery.onrender.com/api/getThumbnail/{{ .ID }}">
 
-  <!-- ARTICLE STRUCTURED DATA -->
   <meta property="article:published_time" content="{{ .DATE_ADDED }}">
 
-  <!-- STYLES -->
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #ffffff;
       color: #111;
     }
 
-    #blog-container {
-      max-width: 720px;
-      margin: 40px auto;
-      padding: 0 16px;
-    }
+
 
     #title {
       text-align: center;
@@ -63,108 +51,128 @@
       margin-bottom: 24px;
     }
 
-    #thumbnail img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 6px;
-    }
+
 
     #body {
       white-space: normal;
-    word-break: break-word;
-    overflow-wrap: anywhere;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      margin: 2px 30% 2px 30%
+    }
+
+    @media screen and (max-width:768px) {
+      #body {
+        margin: 0;
+      }
     }
   </style>
 </head>
 
-  <link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap" rel="stylesheet">
 
 
 
-  <script>
 
-    function debounce(func, timeout = 300) {
-      let timer;
-      console.log('in debounce', func)
-      return (...args) => {
-        clearTimeout(timer)
-        timer =  setTimeout(() =>{func.apply(this, args)}, timeout);
-      }
+<script>
+
+  function debounce(func, timeout = 300) {
+    let timer;
+    console.log('in debounce', func)
+    return (...args) => {
+      clearTimeout(timer)
+      timer = setTimeout(() => { func.apply(this, args) }, timeout);
     }
+  }
 
-    function openSearch(){
-      const container = document.getElementById("searchContainer")
-      console.log(container)
-      if (container){
-        const isHidden = container.classList.contains('hidden')
-        isHidden ? container.classList.remove('hidden') : container.classList.add('hidden')
+  function openSearch() {
+    openHamburger()
+    const container = document.getElementById("searchContainer")
+    console.log(container)
+    if (container) {
+      const isHidden = container.classList.contains('hidden')
+      isHidden ? container.classList.remove('hidden') : container.classList.add('hidden')
     }
 
   }
 
 
-    function onSearch(event) {
-      console.log(event)
-     fetchSearchData(event)
+  function onSearch(event) {
+    console.log(event)
+    fetchSearchData(event)
 
-    }
+  }
 
-    const debouncedFetch = debounce((searchString) => {
-  fetch(
-    "/api/searchBlogs?" +
-    new URLSearchParams({ search: searchString }).toString()
-  ).then(value => {
-    return value.json();
-  }).then(data => {
-    if(data && data.length > 0) {
-      const parent = document.getElementById("resultsContainer")
-      if(parent) {
-        parent.replaceChildren()
-        data.forEach(element => {
-          const mainElement = document.createElement("a")
-          mainElement.href = '/api/getBlogDetails/' + element.SLUG
-          mainElement.classList.add("flex")
-          mainElement.classList.add("flex-col")
-          mainElement.classList.add("items-center")
+  const debouncedFetch = debounce((searchString) => {
+    fetch(
+      "/api/searchBlogs?" +
+      new URLSearchParams({ search: searchString }).toString()
+    ).then(value => {
 
-          const img = document.createElement("img")
-          img.src = '/api/getThumbnail/' + element.ID
-          img.height = 100
-          img.width = 100
-          img.alt = element.TITLE
-          mainElement.appendChild(img)
+      return value.json();
 
-          const span = document.createElement("span")
-          span.classList.add("title")
-          span.innerHTML = element.TITLE
-          mainElement.appendChild(span)
+    }).then(data => {
 
-          parent.appendChild(mainElement)
+      if (data && data.length > 0) {
+        const parent = document.getElementById("resultsContainer")
+        if (parent) {
+          parent.replaceChildren()
+          data.forEach(element => {
+            const mainElement = document.createElement("a")
+            mainElement.href = '/api/getBlogDetails/' + element.SLUG
+            mainElement.classList.add("flex")
+            mainElement.classList.add("flex-col")
+            mainElement.classList.add("items-center")
 
-        });
+            const img = document.createElement("img")
+            img.src = '/api/getThumbnail/' + element.ID
+            img.height = 100
+            img.width = 100
+            img.alt = element.TITLE
+            mainElement.appendChild(img)
+
+            const span = document.createElement("span")
+            span.classList.add("title")
+            span.innerHTML = element.TITLE
+            mainElement.appendChild(span)
+
+            parent.appendChild(mainElement)
+
+          });
+        }
       }
-    }
-    console.log(data)
-  });
-}, 300);
+    });
+  }, 300);
 
-    function fetchSearchData(searchString) {
-      console.log(searchString)
-      if(searchString == '') return
-     debouncedFetch(searchString)
+  function fetchSearchData(searchString) {
+    console.log(searchString)
+    if (searchString == '') return
+    debouncedFetch(searchString)
 
-    }
+  }
 
-    function jumpToRecipe() {
-     document.getElementById('recipe')?.scrollIntoView({
-      behavior:'smooth'
+  function jumpToRecipe() {
+    document.getElementById('recipe')?.scrollIntoView({
+      behavior: 'smooth'
     })
-    }
+  }
 
-  </script>
+  function openHamburger() {
+    const hamburger = document.getElementById("hamburger")
+    if (!hamburger) return
+
+    if (hamburger.classList.contains('hidden')) {
+      hamburger.classList.remove('hidden')
+    }
+    else {
+      hamburger.classList.add('hidden')
+    }
+  }
+
+</script>
 
 <body>
-    <nav style="background-color: #FAF3E3;"
+  <nav style="background-color: #FAF3E3;"
     class="flex border-b border-b-gray-300 justify-between  items-center relative  px-8 py-4">
 
     <div routerLink="" class="hover:cursor-pointer">
@@ -173,8 +181,7 @@
 
     <div class="lg:hidden relative">
       <!-- From Uiverse.io by ahmedyasserdev -->
-      <input [(ngModel)]="hamburgerOpen" (ngModelChange)="isSearchOpen.set(false)" id="burger-checkbox"
-        type="checkbox" />
+      <input oninput="openHamburger()" id="burger-checkbox" type="checkbox" />
       <label class="burger" for="burger-checkbox">
         <span></span>
         <span></span>
@@ -182,8 +189,7 @@
       </label>
 
 
-      @if (hamburgerOpen()) {
-      <div class="absolute z-100 bottom-[-90%] right-[415%] w-full h-full ">
+      <div id="hamburger" class="hidden absolute z-100 bottom-[-90%] right-[415%] w-full h-full ">
         <!-- Dropdown menu -->
         <div id="dropdown" class="  bg-white border border-default-medium rounded-base shadow-lg w-44">
           <ul class="p-2 text-sm text-body font-medium" aria-labelledby="dropdownDefaultButton">
@@ -195,7 +201,7 @@
               class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Recipes</li>
             <!-- <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li> -->
             <li class="flex gap-2">
-              <a  href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
+              <a href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
                 <svg width="25px" height="25px" viewBox="0 0 24 24" fill="#3B2F2F" xmlns="http://www.w3.org/2000/svg">
                   <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                   <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -235,8 +241,7 @@
                 </svg>
               </a>
             </li>
-            <li (click)="isSearchOpen.set(!isSearchOpen()); hamburgerOpen.set(false)"
-              class="flex items-center gap-1 charcoal hover:cursor-pointer ">
+            <li onclick="openSearch()" class="flex items-center gap-1 charcoal hover:cursor-pointer ">
               <svg width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
                 <g id="SVGRepo_iconCarrier">
                   <defs>
@@ -258,12 +263,11 @@
         </div>
       </div>
 
-      }
 
     </div>
 
     <ul class="hidden  lg:flex lg:justify-between lg:w-1/2 lg:title lg:items-center lg:me-6">
-      <li  routerLinkActive="text-amber-800"
+      <li routerLinkActive="text-amber-800"
         class="charcoal text-xl hover:underline transition-all hover:cursor-pointer  title">
         <a href="http://localhost:8080/">
 
@@ -276,7 +280,7 @@
           About
         </a>
       </li>
-      <li  routerLinkActive="text-amber-800"
+      <li routerLinkActive="text-amber-800"
         class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
         <a href="http://localhost:8080/recipes">
 
@@ -325,7 +329,7 @@
           </svg>
         </a>
       </li>
-            <li onclick="openSearch()"  class="flex items-center gap-1 charcoal hover:cursor-pointer ">
+      <li onclick="openSearch()" class="flex items-center gap-1 charcoal hover:cursor-pointer ">
         <svg width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
           <g id="SVGRepo_iconCarrier">
             <defs>
@@ -346,7 +350,8 @@
 
     </ul>
 
-      <div id="searchContainer" class=" hidden search-bar z-50 top-[100%] rounded-lg shadow-lg absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2">
+    <div id="searchContainer"
+      class=" hidden search-bar z-50 top-[100%] rounded-lg shadow-lg absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2">
       <div class="border-b p-2 gap-3 flex items-center w-full">
         <div>
           <svg width="15px" height="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
@@ -372,8 +377,8 @@
             placeholder="What are you looking for ?">
         </div>
       </div>
-      <div id="resultsContainer" class="p-2 grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-auto">
-        hiiiiiiii
+      <div id="resultsContainer"
+        class="p-2 resultsContainer grid reci gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-auto">
 
       </div>
 
@@ -382,50 +387,171 @@
 
 
   </nav>
-  <main id="blog-container">
+  <main class="container mx-auto">
     <article itemscope itemtype="https://schema.org/Article">
-      <h1 id="title" itemprop="headline">{{ .TITLE }}</h1>
+      <div id="thumbnail">
+        <img src="/api/getThumbnail/{{ .ID }}" alt="{{ .TITLE }} thumbnail" itemprop="image" height="200px"
+          width="500px">
+      </div>
+      <h1 id="title" class="title" itemprop="headline">{{ .TITLE }}</h1>
+      <div class="flex py-4 gap-5 justify-center items-center">
+        <div class="flex flex-col items-center gap-1">
+          <svg fill="#000000" width="25px" height="25px" viewBox="0 -0.5 122.88 122.88" version="1.1" id="Layer_1"
+            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            style="enable-background:new 0 0 122.88 121.87" xml:space="preserve">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <g>
+                <path
+                  d="M97.34,0.74c0.86-0.93,2.3-0.99,3.23-0.13c0.93,0.86,0.99,2.3,0.13,3.23L81.98,24.1l-0.03,0.04 c-2.29,2.77-3.86,5.33-4.56,7.67c-0.62,2.07-0.53,3.95,0.39,5.59c0.49,0.88,0.33,1.96-0.32,2.67l0,0l-8.89,9.62 c-0.87-0.95-1.56-1.72-2.02-2.22c-0.21-0.28-0.45-0.55-0.7-0.81l-0.02,0.02c-0.12-0.13-0.25-0.25-0.38-0.37l7.6-8.23 c-0.89-2.38-0.88-4.91-0.06-7.6c0.88-2.92,2.75-6.03,5.44-9.27c0.06-0.08,0.11-0.16,0.18-0.23L97.32,0.72L97.34,0.74L97.34,0.74z M57.13,55.01c-0.84-0.94-0.76-2.39,0.18-3.23c0.94-0.84,2.39-0.76,3.23,0.18c9.41,10.54,38.5,41.73,46.56,53.39 c10.63,15.05-5.83,19.79-11.29,14.31c-13.64-13.19-42.6-46.82-55.33-61.08c-4.58,1.94-9.03,2.24-13.5,0.96 c-4.81-1.37-9.52-4.58-14.3-9.51l-0.06-0.06c-3.64-3.84-6.49-7.63-8.55-11.38c-2.11-3.86-3.4-7.68-3.86-11.47 c-0.49-4.08-0.11-7.88,0.99-11.25c1.29-3.96,3.58-7.31,6.58-9.8c3.02-2.5,6.73-4.12,10.87-4.62c3.44-0.41,7.19-0.06,11.07,1.21 c5.37,1.75,11.63,6.1,16.82,11.68c3.83,4.11,7.11,8.92,9.06,13.87c2.03,5.16,2.65,10.5,1.02,15.5c-0.96,2.96-2.7,5.74-5.4,8.25 c-0.93,0.86-2.37,0.8-3.23-0.12c-0.86-0.93-0.8-2.37,0.12-3.23c2.09-1.95,3.43-4.08,4.16-6.33c1.26-3.87,0.73-8.16-0.93-12.38 c-1.74-4.42-4.69-8.74-8.15-12.45c-4.68-5.02-10.23-8.91-14.91-10.44c-3.21-1.04-6.28-1.34-9.09-1c-3.26,0.4-6.18,1.65-8.51,3.6 c-2.34,1.95-4.13,4.58-5.16,7.71c-0.89,2.73-1.2,5.87-0.79,9.26c0.39,3.2,1.5,6.47,3.32,9.81c1.91,3.43,4.53,6.9,7.9,10.45 l0.02,0.03c4.22,4.35,8.27,7.15,12.28,8.29c3.79,1.08,7.65,0.66,11.68-1.35c0.92-0.53,2.11-0.35,2.84,0.47 c12.42,13.91,42.63,48.92,56.01,61.89c5.81,2.37,9.03-0.55,6.25-5.7C100.7,102.43,63.5,62.17,57.13,55.01L57.13,55.01L57.13,55.01z M45.07,75.12l-29.16,31.55c-0.06,0.06-0.11,0.12-0.18,0.18c-4.26,4.6,3.28,11.3,7.96,6.82l28.32-30.65l3.04,3.45l-28.1,30.41l0,0 c-0.06,0.07-0.12,0.13-0.2,0.2c-1.68,1.41-3.37,2.33-5.08,2.71c-1.76,0.4-3.49,0.22-5.15-0.56c-0.28-0.11-0.54-0.25-0.77-0.46 l-4.03-3.73l0,0c-0.06-0.06-0.12-0.11-0.18-0.18c-1.56-1.8-2.3-3.72-2.1-5.75c0.19-1.92,1.21-3.79,3.14-5.59l29.44-31.86 L45.07,75.12L45.07,75.12z M75.63,57.46l1.73-1.87c0.86-0.93,2.31-0.99,3.23-0.13s0.99,2.3,0.13,3.23l-2,2.16L75.63,57.46 L75.63,57.46z M104.45,7.43c0.86-0.93,2.3-0.99,3.23-0.13c0.93,0.86,0.99,2.3,0.13,3.23L91.4,28.3c-0.86,0.93-2.3,0.99-3.23,0.13 c-0.93-0.86-0.99-2.3-0.13-3.23L104.45,7.43L104.45,7.43L104.45,7.43z M111.55,14c0.86-0.93,2.3-0.99,3.23-0.13 c0.93,0.86,0.99,2.3,0.13,3.23L98.51,34.86c-0.86,0.93-2.3,0.99-3.23,0.13c-0.93-0.86-0.99-2.3-0.13-3.23L111.55,14L111.55,14 L111.55,14z M118.91,20.83c0.86-0.93,2.3-0.99,3.23-0.13c0.93,0.86,0.99,2.31,0.13,3.23L103.55,44.2c-0.07,0.07-0.14,0.13-0.21,0.2 c-4.26,4.1-8.33,6.47-12.22,7.14c-4.22,0.73-8.09-0.47-11.64-3.57c-0.95-0.83-1.04-2.28-0.22-3.22c0.83-0.95,2.28-1.04,3.22-0.22 c2.45,2.14,5.07,2.98,7.84,2.49c2.98-0.51,6.26-2.48,9.84-5.93l0.02-0.02l18.71-20.25L118.91,20.83L118.91,20.83z">
+                </path>
+              </g>
+            </g>
+          </svg>
+
+          <span class="title text-gray-300">Servings</span>
+          <span class="text-gray-300">{{ .SERVINGS }}</span>
+        </div>
+
+        <div class="flex flex-col items-center gap-1">
+          <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12ZM11.8284 6.75736C12.3807 6.75736 12.8284 7.20507 12.8284 7.75736V12.7245L16.3553 14.0653C16.8716 14.2615 17.131 14.8391 16.9347 15.3553C16.7385 15.8716 16.1609 16.131 15.6447 15.9347L11.4731 14.349C11.085 14.2014 10.8284 13.8294 10.8284 13.4142V7.75736C10.8284 7.20507 11.2761 6.75736 11.8284 6.75736Z"
+                fill="#0F1729"></path>
+            </g>
+          </svg>
+          <span class="title text-gray-300">Prep Time</span>
+          <span class="text-gray-300">{{ .PREP_TIME }}</span>
+
+        </div>
+        <div class="flex flex-col items-center gap-1">
+          <svg version="1.1" id="Uploaded to svgrepo.com" xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink" width="25px" height="25px" viewBox="0 0 32 32"
+            xml:space="preserve" fill="#000000">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <style type="text/css">
+                .feather_een {
+                  fill: #0B1719;
+                }
+              </style>
+              <path class="feather_een"
+                d="M30,12l-1.328-1.106C25.613,8.344,21.929,6.655,18.001,6l0-1c0-0.552-0.448-1-1-1H15 c-0.552,0-1,0.448-1,1l0,1c-3.929,0.655-7.612,2.344-10.672,4.894L2,12c-0.552,0-1,0.448-1,1v1c0,0.552,0.448,1,1,1l1.609,10.456 C3.834,26.92,5.093,28,6.574,28h18.853c1.481,0,2.74-1.08,2.965-2.544L30,15c0.552,0,1-0.448,1-1v-1C31,12.448,30.552,12,30,12z M3.968,11.662c2.92-2.434,6.446-4.05,10.197-4.676L15,6.847V5h2l0.001,1.847l0.835,0.139c3.75,0.625,7.276,2.242,10.196,4.675 L28.438,12H3.562L3.968,11.662z M30,14h-0.858l-1.739,11.304C27.253,26.28,26.413,27,25.426,27H6.574 c-0.987,0-1.827-0.72-1.977-1.696L2.858,14H2v-1h28V14z">
+              </path>
+            </g>
+          </svg>
+          <span class="title text-gray-300">Cook Time</span>
+          <span class="text-gray-300">{{ .COOK_TIME }}</span>
+
+        </div>
+      </div>
 
 
       <div onclick="jumpToRecipe()" class="flex justify-center my-2">
-            <button class="hover:cursor-pointer rounded-lg bg-[#E4B52E]  font-semibold">
-      <div class=" flex gap-1 items-center text-[#6E3E6F] title  p-2">Jump To Recipe <svg fill="#6E3E6F" xmlns="http://www.w3.org/2000/svg"
-          width="15px" height="15px" viewBox="0 0 52 52" enable-background="new 0 0 52 52" xml:space="preserve">
-          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-          <g id="SVGRepo_iconCarrier">
-            <g>
-              <path
-                d="M40.6,30.4L27.1,44c-0.6,0.6-1.6,0.6-2.2,0L11.4,30.4c-0.6-0.6-0.6-1.6,0-2.2l2.2-2.2 c0.6-0.6,1.6-0.6,2.2,0l9.1,9.4c0.6,0.6,1.6,0.6,2.2,0l9.1-9.3c0.6-0.6,1.6-0.6,2.2,0l2.2,2.2C41.1,28.9,41.1,29.8,40.6,30.4z">
-              </path>
-              <path
-                d="M40.6,12.3L27.1,26.1c-0.6,0.6-1.6,0.6-2.2,0L11.4,12.3c-0.6-0.6-0.6-1.6,0-2.2l2.2-2.2 c0.6-0.6,1.6-0.6,2.2,0l9.1,9.4c0.6,0.6,1.6,0.6,2.2,0L36.2,8c0.6-0.6,1.6-0.6,2.2,0l2.2,2.2C41.1,10.8,41.1,11.8,40.6,12.3z">
-              </path>
-            </g>
-          </g>
-        </svg></div>
-    </button>
+        <button class="hover:cursor-pointer rounded-lg bg-[#E4B52E]  font-semibold">
+          <a href="#recipe"  class=" flex gap-1 items-center text-[#6E3E6F] title  p-2">Jump To Recipe <svg fill="#6E3E6F"
+              xmlns="http://www.w3.org/2000/svg" width="15px" height="15px" viewBox="0 0 52 52"
+              enable-background="new 0 0 52 52" xml:space="preserve">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <g>
+                  <path
+                    d="M40.6,30.4L27.1,44c-0.6,0.6-1.6,0.6-2.2,0L11.4,30.4c-0.6-0.6-0.6-1.6,0-2.2l2.2-2.2 c0.6-0.6,1.6-0.6,2.2,0l9.1,9.4c0.6,0.6,1.6,0.6,2.2,0l9.1-9.3c0.6-0.6,1.6-0.6,2.2,0l2.2,2.2C41.1,28.9,41.1,29.8,40.6,30.4z">
+                  </path>
+                  <path
+                    d="M40.6,12.3L27.1,26.1c-0.6,0.6-1.6,0.6-2.2,0L11.4,12.3c-0.6-0.6-0.6-1.6,0-2.2l2.2-2.2 c0.6-0.6,1.6-0.6,2.2,0l9.1,9.4c0.6,0.6,1.6,0.6,2.2,0L36.2,8c0.6-0.6,1.6-0.6,2.2,0l2.2,2.2C41.1,10.8,41.1,11.8,40.6,12.3z">
+                  </path>
+                </g>
+              </g>
+            </svg>
+          </a>
+        </button>
       </div>
 
       <meta itemprop="datePublished" content="{{ .DATE_ADDED }}">
       <meta itemprop="image" content="https://mailan-home-bakery.onrender.com/api/getThumbnail/{{ .ID }}">
 
-      <div id="thumbnail">
-        <img
-          src="/api/getThumbnail/{{ .ID }}"
-          alt="{{ .TITLE }} thumbnail"
-          itemprop="image"
-          height="500px"
-          width="500px"
-        >
+
+      <div id="body" class="flex flex-col gap-3">
+
+        <div class="w-full m-0" itemprop="articleBody">
+          {{ .BODY }}
+        </div>
+        <div id="recipe" itemprop="recipeCard" class="rounded-lg shadow-lg bg-white flex flex-col">
+          <div class="bg-[#E4B52E] p-4 border-b ">
+            {{.TITLE}}
+          </div>
+          <div class="flex items-center py-2 w-full justify-center gap-5">
+            <span>Servings</span>
+            <div style="background-color:#e5e7eb ;" class="flex   gap-3 items-center">
+
+              <button class="rounded bg-white shadow  px-2  border-border-gray-300">
+                -
+              </button>
+              <span>1</span>
+              <button class="rounded bg-white shadow px-2  border-border-gray-300">
+                +
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <div class="flex justify-start p-2 gap-2">
+              <svg fill="#000000" width="25px" height="25px" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path
+                    d="M29 0C27.90625 0 27 0.90625 27 2L27 5C27 5.976563 27.722656 6.804688 28.65625 6.96875C28.246094 7.632813 27.835938 8.382813 27.4375 9.28125C26.609375 11.148438 25.8125 13.429688 25.1875 15.59375L23.8125 14.8125C23.605469 14.691406 23.363281 14.644531 23.125 14.6875C22.933594 14.730469 22.761719 14.828125 22.625 14.96875L21.28125 16.25C19.492188 14.714844 17.164063 13.78125 14.625 13.78125C9.167969 13.78125 4.675781 18.078125 4.40625 24L2.84375 24C1.285156 24 0 25.285156 0 26.84375L0 30.15625C0 31.714844 1.285156 33 2.84375 33L3 33L3 36C3 36.21875 3.023438 36.191406 3.03125 36.21875C3.039063 36.246094 3.027344 36.261719 3.03125 36.28125C3.042969 36.320313 3.050781 36.355469 3.0625 36.40625C3.089844 36.503906 3.140625 36.652344 3.1875 36.8125C3.28125 37.132813 3.402344 37.566406 3.5625 38.09375C3.878906 39.148438 4.328125 40.554688 4.75 41.9375C5.597656 44.707031 6.4375 47.4375 6.4375 47.4375C6.449219 47.511719 6.472656 47.585938 6.5 47.65625C6.769531 48.140625 7.046875 48.632813 7.4375 49.09375C7.828125 49.554688 8.457031 50 9.21875 50L40.78125 50C41.554688 50 42.269531 49.621094 42.6875 49.125C43.105469 48.628906 43.308594 48.066406 43.53125 47.53125C43.542969 47.5 43.554688 47.46875 43.5625 47.4375C43.5625 47.4375 44.402344 44.707031 45.25 41.9375C45.671875 40.554688 46.121094 39.148438 46.4375 38.09375C46.597656 37.566406 46.71875 37.132813 46.8125 36.8125C46.859375 36.652344 46.910156 36.503906 46.9375 36.40625C46.949219 36.355469 46.957031 36.320313 46.96875 36.28125C46.972656 36.261719 46.960938 36.246094 46.96875 36.21875C46.976563 36.191406 47 36.21875 47 36L47 33L47.15625 33C48.714844 33 50 31.714844 50 30.15625L50 26.84375C50 25.285156 48.714844 24 47.15625 24L44 24L44 21.8125C44 19.558594 42.941406 15.703125 41.65625 12.15625C41.015625 10.382813 40.328125 8.703125 39.625 7.4375C39.53125 7.269531 39.4375 7.125 39.34375 6.96875C40.277344 6.804688 41 5.976563 41 5L41 2C41 0.90625 40.09375 0 39 0 Z M 29 2L39 2L39 5L29 5 Z M 31.09375 7L36.84375 7C36.871094 7.015625 36.953125 7.066406 37.0625 7.1875C37.28125 7.429688 37.566406 7.882813 37.875 8.4375C38.492188 9.546875 39.164063 11.105469 39.78125 12.8125C41.015625 16.226563 42 20.269531 42 21.8125L42 24L40 24C39.988281 23.988281 39.980469 23.980469 39.96875 23.96875L26.96875 16.625C27.582031 14.402344 28.414063 11.984375 29.25 10.09375C29.710938 9.050781 30.203125 8.160156 30.59375 7.59375C30.789063 7.3125 30.957031 7.121094 31.0625 7.03125C31.089844 7.007813 31.082031 7.007813 31.09375 7 Z M 14.625 15.78125C16.601563 15.78125 18.398438 16.46875 19.8125 17.625L13.0625 24L6.40625 24C6.660156 19.066406 10.222656 15.78125 14.625 15.78125 Z M 23.4375 16.9375L35.9375 24L15.96875 24 Z M 2.84375 26L47.15625 26C47.628906 26 48 26.371094 48 26.84375L48 30.15625C48 30.628906 47.628906 31 47.15625 31L4.0625 31C4.042969 31 4.019531 31 4 31L2.84375 31C2.371094 31 2 30.628906 2 30.15625L2 26.84375C2 26.371094 2.371094 26 2.84375 26 Z M 5 33L12 33L12 45C12 45.550781 12.449219 46 13 46L16 46C16.550781 46 17 45.550781 17 45L17 33L19 33L19 45C19 45.550781 19.449219 46 20 46L23 46C23.550781 46 24 45.550781 24 45L24 33L26 33L26 45C26 45.550781 26.449219 46 27 46L30 46C30.550781 46 31 45.550781 31 45L31 33L33 33L33 45C33 45.550781 33.449219 46 34 46L37 46C37.550781 46 38 45.550781 38 45L38 33L45 33L45 35.875C44.976563 35.957031 44.953125 36.09375 44.90625 36.25C44.816406 36.5625 44.660156 37.003906 44.5 37.53125C44.183594 38.582031 43.765625 39.960938 43.34375 41.34375C42.511719 44.0625 41.714844 46.691406 41.6875 46.78125C41.6875 46.78125 41.65625 46.875 41.65625 46.875C41.464844 47.316406 41.285156 47.660156 41.15625 47.8125C41.015625 47.980469 41.023438 48 40.78125 48L9.21875 48C9.144531 48 9.152344 48 8.96875 47.78125C8.800781 47.582031 8.558594 47.191406 8.3125 46.75C8.277344 46.632813 7.484375 44.050781 6.65625 41.34375C6.234375 39.960938 5.816406 38.582031 5.5 37.53125C5.339844 37.003906 5.183594 36.5625 5.09375 36.25C5.046875 36.09375 5.023438 35.957031 5 35.875 Z M 14 33L15 33L15 44L14 44 Z M 21 33L22 33L22 44L21 44 Z M 28 33L29 33L29 44L28 44 Z M 35 33L36 33L36 44L35 44Z">
+                  </path>
+                </g>
+              </svg>
+              <span> Ingredients</span>
+            </div>
+            <div class="p-2">
+      {{range .INGREDIENTS}}
+            <div class="border-b border-b-gray-300">
+              <p>{{.AMOUNT}}{{.UNIT}} of {{.NAME}}</p>
+            </div>
+            {{end}}
+            </div>
+
+          </div>
+          <div class="flex flex-col">
+            <div class="flex justify-start p-2 gap-2">
+              <svg fill="#000000" width="25px" height="25px" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path
+                    d="M29 0C27.90625 0 27 0.90625 27 2L27 5C27 5.976563 27.722656 6.804688 28.65625 6.96875C28.246094 7.632813 27.835938 8.382813 27.4375 9.28125C26.609375 11.148438 25.8125 13.429688 25.1875 15.59375L23.8125 14.8125C23.605469 14.691406 23.363281 14.644531 23.125 14.6875C22.933594 14.730469 22.761719 14.828125 22.625 14.96875L21.28125 16.25C19.492188 14.714844 17.164063 13.78125 14.625 13.78125C9.167969 13.78125 4.675781 18.078125 4.40625 24L2.84375 24C1.285156 24 0 25.285156 0 26.84375L0 30.15625C0 31.714844 1.285156 33 2.84375 33L3 33L3 36C3 36.21875 3.023438 36.191406 3.03125 36.21875C3.039063 36.246094 3.027344 36.261719 3.03125 36.28125C3.042969 36.320313 3.050781 36.355469 3.0625 36.40625C3.089844 36.503906 3.140625 36.652344 3.1875 36.8125C3.28125 37.132813 3.402344 37.566406 3.5625 38.09375C3.878906 39.148438 4.328125 40.554688 4.75 41.9375C5.597656 44.707031 6.4375 47.4375 6.4375 47.4375C6.449219 47.511719 6.472656 47.585938 6.5 47.65625C6.769531 48.140625 7.046875 48.632813 7.4375 49.09375C7.828125 49.554688 8.457031 50 9.21875 50L40.78125 50C41.554688 50 42.269531 49.621094 42.6875 49.125C43.105469 48.628906 43.308594 48.066406 43.53125 47.53125C43.542969 47.5 43.554688 47.46875 43.5625 47.4375C43.5625 47.4375 44.402344 44.707031 45.25 41.9375C45.671875 40.554688 46.121094 39.148438 46.4375 38.09375C46.597656 37.566406 46.71875 37.132813 46.8125 36.8125C46.859375 36.652344 46.910156 36.503906 46.9375 36.40625C46.949219 36.355469 46.957031 36.320313 46.96875 36.28125C46.972656 36.261719 46.960938 36.246094 46.96875 36.21875C46.976563 36.191406 47 36.21875 47 36L47 33L47.15625 33C48.714844 33 50 31.714844 50 30.15625L50 26.84375C50 25.285156 48.714844 24 47.15625 24L44 24L44 21.8125C44 19.558594 42.941406 15.703125 41.65625 12.15625C41.015625 10.382813 40.328125 8.703125 39.625 7.4375C39.53125 7.269531 39.4375 7.125 39.34375 6.96875C40.277344 6.804688 41 5.976563 41 5L41 2C41 0.90625 40.09375 0 39 0 Z M 29 2L39 2L39 5L29 5 Z M 31.09375 7L36.84375 7C36.871094 7.015625 36.953125 7.066406 37.0625 7.1875C37.28125 7.429688 37.566406 7.882813 37.875 8.4375C38.492188 9.546875 39.164063 11.105469 39.78125 12.8125C41.015625 16.226563 42 20.269531 42 21.8125L42 24L40 24C39.988281 23.988281 39.980469 23.980469 39.96875 23.96875L26.96875 16.625C27.582031 14.402344 28.414063 11.984375 29.25 10.09375C29.710938 9.050781 30.203125 8.160156 30.59375 7.59375C30.789063 7.3125 30.957031 7.121094 31.0625 7.03125C31.089844 7.007813 31.082031 7.007813 31.09375 7 Z M 14.625 15.78125C16.601563 15.78125 18.398438 16.46875 19.8125 17.625L13.0625 24L6.40625 24C6.660156 19.066406 10.222656 15.78125 14.625 15.78125 Z M 23.4375 16.9375L35.9375 24L15.96875 24 Z M 2.84375 26L47.15625 26C47.628906 26 48 26.371094 48 26.84375L48 30.15625C48 30.628906 47.628906 31 47.15625 31L4.0625 31C4.042969 31 4.019531 31 4 31L2.84375 31C2.371094 31 2 30.628906 2 30.15625L2 26.84375C2 26.371094 2.371094 26 2.84375 26 Z M 5 33L12 33L12 45C12 45.550781 12.449219 46 13 46L16 46C16.550781 46 17 45.550781 17 45L17 33L19 33L19 45C19 45.550781 19.449219 46 20 46L23 46C23.550781 46 24 45.550781 24 45L24 33L26 33L26 45C26 45.550781 26.449219 46 27 46L30 46C30.550781 46 31 45.550781 31 45L31 33L33 33L33 45C33 45.550781 33.449219 46 34 46L37 46C37.550781 46 38 45.550781 38 45L38 33L45 33L45 35.875C44.976563 35.957031 44.953125 36.09375 44.90625 36.25C44.816406 36.5625 44.660156 37.003906 44.5 37.53125C44.183594 38.582031 43.765625 39.960938 43.34375 41.34375C42.511719 44.0625 41.714844 46.691406 41.6875 46.78125C41.6875 46.78125 41.65625 46.875 41.65625 46.875C41.464844 47.316406 41.285156 47.660156 41.15625 47.8125C41.015625 47.980469 41.023438 48 40.78125 48L9.21875 48C9.144531 48 9.152344 48 8.96875 47.78125C8.800781 47.582031 8.558594 47.191406 8.3125 46.75C8.277344 46.632813 7.484375 44.050781 6.65625 41.34375C6.234375 39.960938 5.816406 38.582031 5.5 37.53125C5.339844 37.003906 5.183594 36.5625 5.09375 36.25C5.046875 36.09375 5.023438 35.957031 5 35.875 Z M 14 33L15 33L15 44L14 44 Z M 21 33L22 33L22 44L21 44 Z M 28 33L29 33L29 44L28 44 Z M 35 33L36 33L36 44L35 44Z">
+                  </path>
+                </g>
+              </svg>
+              <span> Instructions</span>
+            </div>
+            <div class="p-2">
+          {{range .INSTRUCTIONS}}
+            <div class="border-b border-b-gray-300">
+              <p>{{.CONTENT}}</p>
+            </div>
+            {{end}}
+            </div>
+
+          </div>
+        </div>
       </div>
 
-
-      <div id="body" itemprop="articleBody">
-        {{ .BODY }}
-      </div>
     </article>
   </main>
 </body>
+
 </html>
 {{ end }}
