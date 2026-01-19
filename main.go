@@ -166,6 +166,12 @@ import (
 
 		ctx := context.Background()
 
+	r.LoadHTMLGlob("templates/*.html")
+
+			r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
+        r.GET("/getAbout", getAbout)
+
+
 		    api := r.Group("/api")
 
 	lmt := tollbooth.NewLimiter(5, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Minute})
@@ -179,15 +185,13 @@ import (
         api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
     }
 
-		r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
-        r.GET("/getAbout", getAbout)
+
 
 	// r.POST("api/postBlog", uploadBlog(ctx, db))
 	// r.GET("api/getBlogs", getBlogs(ctx, db))
 
 	// r.Static("/", "front-end\\dist\\front-end\\browser")
 
-	r.LoadHTMLGlob("templates/*.html")
 
 
 
