@@ -67,8 +67,8 @@ import (
 						BODY TEXT,
 						THUMBNAIL BYTEA,
 						SERVINGS TEXT,
-						PREP TIME TEXT,
-						COOK TIME TEXT,
+						PREP_TIME TEXT,
+						COOK_TIME TEXT,
 						DATE_ADDED DATE,
 						DATE_UPDATED DATE,
 						CATEGORY TEXT
@@ -92,6 +92,7 @@ import (
 			// _, err = db.Exec( blogQuery)
 
 			if err != nil {
+				log.Print("error creating blog posts table")
 				panic(err)
 			}
 
@@ -116,6 +117,7 @@ import (
 			// _, err = db.Exec(recipeQuery)
 
 			if err != nil {
+			log.Print("error creating ingredients  table")
 				panic(err)
 			}
 
@@ -137,6 +139,7 @@ import (
 			// _, err = db.Exec( instructionsQuery)
 
 			if err != nil {
+				log.Print("error creating instructions table")
 				panic(err)
 			}
 
