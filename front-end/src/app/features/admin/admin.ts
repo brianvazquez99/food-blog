@@ -161,7 +161,11 @@ export class Admin implements OnInit {
     console.error(err)
     return of([])
   }),
-tap(val => this.categories.set(val))), {initialValue: []})
+tap(val => {if (val) {
+
+  this.categories.set(val)
+}
+})), {initialValue: []})
 
 
   ngOnInit(): void {
