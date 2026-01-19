@@ -201,14 +201,28 @@ import (
 
 
 		r.NoRoute(func(g *gin.Context) {
-			if !strings.HasPrefix(g.Request.URL.Path, "/api/")  {
-				g.File("front-end/dist/front-end/browser/index.html")
-			} else if strings.Contains(g.Request.URL.Path, ".") {
-				g.Status(404)
-				return
-			}else {
-				g.JSON(http.StatusNotFound, gin.H{"message": "No Content"})
-			}
+			path := g.Request.URL.Path
+	// 1. If it's an API route that failed to match, return JSON
+    if strings.HasPrefix(path, "/api/") {
+        g.JSON(http.StatusNotFound, gin.H{"message": "API route not found", "path": path})
+        return
+    }
+
+    // 2. If it's a direct request for a file (like .js or .css) that doesn't exist
+    if strings.Contains(path, ".") {
+        g.Status(404)
+        return
+    }
+
+    // 3. For everything else (like /getAbout or Angular routes), serve index.html
+    // BUT check if it's one of your Go HTML routes first
+    if path == "/getAbout" {
+        // Force the handler to run if it somehow ended up here
+        getAbout(g)
+        return
+    }
+
+    g.File("front-end/dist/front-end/browser/index.html")
 
 		})
 
