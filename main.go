@@ -188,8 +188,8 @@ r.Use(func(c *gin.Context) {
         api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
     }
 
-	r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
-	r.GET("/getAbout", getAbout)
+	r.GET("/blogDetails/:slug", getBlogDetails(ctx, db))
+	r.GET("/about", getAbout)
 
 
 	r.GET("/main-styles.css", func(c *gin.Context) {
@@ -211,10 +211,6 @@ r.Use(func(c *gin.Context) {
     c.Status(404)
 })
 
-	// r.POST("api/postBlog", uploadBlog(ctx, db))
-	// r.GET("api/getBlogs", getBlogs(ctx, db))
-
-	// r.Static("/", "front-end\\dist\\front-end\\browser")
 
 
 
@@ -242,13 +238,7 @@ r.Use(func(c *gin.Context) {
         return
     }
 
-    // 3. For everything else (like /getAbout or Angular routes), serve index.html
-    // BUT check if it's one of your Go HTML routes first
-    if path == "/getAbout" {
-        // Force the handler to run if it somehow ended up here
-        getAbout(g)
-        return
-    }
+
 
     g.File("front-end/dist/front-end/browser/index.html")
 

@@ -51,7 +51,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 justify-center items-start h-full w-full">
     @for (item of postsCopy(); track $index) {
-      <a target="_self" rel="noreferrer" [href]="'/getBlogDetails/'+ item.SLUG"  class="flex justify-center items-center flex-col gap-4 hover:cursor-pointer  transition-all  rounded-lg">
+      <a target="_self" rel="noreferrer" [href]="'/blogDetails/'+ item.SLUG"  class="flex justify-center items-center flex-col gap-4 hover:cursor-pointer  transition-all  rounded-lg">
         <div class="rounded-lg w-full flex justify-center">
           <img [src]="'/api/getThumbnail/' + item.ID" height="200" width="200" alt="TEST">
         </div>

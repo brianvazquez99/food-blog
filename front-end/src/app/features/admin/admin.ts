@@ -315,7 +315,7 @@ tap(val => {if (val) {
         this.loading.set(false);
         setTimeout(() => {
           window.location.assign(
-            'https://mailanhomebakery.com/getBlogDetails/' +
+            'https://mailanhomebakery.com/blogDetails/' +
               this.blogService.getSlug(this.post().TITLE!)
           );
         }, 3000);
