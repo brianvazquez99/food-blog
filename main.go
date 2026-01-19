@@ -192,6 +192,25 @@ r.Use(func(c *gin.Context) {
 	r.GET("/getAbout", getAbout)
 
 
+	r.GET("/main-styles.css", func(c *gin.Context) {
+    dir := "front-end/dist/front-end/browser"
+    files, err := os.ReadDir(dir)
+    if err != nil {
+        c.Status(404)
+        return
+    }
+
+    for _, file := range files {
+        if strings.HasPrefix(file.Name(), "styles") && strings.HasSuffix(file.Name(), ".css") {
+            // Set the correct header so the browser knows it's CSS
+            c.Header("Content-Type", "text/css")
+            c.File(dir + "/" + file.Name())
+            return
+        }
+    }
+    c.Status(404)
+})
+
 	// r.POST("api/postBlog", uploadBlog(ctx, db))
 	// r.GET("api/getBlogs", getBlogs(ctx, db))
 
@@ -201,14 +220,9 @@ r.Use(func(c *gin.Context) {
 
 
 	r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
-	// USE THIS:
-// Serve specific asset folders (js, css, images)
-r.Static("/assets", "./front-end/dist/front-end/browser")
 
-// Manually serve the index for the root only
-r.GET("/", func(c *gin.Context) {
-    c.File("./front-end/dist/front-end/browser/index.html")
-})
+
+
 
 
 
