@@ -195,7 +195,7 @@ import (
 
 
 
-	r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
+	r.Static("/","front-end/dist/front-end/browser")
 
 
 
