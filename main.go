@@ -17,6 +17,7 @@ import (
 	"github.com/didip/tollbooth/v7"
 	"github.com/didip/tollbooth/v7/limiter"
 	"github.com/gin-contrib/gzip"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -167,8 +168,8 @@ import (
 
 	r.LoadHTMLGlob("templates/*.html")
 
-			r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
-        r.GET("/getAbout", getAbout)
+		r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
+		r.GET("/getAbout", getAbout)
 
 
 		    api := r.Group("/api")
@@ -194,12 +195,12 @@ import (
 
 
 
-	r.Static("/","front-end/dist/front-end/browser")
+	r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
 
 
 
 		r.NoRoute(func(g *gin.Context) {
-			if !strings.HasPrefix(g.Request.URL.Path, "/api/") {
+			if !strings.HasPrefix(g.Request.URL.Path, "/api/") || g.Request.URL.Path == "/getAbout" {
 				g.File("front-end/dist/front-end/browser/index.html")
 			} else if strings.Contains(g.Request.URL.Path, ".") {
 				g.Status(404)
