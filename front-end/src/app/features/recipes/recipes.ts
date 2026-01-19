@@ -2,6 +2,7 @@ import { BlogService } from './../../blog-service';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import {toSignal} from '@angular/core/rxjs-interop'
 import { RECIPE } from '../../types';
 import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs';
@@ -22,6 +23,8 @@ export class Recipes implements OnInit {
   loading = signal<boolean>(false)
   blogservice = inject(BlogService)
 
+  categories = toSignal(this.blogservice.getCategories(), {initialValue: []})
+
 
   categoryFilter = signal<string[]>(['ALL'])
 
@@ -40,6 +43,9 @@ export class Recipes implements OnInit {
       })
 
   }
+
+
+
 
 
   updateFilter(category:string) {

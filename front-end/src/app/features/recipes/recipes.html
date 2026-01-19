@@ -34,30 +34,16 @@
 
   </div>
     <div class="flex flex-wrap justify-center gap-3 mt-6 px-4">
-    <button (click)="updateFilter('ALL')" [class.selected]="categoryFilter().includes('ALL')" class="px-6 py-2 rounded-full bg-gray-200  hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      All
-    </button>
-    <button (click)="updateFilter('COOKIES')" [class.selected]="categoryFilter().includes('COOKIES')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      Cookies
-    </button>
-    <button (click)="updateFilter('DESSERTS')" [class.selected]="categoryFilter().includes('DESSERTS')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      Desserts
-    </button>
-    <button (click)="updateFilter('ASIAN DESSERTS')" [class.selected]="categoryFilter().includes('ASIAN DESSERTS')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      Asian Desserts
-    </button>
-    <button (click)="updateFilter('BUNS')" [class.selected]="categoryFilter().includes('BUNS')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      Buns
-    </button>
-    <button (click)="updateFilter('CAKES')" [class.selected]="categoryFilter().includes('CAKES')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      Cakes
-    </button>
-    <button (click)="updateFilter('SAVORY')" [class.selected]="categoryFilter().includes('SAVORY')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      Savory
-    </button>
-    <button (click)="updateFilter('OCCASSIONS')" [class.selected]="categoryFilter().includes('OCCASSIONS')" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
-      Occasions
-    </button>
+      <button (click)="updateFilter('ALL')" [class.selected]="categoryFilter().includes('ALL')" class="px-6 py-2 rounded-full bg-gray-200  hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+        All
+      </button>
+      @for (cat of categories(); track $index) {
+      <button (click)="updateFilter(cat)" [class.selected]="categoryFilter().includes(cat)" class="px-6 py-2 rounded-full bg-gray-200 hover:cursor-pointer text-black hover:bg-[#6E3E6F] hover:text-white transition-colors">
+        {{cat.toUpperCase()}}
+      </button>
+      }
+
+
   </div>
   </div>
 
@@ -65,7 +51,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 justify-center items-start h-full w-full">
     @for (item of postsCopy(); track $index) {
-      <a target="_self" rel="noreferrer" [href]="'/api/getBlogDetails/'+ item.SLUG"  class="flex justify-center items-center flex-col gap-4 hover:cursor-pointer  transition-all  rounded-lg">
+      <a target="_self" rel="noreferrer" [href]="'/getBlogDetails/'+ item.SLUG"  class="flex justify-center items-center flex-col gap-4 hover:cursor-pointer  transition-all  rounded-lg">
         <div class="rounded-lg w-full flex justify-center">
           <img [src]="'/api/getThumbnail/' + item.ID" height="200" width="200" alt="TEST">
         </div>

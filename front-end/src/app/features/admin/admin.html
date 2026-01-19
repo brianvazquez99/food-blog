@@ -25,10 +25,8 @@
   </div>
 
 </dialog>
-<div class="container mx-auto">
-  <div class="flex flex-col p-4 relative ">
-
-    @if(loading()){
+<div class="container mx-auto relative">
+      @if(loading()){
     <svg width="50px" height="50px" class="animate-spin absolute left-1/2 top-1/2" viewBox="0 0 16 16" version="1.1"
       xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -40,6 +38,9 @@
       </g>
     </svg>
     }
+  <div class="flex flex-col p-4 relative ">
+
+
 
     @if (showToast()) {
 
@@ -134,7 +135,7 @@
 
           @if (showCategories()) {
           <div class="absolute top-[100%] w-full bg-white z-50 rounded p-4 border border-gray-300">
-            @for (cat of categories; track $index) {
+            @for (cat of categories(); track $index) {
             <div (click)="$event.stopPropagation(); updateCategories(cat)"
               class="flex hover:cursor-pointer hover:bg-blue-400 rounded px-2 py-1 transition-all gap-2">
               <label for="cookies">{{cat}}</label>
@@ -339,15 +340,15 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
               <div class="flex flex-col">
                 <label for="serving">Servings</label>
-                <input type="number" class="border border-gray-300 rounded-lg px-2 bg-gray-100" name="serving" id="serving">
+                <input type="number" [(ngModel)]="post().SERVINGS" class="border border-gray-300 rounded-lg px-2 bg-gray-100" name="serving" id="serving">
               </div>
               <div class="flex flex-col">
                 <label for="prep">Prep Time</label>
-                <input type="number" class="border border-gray-300 rounded-lg px-2 bg-gray-100" name="prep" id="prep">
+                <input [(ngModel)]="post().PREP_TIME" type="number" class="border border-gray-300 rounded-lg px-2 bg-gray-100" name="prep" id="prep">
               </div>
               <div class="flex flex-col">
                 <label for="cook">Cook Time</label>
-                <input type="number" class="border border-gray-300 rounded-lg px-2 bg-gray-100" name="cook" id="cook">
+                <input type="number" [(ngModel)]="post().COOK_TIME" class="border border-gray-300 rounded-lg px-2 bg-gray-100" name="cook" id="cook">
               </div>
             </div>
             <div>
@@ -359,7 +360,7 @@
                 <input [(ngModel)]="newIngredient().NAME" type="text" placeholder="Ingredient Name" class="border border-gray-300 px-2 py-1 placeholder:text-gray-400 rounded-lg bg-gray-100" name="name" id="name">
               </div>
                 <div class="flex flex-col">
-                <input [(ngModel)]="newIngredient().AMOUNT" type="number" placeholder="Amount" class="border border-gray-300 rounded-lg px-2 py-1 placeholder:text-gray-400 bg-gray-100" name="amount" id="amount">
+                <input [(ngModel)]="newIngredient().AMOUNT" type="text" placeholder="Amount" class="border border-gray-300 rounded-lg px-2 py-1 placeholder:text-gray-400 bg-gray-100" name="amount" id="amount">
               </div>
                 <div class="flex flex-col">
                 <input [(ngModel)]="newIngredient().UNIT" type="text" placeholder="Unit" class="border px-2 py-1 placeholder:text-gray-400 border-gray-300 rounded-lg bg-gray-100" name="unit" id="unit">

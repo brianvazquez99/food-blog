@@ -17,18 +17,18 @@ import { RECIPE } from '../../types';
 
 import { DomSanitizer } from '@angular/platform-browser';
 import './quill-recipe-blot';
-import { sign } from 'crypto';
-
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of, tap } from 'rxjs';
 
 type INGREDIENT = {
-  NAME:string | null;
-  AMOUNT: number| null;
-  UNIT: string| null;
-}
+  NAME: string | null;
+  AMOUNT: string | null;
+  UNIT: string | null;
+};
 type INSTRUCTION = {
-  ORDER: number,
-  CONTENT:string
-}
+  ORDER: number;
+  CONTENT: string;
+};
 
 @Component({
   selector: 'app-admin',
@@ -41,13 +41,18 @@ type INSTRUCTION = {
 export class Admin implements OnInit {
   destroy = inject(DestroyRef);
 
-  post = signal<RECIPE>({
+  post = signal<
+    RECIPE & { SERVINGS: number | null; PREP_TIME: number | null; COOK_TIME: number | null }
+  >({
     ID: null,
     TITLE: '',
     BODY: '',
     THUMBNAIL: new Blob(),
     DATE_ADDED: '',
     CATEGORY: [],
+    SERVINGS: null,
+    PREP_TIME: null,
+    COOK_TIME: null,
   });
 
   showToast = signal<boolean>(false);
@@ -120,9 +125,9 @@ export class Admin implements OnInit {
     },
   };
 
-  addCat = viewChild<ElementRef<HTMLDialogElement>>('addCat')
+  addCat = viewChild<ElementRef<HTMLDialogElement>>('addCat');
   editor = viewChild<ElementRef<QuillEditorComponent>>('editor');
-  loading = signal<boolean>(false)
+  loading = signal<boolean>(false);
 
   // categories = toSignal(this.http.get<string[]>("/api/getCategories").pipe(
   //   catchError((err) => {
@@ -131,32 +136,41 @@ export class Admin implements OnInit {
   //   })
   // ), {initialValue: []})
 
-  categories = Array(5).fill("test")
 
-  sanitizer = inject(DomSanitizer)
+  sanitizer = inject(DomSanitizer);
 
   quill: any;
 
-  newCat = signal<string | undefined>(undefined)
-  newInstruction = signal<string | undefined>(undefined)
+  newCat = signal<string | undefined>(undefined);
+  newInstruction = signal<string | undefined>(undefined);
 
   newIngredient = signal<INGREDIENT>({
     NAME: null,
     AMOUNT: null,
-    UNIT: null
-  })
+    UNIT: null,
+  });
 
-  ingredients = signal<INGREDIENT[]>([])
-  instructions = signal<INSTRUCTION[]>([])
+  ingredients = signal<INGREDIENT[]>([]);
+  instructions = signal<INSTRUCTION[]>([]);
+
+  saving = signal<boolean>(false);
+
+  categories = signal<string[]>([])
+
+  categoriesSignal = toSignal(this.blogService.getCategories().pipe(catchError(err =>{
+    console.error(err)
+    return of([])
+  }),
+tap(val => this.categories.set(val))), {initialValue: []})
+
 
   ngOnInit(): void {
-
     const closeCat = () => {
       if (this.showCategories()) {
         this.showCategories.set(false);
       }
-      if(this.addCat() && this.addCat()?.nativeElement.open) {
-        this.addCat()?.nativeElement.close()
+      if (this.addCat() && this.addCat()?.nativeElement.open) {
+        this.addCat()?.nativeElement.close();
       }
     };
     document.addEventListener('click', closeCat);
@@ -166,56 +180,59 @@ export class Admin implements OnInit {
     });
   }
 
-
   addCategory() {
-    if(this.newCat()) {
-      this.categories.push(this.newCat( ))
-      this.selectedCategories.set([...this.selectedCategories(), this.newCat()!])
-      this.addCat()?.nativeElement.close()
-      this.newCat.set('')
-    }
+    if(!this.newCat()) return
+      this.categories().push(this.newCat()!);
+      this.categories.set([...this.categories()])
+      this.selectedCategories.set([...this.selectedCategories(), this.newCat()!]);
+      this.addCat()?.nativeElement.close();
+      this.newCat.set('');
   }
 
   addIngredient() {
-    if(this.newIngredient().AMOUNT == null || this.newIngredient().NAME == null || this.newIngredient().UNIT == null ) {
-      console.log(this.newIngredient())
-      return
+    if (
+      this.newIngredient().AMOUNT == null ||
+      this.newIngredient().NAME == null ||
+      this.newIngredient().UNIT == null
+    ) {
+      console.log(this.newIngredient());
+      return;
     }
-    this.ingredients.set([...this.ingredients(), this.newIngredient()])
+    this.ingredients.set([...this.ingredients(), this.newIngredient()]);
     this.newIngredient.set({
       NAME: null,
       AMOUNT: null,
-      UNIT: null
-    })
+      UNIT: null,
+    });
   }
 
-  removeIngredient(index:number) {
-    const ingredients = this.ingredients()
-    ingredients.splice(index, 1)
-    this.ingredients.set([...ingredients])
+  removeIngredient(index: number) {
+    const ingredients = this.ingredients();
+    ingredients.splice(index, 1);
+    this.ingredients.set([...ingredients]);
   }
 
   addInstruction() {
-    if(!this.newInstruction()) return
+    if (!this.newInstruction()) return;
 
     const instruction: INSTRUCTION = {
       ORDER: this.instructions().length + 1,
-      CONTENT: this.newInstruction()!
-    }
+      CONTENT: this.newInstruction()!,
+    };
 
-    this.instructions.set([...this.instructions(), instruction])
-    this.newInstruction.set(undefined)
+    this.instructions.set([...this.instructions(), instruction]);
+    this.newInstruction.set(undefined);
   }
 
-  removeInstruction(index:number) {
-    const instructions = this.instructions()
-    instructions.splice(index, 1)
+  removeInstruction(index: number) {
+    const instructions = this.instructions();
+    instructions.splice(index, 1);
     for (let index = 0; index < instructions.length; index++) {
-      const element = instructions[index]
+      const element = instructions[index];
       element.ORDER = index + 1;
     }
-    console.log(instructions)
-    this.instructions.set([...instructions])
+    console.log(instructions);
+    this.instructions.set([...instructions]);
   }
 
   // use this to change button title
@@ -257,46 +274,56 @@ export class Admin implements OnInit {
     this.thumbnail = input.files![0];
 
     if (this.thumbnail) {
+      const blobUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(this.thumbnail));
 
-      const blobUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(this.thumbnail))
-
-      this.imgSrc.set(blobUrl)
+      this.imgSrc.set(blobUrl);
     }
   }
 
   onSave() {
-    console.log(this.post().BODY);
+    if (this.loading()) return;
 
-    if (this.post().TITLE == null || this.post().BODY == null || this.post().THUMBNAIL == null) {
+    if (this.selectedCategories().length == 0) {
+      alert('Please Enter at least on Category');
+      return;
+    }
+    if (this.post().TITLE == null || this.post().BODY == null || this.thumbnail == null) {
       alert('Not all content has been filled!');
+      this.saving.set(false);
+
       return;
     }
 
     const formData = new FormData();
     formData.append('TITLE', this.post().TITLE!);
     formData.append('BODY', this.post().BODY!);
+    formData.append('SERVINGS', String(this.post().SERVINGS!));
+    formData.append('PREP_TIME', String(this.post().PREP_TIME!));
+    formData.append('COOK_TIME', String(this.post().COOK_TIME!));
     formData.append('THUMBNAIL', this.thumbnail);
     formData.append('CATEGORY', this.selectedCategories().join());
     formData.append('INGREDIENTS', JSON.stringify(this.ingredients()));
     formData.append('INSTRUCTIONS', JSON.stringify(this.instructions()));
-    this.loading.set(true)
+    this.loading.set(true);
     this.http.post('/api/postBlog', formData).subscribe({
       next: (value) => {
         this.showToast.set(true);
-        this.loading.set(false)
+        this.loading.set(false);
         setTimeout(() => {
-          this.router.navigate(['recipe', this.blogService.getSlug(this.post().TITLE!)]);
+          window.location.assign(
+            'http://localhost:8080/getBlogDetails/' +
+              this.blogService.getSlug(this.post().TITLE!)
+          );
         }, 3000);
       },
       error: (err) => {
         console.log(err);
-        this.loading.set(false)
+        this.loading.set(false);
       },
     });
   }
 
-
   openAddCat() {
-    this.addCat()?.nativeElement.showModal()
+    this.addCat()?.nativeElement.showModal();
   }
 }

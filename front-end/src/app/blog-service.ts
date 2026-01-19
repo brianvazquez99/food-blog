@@ -14,6 +14,10 @@ export class BlogService {
 
   isLoading = signal<boolean>(false)
 
+    getCategories() {
+    return this.http.get<string[]>('/api/getCategories')
+  }
+
   getBlogList(recent: boolean = false): Observable<RECIPE[]> {
     switch (recent) {
       case true:
@@ -25,9 +29,7 @@ export class BlogService {
   }
 
 
-  getBlogDetails(slug:string): Observable<string> {
-    return this.http.get("/api/getBlogDetails/"+ slug, {responseType: 'text'})
-  }
+
 
 
   searchBlogs(search:string): Observable<any[]> {
