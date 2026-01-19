@@ -17,6 +17,7 @@ import (
 	"github.com/didip/tollbooth/v7"
 	"github.com/didip/tollbooth/v7/limiter"
 	"github.com/gin-contrib/gzip"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -168,7 +169,11 @@ import (
 	r.LoadHTMLGlob("templates/*.html")
 
 
-
+// Add this at the very top
+r.Use(func(c *gin.Context) {
+    log.Printf("Incoming Request: %s %s", c.Request.Method, c.Request.URL.Path)
+    c.Next()
+})
 
 		    api := r.Group("/api")
 
@@ -195,7 +200,7 @@ import (
 
 
 
-	// r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
+	r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
 	// USE THIS:
 // Serve specific asset folders (js, css, images)
 r.Static("/assets", "./front-end/dist/front-end/browser")
