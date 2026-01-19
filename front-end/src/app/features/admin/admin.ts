@@ -311,7 +311,7 @@ tap(val => this.categories.set(val))), {initialValue: []})
         this.loading.set(false);
         setTimeout(() => {
           window.location.assign(
-            'http://localhost:8080/getBlogDetails/' +
+            'https://mailanhomebakery.com/getBlogDetails/' +
               this.blogService.getSlug(this.post().TITLE!)
           );
         }, 3000);
