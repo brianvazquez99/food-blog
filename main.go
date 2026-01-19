@@ -168,8 +168,7 @@ import (
 
 	r.LoadHTMLGlob("templates/*.html")
 
-		r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
-		r.GET("/getAbout", getAbout)
+
 
 
 		    api := r.Group("/api")
@@ -183,6 +182,8 @@ import (
         api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
         api.GET("/searchBlogs", searchBlogs(ctx, db))
         api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
+		r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
+		r.GET("/getAbout", getAbout)
     }
 
 
@@ -200,7 +201,7 @@ import (
 
 
 		r.NoRoute(func(g *gin.Context) {
-			if !strings.HasPrefix(g.Request.URL.Path, "/api/") || g.Request.URL.Path != "/getAbout" {
+			if !strings.HasPrefix(g.Request.URL.Path, "/api/")  {
 				g.File("front-end/dist/front-end/browser/index.html")
 			} else if strings.Contains(g.Request.URL.Path, ".") {
 				g.Status(404)
