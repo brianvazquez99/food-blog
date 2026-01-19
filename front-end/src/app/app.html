@@ -25,7 +25,7 @@
             <li routerLink="" routerLinkActive="text-amber-800"
               class="charcoal text-xl hover:underline transition-all hover:cursor-pointer  title">Home</li>
             <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
-              <a target="_self" href="/api/getAbout">
+              <a target="_self" href="/getAbout">
               About
               </a>
               </li>
@@ -104,7 +104,7 @@
       <li routerLink="" routerLinkActive="text-amber-800"
         class="charcoal text-xl hover:underline transition-all hover:cursor-pointer  title">Home</li>
       <li  class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
-        <a target="_self" href="/api/getAbout">
+        <a target="_self" href="/getAbout">
               About
               </a>
       </li>
@@ -203,7 +203,7 @@
       </div>
       <div class="p-2 grid gap-10 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 overflow-auto">
         @for (item of searchResults(); track $index) {
-        <a (click)="isSearchOpen.set(false)" [href]="'/api/getBlogDetails/'+ item.SLUG"
+        <a (click)="isSearchOpen.set(false)" [href]="'/getBlogDetails/'+ item.SLUG"
           class="flex hover:cursor-pointer flex-col">
           <div>
             <img [src]="'/api/getThumbnail/' + item.ID" height="100" width="100" alt="thumbnail">
