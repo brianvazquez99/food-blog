@@ -96,7 +96,7 @@ import (
 			}
 
 						recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
-						BLOG_ID BIGSERIAL REFERENCES BLOG_POSTS(ID),
+						BLOG_ID BIGINT REFERENCES BLOG_POSTS(ID),
 						NAME TEXT,
 						AMOUNT NUMERIC,
 						UNIT TEXT
@@ -120,7 +120,7 @@ import (
 			}
 
 			instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
-						BLOG_ID BIGSERIAL REFERENCES BLOG_POSTS(ID),
+						BLOG_ID BIGINT REFERENCES BLOG_POSTS(ID),
 						INSTRUCTION_ORDER NUMERIC,
 						CONTENT TEXT
 							)`
@@ -210,8 +210,8 @@ import (
 	}
 
 
-//  r.Run("0.0.0.0:" + port)
-	r.Run(":8080")
+ r.Run("0.0.0.0:" + port)
+	// r.Run(":8080")
 
 }
 
