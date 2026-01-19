@@ -17,7 +17,6 @@ import (
 	"github.com/didip/tollbooth/v7"
 	"github.com/didip/tollbooth/v7/limiter"
 	"github.com/gin-contrib/gzip"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -196,7 +195,15 @@ import (
 
 
 
-	r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
+	// r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
+	// USE THIS:
+// Serve specific asset folders (js, css, images)
+r.Static("/assets", "./front-end/dist/front-end/browser")
+
+// Manually serve the index for the root only
+r.GET("/", func(c *gin.Context) {
+    c.File("./front-end/dist/front-end/browser/index.html")
+})
 
 
 
