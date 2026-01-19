@@ -173,11 +173,12 @@ import (
         api.GET("/getBlogs", getBlogs(ctx, db))
         api.GET("/getCategories", getCategories(ctx, db))
         api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
-        api.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
-        api.GET("/getAbout", getAbout)
         api.GET("/searchBlogs", searchBlogs(ctx, db))
         api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
     }
+
+		r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
+        r.GET("/getAbout", getAbout)
 
 	// r.POST("api/postBlog", uploadBlog(ctx, db))
 	// r.GET("api/getBlogs", getBlogs(ctx, db))
@@ -193,7 +194,7 @@ import (
 
 
 		r.NoRoute(func(g *gin.Context) {
-			if !strings.HasPrefix(g.Request.URL.Path, "/api/") {
+			if !strings.HasPrefix(g.Request.URL.Path, "/api/") || !strings.HasPrefix(g.Request.URL.Path, "/getBlogDetails") || !strings.HasPrefix(g.Request.URL.Path, "/getAbout") {
 				g.File("front-end\\dist\\front-end\\browser\\index.html")
 			} else if strings.Contains(g.Request.URL.Path, ".") {
 				g.Status(404)
@@ -374,7 +375,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 			DATE_ADDED string
 			CATEGORY string
 			INGREDIENTS []INGREDIENT
-			INSTRCTIONS []INSTRUCTION
+			INSTRUCTIONS []INSTRUCTION
 		}
 
 		var blog BLOG_POST
@@ -428,10 +429,11 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 		ingredients = append(ingredients, ingredient)
 		}
 
-		
+
 		instructionsQuery := `SELECT INSTRUCTION_ORDER, CONTENT
 							FROM BLOG_INSTRUCTIONS
-							WHERE BLOG_ID = ?`
+							WHERE BLOG_ID = ?
+							ORDER BY INSTRUCTION_ORDER`
 
 
 		instructionRows, err := db.Query(instructionsQuery, blog.ID)
@@ -461,7 +463,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 		blog.BODY = template.HTML(cleaned)
 
 		blog.INGREDIENTS = ingredients
-		blog.INSTRCTIONS = instructions
+		blog.INSTRUCTIONS = instructions
 
 		cache.SetWithTTL(slug, &blog, int64(len(blog.BODY)), 10 * time.Minute)
 
@@ -509,7 +511,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 			COOK_TIME  string
 			CATEGORY string
 			INGREDIENTS string
-			INSTRCTIONS string
+			INSTRUCTIONS string
 		}
 		type BLOG_POST struct {
 			TITLE string
@@ -519,7 +521,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 			COOK_TIME  string
 			CATEGORY string
 			INGREDIENTS []INGREDIENT
-			INSTRCTIONS []INSTRUCTION
+			INSTRUCTIONS []INSTRUCTION
 		}
 
 		var postForm BLOG_POST_FORM
@@ -537,7 +539,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 		}
 
 		json.Unmarshal([]byte(postForm.INGREDIENTS, ), &post.INGREDIENTS)
-		json.Unmarshal([]byte(postForm.INSTRCTIONS, ), &post.INSTRCTIONS)
+		json.Unmarshal([]byte(postForm.INSTRUCTIONS, ), &post.INSTRUCTIONS)
 
 		if err != nil {
 			g.JSON(http.StatusBadRequest, gin.H{"message": "Incorrect format to post blog!"})
@@ -611,11 +613,11 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		}
 
-		instructionQuery := `INSERT INTO BLOG_INSTRUCTIONS (BLOG_ID, ORDER, CONTENT)
+		instructionQuery := `INSERT INTO BLOG_INSTRUCTIONS (BLOG_ID, INSTRUCTION_ORDER, CONTENT)
 						VALUES(?, ?, ?)`
 
-		for _, instruction := range post.INSTRCTIONS {
-			_, err := db.Exec( instructionQuery, instruction.ORDER, instruction.CONTENT)
+		for _, instruction := range post.INSTRUCTIONS {
+			_, err := db.Exec( instructionQuery,id, instruction.ORDER, instruction.CONTENT)
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert instruction"})
 				return
