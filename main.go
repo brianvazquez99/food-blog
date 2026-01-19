@@ -186,10 +186,10 @@ r.Use(func(c *gin.Context) {
         api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
         api.GET("/searchBlogs", searchBlogs(ctx, db))
         api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
-		r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
-		r.GET("/getAbout", getAbout)
     }
 
+	r.GET("/getBlogDetails/:slug", getBlogDetails(ctx, db))
+	r.GET("/getAbout", getAbout)
 
 
 	// r.POST("api/postBlog", uploadBlog(ctx, db))
