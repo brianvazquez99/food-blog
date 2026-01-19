@@ -42,7 +42,7 @@ export class Admin implements OnInit {
   destroy = inject(DestroyRef);
 
   post = signal<
-    RECIPE & { SERVINGS: number | null; PREP_TIME: number | null; COOK_TIME: number | null }
+    RECIPE & { SERVINGS: number | null; PREP_TIME: string | null; COOK_TIME: string | null }
   >({
     ID: null,
     TITLE: '',
