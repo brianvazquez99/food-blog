@@ -269,14 +269,14 @@ func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		if recent != "" {
 
-				 query  = `SELECT TITLE, BODY, ID, CHAR(DATE_ADDED, 'YYYY-MM-DD'), CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
+				 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC
 								LIMIT 3`
 
 		}else {
 
-			 query  = `SELECT TITLE, BODY, ID, CHAR(DATE_ADDED, 'YYYY-MM-DD'), CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
+			 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC`
 		}
