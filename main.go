@@ -201,7 +201,7 @@ import (
 
 		r.NoRoute(func(g *gin.Context) {
 			if !strings.HasPrefix(g.Request.URL.Path, "/api/") {
-				g.File("front-end\\dist\\front-end\\browser\\index.html")
+				g.File("front-end/dist/front-end/browser/index.html")
 			} else if strings.Contains(g.Request.URL.Path, ".") {
 				g.Status(404)
 				return
