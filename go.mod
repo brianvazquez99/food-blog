@@ -8,7 +8,6 @@ require (
 	github.com/dgraph-io/ristretto/v2 v2.3.0
 	github.com/didip/tollbooth/v7 v7.0.2
 	github.com/gin-contrib/gzip v1.2.5
-	github.com/gin-contrib/static v1.1.5
 	github.com/gin-gonic/gin v1.11.0
 	github.com/jackc/pgx/v5 v5.8.0
 	golang.org/x/crypto v0.43.0

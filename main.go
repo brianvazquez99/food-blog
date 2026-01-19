@@ -17,7 +17,6 @@ import (
 	"github.com/didip/tollbooth/v7"
 	"github.com/didip/tollbooth/v7/limiter"
 	"github.com/gin-contrib/gzip"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 
 	"github.com/jackc/pgx/v5/pgxpool"
