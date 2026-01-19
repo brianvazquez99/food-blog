@@ -202,6 +202,8 @@ import (
 
 		r.NoRoute(func(g *gin.Context) {
 			path := g.Request.URL.Path
+			log.Print("no route!!!")
+			log.Print(path)
 	// 1. If it's an API route that failed to match, return JSON
     if strings.HasPrefix(path, "/api/") {
         g.JSON(http.StatusNotFound, gin.H{"message": "API route not found", "path": path})
