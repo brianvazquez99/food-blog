@@ -21,9 +21,8 @@ import (
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 
-	// "github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
-	_ "modernc.org/sqlite"
 )
 
 		type BLOG struct {
@@ -45,97 +44,98 @@ import (
 
 
 
-			// database_url := os.Getenv("DATABASE_URL")
+			database_url := os.Getenv("DATABASE_URL")
 
-			// config, err := pgxpool.ParseConfig(database_url)
+			config, err := pgxpool.ParseConfig(database_url)
 
-				db, err := sql.Open("sqlite", "./blog.db")
+				// db, err := sql.Open("sqlite", "./blog.db")
+
+
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				db, err := pgxpool.NewWithConfig(context.Background(), config)
+				if err != nil {
+					log.Fatal(err)
+				}
 
 				defer db.Close()
 
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			// db, err := pgxpool.NewWithConfig(context.Background(), config)
-			// 	if err != nil {
-			// 	log.Fatal(err)
-			// }
-
-			// blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
-			// 			ID BIGSERIAL PRIMARY KEY,
-			// 			TITLE TEXT,
-			// 			BODY TEXT,
-			// 			THUMBNAIL BYTEA,
-			// 			SERVINGS TEXT,
-			// 			PREP TIME TEXT,
-			// 			COOK TIME TEXT,
-			// 			DATE_ADDED DATE,
-			// 			DATE_UPDATED DATE,
-			// 			CATEGORY TEXT
-			// 				)`
-
-			// _, err = db.Exec(context.Background(), blogQuery)
-
-						blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
-						ID INTEGER PRIMARY KEY,
+			blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
+						ID BIGSERIAL PRIMARY KEY,
 						TITLE TEXT,
 						BODY TEXT,
-						THUMBNAIL BLOB,
+						THUMBNAIL BYTEA,
 						SERVINGS TEXT,
-						PREP_TIME TEXT,
-						COOK_TIME TEXT,
+						PREP TIME TEXT,
+						COOK TIME TEXT,
 						DATE_ADDED DATE,
 						DATE_UPDATED DATE,
 						CATEGORY TEXT
 							)`
 
-			_, err = db.Exec( blogQuery)
+			_, err = db.Exec(context.Background(), blogQuery)
+
+			// 			blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
+			// 			ID INTEGER PRIMARY KEY,
+			// 			TITLE TEXT,
+			// 			BODY TEXT,
+			// 			THUMBNAIL BLOB,
+			// 			SERVINGS TEXT,
+			// 			PREP_TIME TEXT,
+			// 			COOK_TIME TEXT,
+			// 			DATE_ADDED DATE,
+			// 			DATE_UPDATED DATE,
+			// 			CATEGORY TEXT
+			// 				)`
+
+			// _, err = db.Exec( blogQuery)
 
 			if err != nil {
 				panic(err)
 			}
-
-			// 			recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
-			// 			BLOG_ID BIGSERIAL REFERENCES BLOG_POSTS(ID),
-			// 			NAME TEXT,
-			// 			AMOUNT NUMERIC,
-			// 			UNIT TEXT
-			// 				)`
-
-			// _, err = db.Exec(context.Background(), recipeQuery)
-
 
 						recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
-									BLOG_ID INTEGER ,
-									NAME TEXT,
-									AMOUNT NUMERIC,
-									UNIT TEXT,
-									FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
-									);`
+						BLOG_ID BIGSERIAL REFERENCES BLOG_POSTS(ID),
+						NAME TEXT,
+						AMOUNT NUMERIC,
+						UNIT TEXT
+							)`
 
-			_, err = db.Exec(recipeQuery)
+			_, err = db.Exec(context.Background(), recipeQuery)
+
+
+			// 			recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
+			// 						BLOG_ID INTEGER ,
+			// 						NAME TEXT,
+			// 						AMOUNT NUMERIC,
+			// 						UNIT TEXT,
+			// 						FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
+			// 						);`
+
+			// _, err = db.Exec(recipeQuery)
 
 			if err != nil {
 				panic(err)
 			}
 
-			// instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
-			// 			BLOG_ID BIGSERIAL REFERENCES BLOG_POSTS(ID),
-			// 			ORDER NUMERIC,
-			// 			CONTENT TEXT
-			// 				)`
-
-			// _, err = db.Exec(context.Background(), instructionsQuery)
-
 			instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
-						BLOG_ID INTEGER ,
+						BLOG_ID BIGSERIAL REFERENCES BLOG_POSTS(ID),
 						INSTRUCTION_ORDER NUMERIC,
-						CONTENT TEXT,
-						FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
+						CONTENT TEXT
 							)`
 
-			_, err = db.Exec( instructionsQuery)
+			_, err = db.Exec(context.Background(), instructionsQuery)
+
+			// instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
+			// 			BLOG_ID INTEGER ,
+			// 			INSTRUCTION_ORDER NUMERIC,
+			// 			CONTENT TEXT,
+			// 			FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
+			// 				)`
+
+			// _, err = db.Exec( instructionsQuery)
 
 			if err != nil {
 				panic(err)
@@ -154,7 +154,7 @@ import (
 
 
 
-	if err := db.Ping(); err != nil {
+	if err := db.Ping(context.Background()); err != nil {
 		panic(err)
 	}
 
@@ -217,14 +217,14 @@ import (
 }
 
 
-func getCategories(c context.Context, db *sql.DB) gin.HandlerFunc {
+func getCategories(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 	return func (g *gin.Context) {
 
 		var categories []string
 		query := `SELECT DISTINCT CATEGORY
 				FROM BLOG_POSTS`
 
-		rows, err := db.Query( query)
+		rows, err := db.Query(context.Background(), query)
 
 			if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching categories!"})
@@ -255,7 +255,7 @@ func getCategories(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 	}
 }
-func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
+func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 	return func(g *gin.Context) {
 
 		recent := g.Query("recent")
@@ -280,7 +280,7 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 		}
 
 
-		rows, err := db.Query(query)
+		rows, err := db.Query(context.Background(),query)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching blogs!"})
@@ -316,7 +316,7 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
+func getThumbnail(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 	return func (g *gin.Context) {
 		id := g.Param("id")
 
@@ -331,9 +331,9 @@ func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		query := `SELECT THUMBNAIL
 				FROM BLOG_POSTS
-				WHERE ID = ?`
+				WHERE ID = $1`
 
-		row := db.QueryRow(query, id)
+		row := db.QueryRow(context.Background(),query, id)
 
 		err := row.Scan(&thumbNail)
 
@@ -351,7 +351,7 @@ func getThumbnail(c context.Context, db *sql.DB) gin.HandlerFunc {
 }
 
 
-func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
+func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			re := regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
 
 	return func (g *gin.Context) {
@@ -394,11 +394,11 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		blog.SLUG = slug
 
-		query := `SELECT ID, TITLE, BODY, strftime('%m/%d/%Y', DATE_ADDED) AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME
+		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'MM/DD/YYYY') AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME
 				FROM BLOG_POSTS
-				WHERE LOWER(REPLACE(TITLE, ' ', '')) = ?`
+				WHERE LOWER(REPLACE(TITLE, ' ', '')) = $1`
 
-		row := db.QueryRow(query,cleanedSlug)
+		row := db.QueryRow(context.Background(),query,cleanedSlug)
 
 		var rawBody string;
 
@@ -407,9 +407,9 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 		log.Print(blog.DATE_ADDED)
 		ingredientsQuery := `SELECT I.NAME, I.AMOUNT,I.UNIT
 									FROM BLOG_INGREDIENTS I
-									where I.BLOG_ID = ?`
+									where I.BLOG_ID = $1`
 
-		ingredientRows, err := db.Query(ingredientsQuery, blog.ID)
+		ingredientRows, err := db.Query(context.Background(),ingredientsQuery, blog.ID)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
@@ -434,11 +434,11 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		instructionsQuery := `SELECT INSTRUCTION_ORDER, CONTENT
 							FROM BLOG_INSTRUCTIONS
-							WHERE BLOG_ID = ?
+							WHERE BLOG_ID = $1
 							ORDER BY INSTRUCTION_ORDER`
 
 
-		instructionRows, err := db.Query(instructionsQuery, blog.ID)
+		instructionRows, err := db.Query(context.Background(),instructionsQuery, blog.ID)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
@@ -491,7 +491,7 @@ func getAbout(g *gin.Context) {
 	g.HTML(http.StatusOK, "about.html", nil)
 }
 
-func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
+func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 	return func(g *gin.Context) {
 
@@ -576,12 +576,13 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		query := `
 				INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY, SERVINGS, PREP_TIME, COOK_TIME)
-	 			VALUES (?,?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
+	 			VALUES ($1,$2, NOW(), $3, $4, $5, $6, $7)
+				RETURNING ID
 		`
 
-		// var id int
+		var id int
 		// err = db.QueryRow(query, post.TITLE, post.BODY, bytes, post.CATEGORY).Scan(&id)
-		res, err := db.Exec(query, post.TITLE, post.BODY, bytes, post.CATEGORY,  post.SERVINGS,  post.PREP_TIME ,post.COOK_TIME)
+		err = db.QueryRow(context.Background(),query, post.TITLE, post.BODY, bytes, post.CATEGORY,  post.SERVINGS,  post.PREP_TIME ,post.COOK_TIME).Scan(&id)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
@@ -590,22 +591,22 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		}
 
-		id, err := res.LastInsertId()
+		// id, err := res.lastInsertId()
 
 
 
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
-			return
+		// if err != nil {
+		// 	g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
+		// 	return
 
-		}
+		// }
 
 		recipeQuery := `INSERT INTO BLOG_INGREDIENTS (BLOG_ID, NAME, AMOUNT, UNIT)
-						VALUES (?,?, ?, ?)`
+						VALUES ($1,$2, $3, $4)`
 
 		for _, r := range post.INGREDIENTS {
 
-			_, err := db.Exec( recipeQuery, id, r.NAME, r.AMOUNT, r.UNIT )
+			_, err := db.Exec( context.Background(),recipeQuery, id, r.NAME, r.AMOUNT, r.UNIT )
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert recipes"})
 				log.Print(err)
@@ -616,10 +617,10 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 		}
 
 		instructionQuery := `INSERT INTO BLOG_INSTRUCTIONS (BLOG_ID, INSTRUCTION_ORDER, CONTENT)
-						VALUES(?, ?, ?)`
+						VALUES($1, $2, $3)`
 
 		for _, instruction := range post.INSTRUCTIONS {
-			_, err := db.Exec( instructionQuery,id, instruction.ORDER, instruction.CONTENT)
+			_, err := db.Exec( context.Background(), instructionQuery,id, instruction.ORDER, instruction.CONTENT)
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert instruction"})
 				return
@@ -633,7 +634,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 }
 
 
-func searchBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
+func searchBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 	type BLOG_SEARCH struct {
 		ID int
@@ -649,9 +650,9 @@ func searchBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		query := `SELECT ID, TITLE
 				from BLOG_POSTS
-				WHERE TITLE LIKE ?`
+				WHERE TITLE LIKE $1`
 
-		rows, err := db.Query(query, searchTerm)
+		rows, err := db.Query(context.Background(),query, searchTerm)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch search"})
