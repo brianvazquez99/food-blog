@@ -13,7 +13,7 @@
 
   <link rel="canonical" href="https://mailan-home-bakery.onrender.com/{{ .SLUG }}">
 
-  <link rel="icon" type="image/x-icon" href=" http://localhost:8080/assets/logo.png">
+  <link rel="icon" type="image/x-icon" href=" http://localhost:8080/assets/mailan circular mailan circular logo.avif">
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="{{ .TITLE }}">
@@ -83,6 +83,13 @@
 
   const ingredientAmounts = document.getElementsByClassName("amount")
 
+  function parseFraction(fractionString){
+    const [numerator, denominator] = fractionString.split('/').map(Number)
+    const frac = numerator / denominator
+    return frac
+  }
+
+
 
   function scaleDown() {
     let currentServing = document.getElementById('scaling-val')
@@ -95,7 +102,15 @@
     currentServing.textContent = String(Number(currentServing.textContent) - 1)
 
     for (const amount of ingredientAmounts) {
-      const base = parseFloat(amount.dataset.base)
+      const amountBase = amount.dataset.base
+      if(amountBase.includes('/')){
+        const frac = parseFraction(amountBase)
+        const base = parseFloat(frac)
+        const scaled = (base / BaseServing) * Number(currentServing.textContent);
+        amount.textContent = scaled.toFixed(2);
+        continue
+      }
+      const base = parseFloat(amountBase)
        const scaled = (base / BaseServing) * Number(currentServing.textContent);
     amount.textContent = scaled.toFixed(2);
       console.log(base)
@@ -113,7 +128,16 @@
     currentServing.textContent = String(Number(currentServing.textContent) + 1)
 
     for (const amount of ingredientAmounts) {
-      const base = parseFloat(amount.dataset.base)
+            const amountBase = amount.dataset.base
+
+        if(amountBase.includes('/')){
+        const frac = parseFraction(amountBase)
+        const base = parseFloat(frac)
+        const scaled = (base / BaseServing) * Number(currentServing.textContent);
+        amount.textContent = scaled.toFixed(2);
+        continue
+      }
+      const base = parseFloat(amountBase)
        const scaled = (base / BaseServing) * Number(currentServing.textContent);
     amount.textContent = scaled.toFixed(2);
       console.log(base)
@@ -220,7 +244,7 @@
     class="flex border-b border-b-gray-300 justify-between  items-center relative  px-8 py-4">
 
     <div routerLink="" class="hover:cursor-pointer">
-      <img src="/assets/logo.avif" height="65px" width="65px" alt="logo">
+      <img src="/assets/mailan circular logo.avif" height="65px" width="65px" alt="logo">
     </div>
 
     <div class="lg:hidden relative">
@@ -452,6 +476,7 @@
           width="500px">
       </div>
       <h1 id="title" class="title text-lg" itemprop="headline">{{ .TITLE }}</h1>
+      <h6 class="text-center">{{.DATE_ADDED}}</h6>
       <div class="flex py-4 gap-5 justify-center items-center">
         <div class="flex flex-col items-center gap-1">
           <svg fill="#000000" width="25px" height="25px" viewBox="0 -0.5 122.88 122.88" version="1.1" id="Layer_1"
