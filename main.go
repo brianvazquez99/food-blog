@@ -275,7 +275,8 @@ func getBlogs(c context.Context, db *sql.DB) gin.HandlerFunc {
 		}else {
 
 			 query  = `SELECT TITLE, BODY, ID, CHAR(DATE_ADDED, 'YYYY-MM-DD'), CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
-								FROM BLOG_POSTS`
+								FROM BLOG_POSTS
+								ORDER BY DATE_ADDED DESC`
 		}
 
 
@@ -356,7 +357,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 	return func (g *gin.Context) {
 				type INGREDIENT struct {
 			NAME string
-			AMOUNT int64
+			AMOUNT string
 			UNIT string
 		}
 		type INSTRUCTION struct {
@@ -393,7 +394,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		blog.SLUG = slug
 
-		query := `SELECT ID, TITLE, BODY, CHAR(DATE_ADDED, 'YYYY-MM-DD'), SERVINGS, PREP_TIME, COOK_TIME
+		query := `SELECT ID, TITLE, BODY, strftime('%m/%d/%Y', DATE_ADDED) AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME
 				FROM BLOG_POSTS
 				WHERE LOWER(REPLACE(TITLE, ' ', '')) = ?`
 
@@ -403,6 +404,7 @@ func getBlogDetails(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME)
 
+		log.Print(blog.DATE_ADDED)
 		ingredientsQuery := `SELECT I.NAME, I.AMOUNT,I.UNIT
 									FROM BLOG_INGREDIENTS I
 									where I.BLOG_ID = ?`
@@ -495,7 +497,7 @@ func uploadBlog(c context.Context, db *sql.DB) gin.HandlerFunc {
 
 		type INGREDIENT struct {
 			NAME string
-			AMOUNT int64
+			AMOUNT string
 			UNIT string
 		}
 		type INSTRUCTION struct {
