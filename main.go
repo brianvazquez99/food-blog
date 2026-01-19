@@ -196,7 +196,7 @@ import (
 
 
 		r.NoRoute(func(g *gin.Context) {
-			if !strings.HasPrefix(g.Request.URL.Path, "/api/") || !strings.HasPrefix(g.Request.URL.Path, "/getBlogDetails") || !strings.HasPrefix(g.Request.URL.Path, "/getAbout") {
+			if !strings.HasPrefix(g.Request.URL.Path, "/api/") && !strings.HasPrefix(g.Request.URL.Path, "/getBlogDetails") && !strings.HasPrefix(g.Request.URL.Path, "/getAbout") {
 				g.File("front-end\\dist\\front-end\\browser\\index.html")
 			} else if strings.Contains(g.Request.URL.Path, ".") {
 				g.Status(404)
@@ -269,14 +269,14 @@ func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		if recent != "" {
 
-				 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
+				 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), TO_CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC
 								LIMIT 3`
 
 		}else {
 
-			 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
+			 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), TO_CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC`
 		}
