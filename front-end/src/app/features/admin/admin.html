@@ -337,11 +337,8 @@
             <span class="text-lg">Recipe</span>
           </div>
           <div class="h-full p-2 flex flex-col gap-2">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-              <div class="flex flex-col">
-                <label for="serving">Servings</label>
-                <input type="number" [(ngModel)]="post().SERVINGS" class="border border-gray-300 rounded-lg px-2 bg-gray-100" name="serving" id="serving">
-              </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
               <div class="flex flex-col">
                 <label for="prep">Prep Time</label>
                 <input [(ngModel)]="post().PREP_TIME" type="text" class="border border-gray-300 rounded-lg px-2 bg-gray-100" name="prep" id="prep">
