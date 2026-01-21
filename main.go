@@ -637,7 +637,7 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		var id int
 		// err = db.QueryRow(query, post.TITLE, post.BODY, bytes, post.CATEGORY).Scan(&id)
-		err = db.QueryRow(context.Background(),query, post.TITLE, post.BODY, bytes, post.CATEGORY,  post.SERVINGS,  post.PREP_TIME ,post.COOK_TIME).Scan(&id)
+		err = db.QueryRow(context.Background(),query, post.TITLE, post.BODY, bytes, post.CATEGORY,  post.SERVINGS,  post.PREP_TIME ,post.COOK_TIME, post.SLUG).Scan(&id)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
