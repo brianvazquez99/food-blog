@@ -19,7 +19,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -72,6 +72,7 @@ import (
 						DATE_ADDED DATE,
 						DATE_UPDATED DATE,
 						CATEGORY TEXT
+						SLUG TEXT UNIQUE
 							)`
 
 			_, err = db.Exec(context.Background(), blogQuery)
@@ -429,21 +430,34 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		if (found) {
 					g.HTML(http.StatusOK, "blog_detail.html", cachedBlog)
 		}else {
-		cleanedSlug := strings.ReplaceAll(slug, "-", "")
 
 		blog.SLUG = slug
 
 		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'MM/DD/YYYY') AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME
 				FROM BLOG_POSTS
-				WHERE LOWER(REPLACE(TITLE, ' ', '')) = $1`
+				WHERE SLUG = $1`
 
-		row := db.QueryRow(context.Background(),query,cleanedSlug)
+		row := db.QueryRow(context.Background(),query,slug)
 
 		var rawBody string;
 
 		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME)
 
-		log.Print(blog.DATE_ADDED)
+
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				g.HTML(http.StatusNotFound, "404.html", gin.H{
+					"slug": slug,
+				})
+				return
+			}
+
+			log.Println("Query error:", err)
+			g.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to fetch blog",
+			})
+			return
+		}
 		ingredientsQuery := `SELECT I.NAME, I.AMOUNT,I.UNIT
 									FROM BLOG_INGREDIENTS I
 									where I.BLOG_ID = $1`
@@ -553,6 +567,7 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			CATEGORY string
 			INGREDIENTS string
 			INSTRUCTIONS string
+			SLUG string
 		}
 		type BLOG_POST struct {
 			TITLE string
@@ -563,6 +578,7 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			CATEGORY string
 			INGREDIENTS []INGREDIENT
 			INSTRUCTIONS []INSTRUCTION
+			SLUG string
 		}
 
 		var postForm BLOG_POST_FORM
@@ -614,8 +630,8 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 
 		query := `
-				INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY, SERVINGS, PREP_TIME, COOK_TIME)
-	 			VALUES ($1,$2, NOW(), $3, $4, $5, $6, $7)
+				INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY, SERVINGS, PREP_TIME, COOK_TIME, SLUG)
+	 			VALUES ($1,$2, NOW(), $3, $4, $5, $6, $7, $8)
 				RETURNING ID
 		`
 
