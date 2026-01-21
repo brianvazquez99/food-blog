@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tailwindcss/preflight";
 @import '../node_modules/quill/dist/quill.snow.css';
 
 
