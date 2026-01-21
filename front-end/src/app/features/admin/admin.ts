@@ -308,17 +308,17 @@ tap(val => {if (val) {
     formData.append('CATEGORY', this.selectedCategories().join());
     formData.append('INGREDIENTS', JSON.stringify(this.ingredients()));
     formData.append('INSTRUCTIONS', JSON.stringify(this.instructions()));
+    formData.append('SLUG',  this.blogService.getSlug(this.post().TITLE!));
     this.loading.set(true);
     this.http.post('/api/postBlog', formData).subscribe({
       next: (value) => {
         this.showToast.set(true);
         this.loading.set(false);
-        setTimeout(() => {
           window.location.assign(
             'https://mailanhomebakery.com/blogDetails/' +
               this.blogService.getSlug(this.post().TITLE!)
-          );
-        }, 3000);
+          )
+
       },
       error: (err) => {
         console.log(err);
