@@ -71,7 +71,7 @@ import (
 						COOK_TIME TEXT,
 						DATE_ADDED DATE,
 						DATE_UPDATED DATE,
-						CATEGORY TEXT
+						CATEGORY TEXT,
 						SLUG TEXT UNIQUE
 							)`
 
