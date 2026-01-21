@@ -593,6 +593,7 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			SERVINGS: postForm.SERVINGS,
 			PREP_TIME: postForm.PREP_TIME,
 			COOK_TIME: postForm.COOK_TIME,
+			SLUG: postForm.SLUG,
 		}
 
 		json.Unmarshal([]byte(postForm.INGREDIENTS, ), &post.INGREDIENTS)
