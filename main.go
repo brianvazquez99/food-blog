@@ -734,6 +734,7 @@ func searchBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			}
 
 			blog.SLUG = strings.ReplaceAll(blog.TITLE, " ", "-")
+			blog.SLUG = strings.ToLower(blog.SLUG)
 
 			searchResults = append(searchResults, blog)
 
