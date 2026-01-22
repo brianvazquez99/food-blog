@@ -382,10 +382,11 @@ func getThumbnail(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 
-  g.Header("Content-Type", "image/jpeg")
+	g.Header("Content-Type", "image/jpeg")
 	g.Header("Content-Disposition", "inline; filename=image.jpg")
+	g.Header("Cache-Control", "public, max-age=2592000, immutable")
 
-  g.Data(http.StatusOK, "image/jpeg", thumbNail)
+  	g.Data(http.StatusOK, "image/jpeg", thumbNail)
 
 }
 }
