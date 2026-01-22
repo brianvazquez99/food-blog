@@ -189,6 +189,11 @@ r.Use(func(c *gin.Context) {
         api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
     }
 
+	//adding for render health check
+	r.HEAD("/", func(c *gin.Context) {
+    c.Status(http.StatusOK)
+	})
+
 	r.GET("/blogDetails/:slug", getBlogDetails(ctx, db))
 	r.GET("/about", getAbout)
 
