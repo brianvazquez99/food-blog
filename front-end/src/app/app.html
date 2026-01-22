@@ -195,7 +195,7 @@
 
     @if (isSearchOpen()) {
 
-    <div class=" search-bar z-50 rounded-lg shadow-lg absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2"
+    <div (click)="$event.stopPropagation()" class=" search-bar z-50 rounded-lg shadow-lg absolute flex flex-col max-h-[200px]  bg-white right-0 w-1/2"
       [style.bottom]="searchResults() && (searchResults() && searchResults()!.length > 0) ? '-135%' : '-88%'">
       <div class="border-b p-2 gap-3 flex items-center w-full">
         <div>
