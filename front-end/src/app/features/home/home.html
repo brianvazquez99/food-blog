@@ -1,17 +1,17 @@
 <div class="container mx-auto py-5 h-full w-full">
 
-<div class="h-1/2 w-full mt-10">
+<div class="mb-2 w-full mt-10">
   <div class="text-center mb-4">
     <span class="text-4xl title text-[#6E3E6F] font-bold">FEATURED RECIPES</span>
   </div>
-  <div class="flex flex-wrap gap-10 justify-center">
+  <div class="flex flex-wrap gap-10 p-3 justify-center">
     @for (item of blogService.posts(); track $index) {
-      <a [href]="'/blogDetails/'+ item.SLUG"   class="flex items-center p-2 flex-col hover:cursor-pointer hover:shadow-lg transition-all h-full  rounded-lg">
+      <a [href]="'/blogDetails/'+ item.SLUG"   class="flex items-center p-2 gap-2 flex-col hover:cursor-pointer transition-all h-full  rounded-lg">
         <div class="rounded-lg">
           <img [src]="'/api/getThumbnail/' + item.ID" height="200px" width="200px" alt="thumbnail">
         </div>
         <div>
-          <span class="text-xl p-4">{{item.TITLE}}</span>
+          <span class="text-xl p-4 title">{{item.TITLE}}</span>
         </div>
       </a>
     }
