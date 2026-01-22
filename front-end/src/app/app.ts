@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
@@ -14,7 +14,7 @@ import { BlogService } from './blog-service';
   standalone: true,
   changeDetection:ChangeDetectionStrategy.OnPush
 })
-export class App implements OnInit {
+export class App implements OnInit, OnDestroy {
   protected readonly title = signal('MailanHomeBakery');
 
   searchResults = signal<any[] | undefined>(undefined)
@@ -60,8 +60,18 @@ export class App implements OnInit {
     }
   }
 
+  closeSearch =  () => {
+      if (this.isSearchOpen()) {
+        this.isSearchOpen.set(false)
+      }
+    }
+
 
   ngOnInit(): void {
+
+
+
+    document.addEventListener('click', this.closeSearch.bind(this))
       this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe({
         next:value => {
           this.isSearchOpen.set(false )
@@ -92,5 +102,9 @@ export class App implements OnInit {
     else if (this.searchText() == '') {
       this.searchResults.set([])
     }
+  }
+
+  ngOnDestroy(): void {
+    document.removeEventListener('click', this.closeSearch)
   }
 }
