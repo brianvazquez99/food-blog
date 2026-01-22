@@ -704,9 +704,11 @@ func searchBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		searchTerm := "%" + g.Query("search") + "%"
 
+		searchTerm = strings.ToUpper(searchTerm)
+
 		query := `SELECT ID, TITLE
 				from BLOG_POSTS
-				WHERE TITLE LIKE $1`
+				WHERE UPPER(TITLE) LIKE $1`
 
 		rows, err := db.Query(context.Background(),query, searchTerm)
 
