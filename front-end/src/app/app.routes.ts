@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { Home } from './features/home/home';
-import { Admin } from './features/admin/admin';
 import { adminGuard } from './admin-guard';
+import { deactivateAdminGuard } from './deactivate-admin-guard';
+import { Home } from './features/home/home';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -9,6 +9,7 @@ export const routes: Routes = [
     path: 'admin',
     loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
     canActivate: [adminGuard],
+    canDeactivate: [deactivateAdminGuard]
   },
   {
     path: 'recipes',
