@@ -16,7 +16,6 @@ import { BlogService } from '../../blog-service';
 import { RECIPE } from '../../types';
 
 import { DomSanitizer } from '@angular/platform-browser';
-import './quill-recipe-blot';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of, tap } from 'rxjs';
 
@@ -37,8 +36,12 @@ type INSTRUCTION = {
   styleUrl: './admin.css',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(window:beforeunload)': 'unloadNotification($event)',
+    '(click)': 'closeCat'
+  }
 })
-export class Admin implements OnInit {
+export class Admin implements OnInit  {
   destroy = inject(DestroyRef);
 
   post = signal<
@@ -96,32 +99,7 @@ export class Admin implements OnInit {
         ['BTN'],
         ['image', 'video'],
       ],
-      handlers: {
-        BTN: () => {
-          const range = this.quill.getSelection();
 
-          if (!range) return;
-
-          const lines = this.quill.getLines(range.index, range.length);
-
-          console.log(lines);
-
-          // Extract text or HTML per line
-          const htmlLines = lines
-            .map((line: any) => {
-              const text = line.domNode.innerHTML; // preserves <br> and inline formatting
-              return `<p>${text}</p>`;
-            })
-            .join('');
-
-          console.log(htmlLines);
-
-          // Delete the selected range
-          this.quill.deleteText(range.index - 3, range.length + 3);
-
-          this.quill.insertEmbed(range.index, 'recipe', htmlLines, 'user');
-        },
-      },
     },
   };
 
@@ -129,12 +107,7 @@ export class Admin implements OnInit {
   editor = viewChild<ElementRef<QuillEditorComponent>>('editor');
   loading = signal<boolean>(false);
 
-  // categories = toSignal(this.http.get<string[]>("/api/getCategories").pipe(
-  //   catchError((err) => {
-  //     console.error(err)
-  //     return of([])
-  //   })
-  // ), {initialValue: []})
+  isSaved:boolean = false
 
 
   sanitizer = inject(DomSanitizer);
@@ -168,20 +141,38 @@ tap(val => {if (val) {
 })), {initialValue: []})
 
 
-  ngOnInit(): void {
-    const closeCat = () => {
+ngOnInit(): void {
+  const blog = localStorage.getItem('blog_post')
+  const instructions = localStorage.getItem('blog_instructions')
+  const ingredients = localStorage.getItem('blog_ingredients')
+  if(blog) {
+    this.post().BODY = blog
+    this.post.set({...this.post()})
+  }
+  if(instructions) {
+    this.instructions.set(JSON.parse(instructions))
+  }
+  if(ingredients) {
+    this.ingredients.set(JSON.parse(ingredients))
+  }
+}
+
+
+unloadNotification($event: BeforeUnloadEvent) {
+    if (!this.isSaved) {
+      // Modern browsers require these two lines to trigger the native popup
+      $event.preventDefault();
+      $event.returnValue = true;
+    }
+  }
+
+  closeCat() {
       if (this.showCategories()) {
         this.showCategories.set(false);
       }
       if (this.addCat() && this.addCat()?.nativeElement.open) {
         this.addCat()?.nativeElement.close();
       }
-    };
-    document.addEventListener('click', closeCat);
-
-    this.destroy.onDestroy(() => {
-      document.removeEventListener('click', closeCat);
-    });
   }
 
   addCategory() {
@@ -203,6 +194,7 @@ tap(val => {if (val) {
       return;
     }
     this.ingredients.set([...this.ingredients(), this.newIngredient()]);
+    localStorage.setItem('blog_ingredients', JSON.stringify(this.ingredients()))
     this.newIngredient.set({
       NAME: null,
       AMOUNT: null,
@@ -213,18 +205,35 @@ tap(val => {if (val) {
   removeIngredient(index: number) {
     const ingredients = this.ingredients();
     ingredients.splice(index, 1);
+
     this.ingredients.set([...ingredients]);
+    localStorage.setItem('blog_ingredients', JSON.stringify(this.ingredients()))
   }
 
   addInstruction() {
     if (!this.newInstruction()) return;
 
-    const instruction: INSTRUCTION = {
-      ORDER: this.instructions().length + 1,
-      CONTENT: this.newInstruction()!,
-    };
+    console.log(JSON.stringify( this.newInstruction()))
+    const instructions = this.newInstruction()?.split(/\r\n|\r|\n/)
+    console.log(instructions)
+    let newInstructions:INSTRUCTION[] = []
 
-    this.instructions.set([...this.instructions(), instruction]);
+    if (!instructions) return
+
+    instructions?.forEach((element, index) => {
+      const instruction: INSTRUCTION = {
+        ORDER: this.instructions().length + (index + 1),
+        CONTENT: element!,
+      };
+
+      newInstructions.push(instruction)
+
+    })
+
+
+    this.instructions.set([...this.instructions(), ...newInstructions]);
+    localStorage.setItem('blog_instructions', JSON.stringify(this.instructions()))
+
     this.newInstruction.set(undefined);
   }
 
@@ -237,21 +246,17 @@ tap(val => {if (val) {
     }
     console.log(instructions);
     this.instructions.set([...instructions]);
+     localStorage.setItem('blog_instructions', JSON.stringify(this.instructions()))
+
   }
 
-  // use this to change button title
-  populateBtn(quill: any) {
-    this.quill = quill;
+  saveBody(event:any) {
 
-    const recipeBtn = document.querySelector('.ql-BTN') as HTMLElement;
-    console.log(recipeBtn);
-    if (recipeBtn) {
-      recipeBtn.innerHTML = 'Recipe';
-      recipeBtn.style.width = 'auto'; // Prevent it from being a tiny square
-      recipeBtn.style.padding = '0 8px';
-      // Or use an icon: recipeBtn.innerHTML = '<i class="fa fa-utensils"></i>';
-    }
+    console.log(event)
+    localStorage.setItem('blog_post', event)
+
   }
+
 
   onEditorCreated(quill: any) {
     this.quill = quill;
@@ -312,6 +317,10 @@ tap(val => {if (val) {
     this.loading.set(true);
     this.http.post('/api/postBlog', formData).subscribe({
       next: (value) => {
+        this.isSaved = true
+        localStorage.removeItem('blog_post')
+        localStorage.removeItem('blog_ingredients')
+        localStorage.removeItem('blog_instructions')
         this.showToast.set(true);
         this.loading.set(false);
           window.location.assign(

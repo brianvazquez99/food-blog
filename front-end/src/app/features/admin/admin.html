@@ -292,8 +292,8 @@
         Content
       </span>
       <div class="grid grid-cols-1 h-full w-full gap-3 md:grid-cols-2">
-        <quill-editor (onEditorCreated)="populateBtn($event)" #editor [modules]="quillConfig"
-          [customToolbarPosition]="'bottom'" [(ngModel)]="post().BODY" style="height: 400px;"
+        <quill-editor  #editor [modules]="quillConfig"
+          [customToolbarPosition]="'bottom'" (ngModelChange)="saveBody($event)" [(ngModel)]="post().BODY" style="height: 400px;"
           class="w-full bg-white h-full shadow-lg">
           <div quill-toolbar>
             <button>mark recipie</button>

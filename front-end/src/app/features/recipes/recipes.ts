@@ -1,15 +1,12 @@
-import { BlogService } from './../../blog-service';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import {toSignal} from '@angular/core/rxjs-interop'
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RECIPE } from '../../types';
-import { Title } from '@angular/platform-browser';
-import { filter } from 'rxjs';
+import { BlogService } from './../../blog-service';
 
 @Component({
   selector: 'app-recipes',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './recipes.html',
   styleUrl: './recipes.css',
   changeDetection: ChangeDetectionStrategy.OnPush
