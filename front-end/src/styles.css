@@ -3,6 +3,27 @@
 
 
 
+@layer base {
+  h1 {
+    @apply text-4xl font-bold mb-4 mt-6;
+  }
+  h2 {
+    @apply text-3xl font-bold mb-3 mt-5;
+  }
+  h3 {
+    @apply text-2xl font-semibold mb-3 mt-4;
+  }
+  h4 {
+    @apply text-xl font-semibold mb-2 mt-4;
+  }
+  h5 {
+    @apply text-lg font-medium mb-2 mt-3;
+  }
+  h6 {
+    @apply text-base font-medium mb-2 mt-3;
+  }
+}
+
 /* global.css or inside @layer base */
 p:empty::before {
   content: "\00a0"; /* non-breaking space */
