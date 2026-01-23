@@ -6,7 +6,8 @@
     "!/api/**",
     "!/about",
     "!/blogDetails/**",
-    "!/main-styles.css/**"
+    "!/main-styles.css/**",
+    "!/assets/**"
   ],
   "assetGroups": [
     {
