@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"html/template"
+	"golang.org/x/net/html"
+
 	"io"
 	"log"
 	"mime"
@@ -34,6 +37,8 @@ import (
 		}
 
 		var cache *ristretto.Cache[string, any]
+		var re = regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
+
 
 
 		func main() {
@@ -398,7 +403,6 @@ func getThumbnail(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 
 func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
-			re := regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
 
 	return func (g *gin.Context) {
 				type INGREDIENT struct {
@@ -520,6 +524,11 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 		cleaned := re.ReplaceAllString(rawBody, "")
+		cleaned, err = NormalizeQuillHTML(rawBody)
+		if err != nil {
+		log.Println("html normalize error:", err)
+
+		}
 
 		blog.BODY = template.HTML(cleaned)
 
@@ -790,4 +799,35 @@ func LimitMiddleware(lmt *limiter.Limiter) gin.HandlerFunc {
 		c.Next()
 	}
 
+
+
+}
+
+func NormalizeQuillHTML(input string) (string, error) {
+	doc, err := html.Parse(strings.NewReader(input))
+	if err != nil {
+		return "", err
+	}
+
+	var walk func(*html.Node)
+	walk = func(n *html.Node) {
+		// Normalize text nodes
+		if n.Type == html.TextNode {
+			n.Data = strings.ReplaceAll(n.Data, "\u00A0", " ")
+			n.Data =  strings.ReplaceAll(n.Data, "&nbsp;", " ")
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			walk(c)
+		}
+	}
+
+	walk(doc)
+
+	var buf bytes.Buffer
+	if err := html.Render(&buf, doc); err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
 }

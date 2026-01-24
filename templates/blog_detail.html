@@ -54,14 +54,27 @@
       margin-bottom: 24px;
     }
 
+    ul {
+      list-style-type: disc;
+      list-style-position: inside;
+    }
+
+    li p {
+    display: inline;      /* Make the <p> act like text, not block */
+    margin: 0;
+    }
+
+
 
 
     #body {
-      white-space: normal;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      margin: 2px 25% 2px 25%;
-      padding: 40px
+        white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    padding: 40px;
+    line-height: 1.6;
+    hyphens: none;
     }
 
     @media screen and (max-width:768px) {
