@@ -73,7 +73,7 @@
                 </svg>
               </a>
             </li>
-            <li (click)="isSearchOpen.set(!isSearchOpen()); hamburgerOpen.set(false)"
+            <li (click)="isSearchOpen.set(!isSearchOpen()); hamburgerOpen.set(false); $event.stopPropagation()"
               class="flex items-center gap-1 charcoal hover:cursor-pointer ">
               <svg width="25px" height="25px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
                 <g id="SVGRepo_iconCarrier">
