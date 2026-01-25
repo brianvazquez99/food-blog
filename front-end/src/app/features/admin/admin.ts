@@ -24,6 +24,11 @@ type INGREDIENT = {
   AMOUNT: string | null;
   UNIT: string | null;
 };
+
+type INGREDIENT_LIST = {
+  HEADER:string
+  INGREDIENTS: INGREDIENT[]
+}
 type INSTRUCTION = {
   ORDER: number;
   CONTENT: string;
@@ -123,7 +128,7 @@ export class Admin implements OnInit  {
     UNIT: null,
   });
 
-  ingredients = signal<INGREDIENT[]>([]);
+  ingredients = signal<INGREDIENT_LIST[]>([]);
   instructions = signal<INSTRUCTION[]>([]);
 
   saving = signal<boolean>(false);
@@ -184,7 +189,26 @@ unloadNotification($event: BeforeUnloadEvent) {
       this.newCat.set('');
   }
 
-  addIngredient() {
+  addHeader(event:string) {
+    this.ingredients.set([...this.ingredients(), {HEADER: event, INGREDIENTS:[]}])
+    console.log(event)
+  }
+
+  removeHeader(index:number) {
+
+    const header = this.ingredients()[index]
+    if (header) {
+      const okToDelete =confirm('Deleting The header will delete the subitems, are you sure you want to delete it?')
+      if(okToDelete) {
+        this.ingredients().splice(index, 1)
+        this.ingredients.set([...this.ingredients()])
+      }
+    }
+
+  }
+
+
+  addIngredient(index:number) {
     if (
       this.newIngredient().AMOUNT == null ||
       this.newIngredient().NAME == null ||
@@ -193,7 +217,10 @@ unloadNotification($event: BeforeUnloadEvent) {
       console.log(this.newIngredient());
       return;
     }
-    this.ingredients.set([...this.ingredients(), this.newIngredient()]);
+    const ingredients = this.ingredients()[index]
+    ingredients.INGREDIENTS.push(this.newIngredient())
+    this.ingredients()[index] = ingredients
+    this.ingredients.set([...this.ingredients()]);
     localStorage.setItem('blog_ingredients', JSON.stringify(this.ingredients()))
     this.newIngredient.set({
       NAME: null,
@@ -202,11 +229,11 @@ unloadNotification($event: BeforeUnloadEvent) {
     });
   }
 
-  removeIngredient(index: number) {
-    const ingredients = this.ingredients();
-    ingredients.splice(index, 1);
-
-    this.ingredients.set([...ingredients]);
+  removeIngredient(parentIndex: number, listIndex:number) {
+    const ingredients = this.ingredients()[parentIndex];
+    ingredients.INGREDIENTS.splice(listIndex, 1);
+    this.ingredients()[parentIndex] = ingredients
+    this.ingredients.set([...this.ingredients()]);
     localStorage.setItem('blog_ingredients', JSON.stringify(this.ingredients()))
   }
 
