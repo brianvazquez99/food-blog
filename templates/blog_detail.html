@@ -15,7 +15,7 @@
 
   <link rel="canonical" href="https://mailan-home-bakery.onrender.com/{{ .SLUG }}">
 
-   <link rel="icon" type="image/x-icon" href="/assets/mailan circular mailan circular logo.jpg">
+   <link rel="icon" type="image/jpeg" href="/assets/mailan circular logo.jpg">
 
 
   <meta property="og:type" content="article">
@@ -561,9 +561,11 @@
             <div class="p-2">
               {{range .INGREDIENT_LIST}}
               <dl>
+                {{if .HEADER}}
                 <dt>
                   <h3>{{.HEADER}}</h3>
                 </dt>
+                {{end}}
                 {{range .INGREDIENTS}}
               <dd class="border-b border-b-gray-300">
                 <p> <span data-base="{{.AMOUNT}}" class="amount">{{.AMOUNT}}</span>{{.UNIT}} {{.NAME}}</p>
