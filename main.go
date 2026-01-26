@@ -419,7 +419,7 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 			type INGREDIENT_LIST struct {
-			HEADER string
+			HEADER *string
 			INGREDIENTS []INGREDIENT
 		}
 
