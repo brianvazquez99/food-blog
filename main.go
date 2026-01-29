@@ -490,9 +490,9 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 		defer ingredientRows.Close()
+		var ingredientList INGREDIENT_LIST
 		for ingredientRows.Next() {
 			var ingredient INGREDIENT
-			var ingredientList INGREDIENT_LIST
 			err := ingredientRows.Scan(&ingredient.NAME,&ingredient.AMOUNT,&ingredient.UNIT, &ingredientList.HEADER)
 
 		if err != nil {
@@ -508,6 +508,7 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		if existingHeaderIndex != -1 {
 		ingredients[existingHeaderIndex].INGREDIENTS = append(ingredients[existingHeaderIndex].INGREDIENTS, ingredient )
 		}else {
+
 			ingredientList.INGREDIENTS = append(ingredientList.INGREDIENTS, ingredient)
 		}
 
