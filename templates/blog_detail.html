@@ -559,14 +559,14 @@
               <span> Ingredients</span>
             </div>
             <div class="p-2">
-              {{range .INGREDIENT_LIST}}
+              {{range $key, $value := .INGREDIENT_LIST}}
               <dl>
-                {{if .HEADER}}
+                {{if $key}}
                 <dt>
-                  <h3>{{.HEADER}}</h3>
+                  <h3>{{$key}}</h3>
                 </dt>
                 {{end}}
-                {{range .INGREDIENTS}}
+                {{range $value}}
               <dd class="border-b border-b-gray-300">
                 <p> <span data-base="{{.AMOUNT}}" class="amount">{{.AMOUNT}}</span>{{.UNIT}} {{.NAME}}</p>
               </dd>

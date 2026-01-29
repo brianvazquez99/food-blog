@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"html/template"
-	"slices"
 
 	"golang.org/x/net/html"
 
@@ -434,12 +433,12 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			BODY  template.HTML
 			DATE_ADDED string
 			CATEGORY string
-			INGREDIENT_LIST []INGREDIENT_LIST
+			INGREDIENT_LIST map[string][]INGREDIENT
 			INSTRUCTIONS []INSTRUCTION
 		}
 
 		var blog BLOG_POST
-		var ingredients []INGREDIENT_LIST
+		var ingredientList = make(map[string][]INGREDIENT)
 		var instructions []INSTRUCTION
 
 		slug := g.Param("slug")
@@ -490,10 +489,11 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 		defer ingredientRows.Close()
-		var ingredientList INGREDIENT_LIST
+
 		for ingredientRows.Next() {
 			var ingredient INGREDIENT
-			err := ingredientRows.Scan(&ingredient.NAME,&ingredient.AMOUNT,&ingredient.UNIT, &ingredientList.HEADER)
+			var header string
+			err := ingredientRows.Scan(&ingredient.NAME,&ingredient.AMOUNT,&ingredient.UNIT, &header)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan ingredient"})
@@ -501,18 +501,16 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 
-		existingHeaderIndex := slices.IndexFunc(ingredients, func(el INGREDIENT_LIST) bool {
-			return el.HEADER == ingredientList.HEADER
-		})
 
-		if existingHeaderIndex != -1 {
-		ingredients[existingHeaderIndex].INGREDIENTS = append(ingredients[existingHeaderIndex].INGREDIENTS, ingredient )
+		existingHeader := ingredientList[header]
+
+		if existingHeader == nil {
+			ingredientList[header] = append(existingHeader, ingredient)
+		// ingredients[existingHeaderIndex].INGREDIENTS = append(ingredients[existingHeaderIndex].INGREDIENTS, ingredient )
 		}else {
-
-			ingredientList.INGREDIENTS = append(ingredientList.INGREDIENTS, ingredient)
+			ingredientList[header] = append(ingredientList[header], ingredient)
 		}
 
-		ingredients = append(ingredients, ingredientList)
 		}
 
 
@@ -553,7 +551,7 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		blog.BODY = template.HTML(cleaned)
 
-		blog.INGREDIENT_LIST = ingredients
+		blog.INGREDIENT_LIST = ingredientList
 		blog.INSTRUCTIONS = instructions
 
 		cache.SetWithTTL(slug, &blog, int64(len(blog.BODY)), 10 * time.Minute)
