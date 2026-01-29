@@ -699,7 +699,7 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		// }
 
 		recipeQuery := `INSERT INTO BLOG_INGREDIENTS (BLOG_ID, NAME, AMOUNT, UNIT, HEADER)
-						VALUES ($1,$2, $3, $4)`
+						VALUES ($1,$2, $3, $4, $5)`
 
 		for _, r := range post.INGREDIENTS {
 
