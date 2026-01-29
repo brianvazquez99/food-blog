@@ -1,9 +1,9 @@
 import { CanDeactivateFn } from '@angular/router';
-import { Admin } from './features/admin/admin';
+import { AdminBlogDetail } from './features/admin/admin-blog-detail/admin-blog-detail';
 
 
 
-export const deactivateAdminGuard: CanDeactivateFn<Admin> = (component, currentRoute, currentState, nextState) => {
+export const deactivateAdminGuard: CanDeactivateFn<AdminBlogDetail> = (component, currentRoute, currentState, nextState) => {
   if(!component.isSaved) {
     return confirm('If you navigate away all progress will be lost')
   }

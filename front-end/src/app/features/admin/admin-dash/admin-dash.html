@@ -1,1 +1,44 @@
-<p>admin-dash works!</p>
+<div class="h-full w-full p-4">
+  <div id="title" class="text-start">
+    <span class="text-4xl title">
+      Blog Posts
+    </span>
+    <p>You Have {{blogPosts.length}} Posts</p>
+  </div>
+  <div id="table" class="w-full h-full border border-gray-300 rounded bg-white shadow-lg">
+    <table class="table table-auto w-full h-full border-collapse">
+      <thead class="border-b border-b-gray-500 text-gray-500">
+        <th>Title</th>
+        <th>Category</th>
+        <th>Date Created</th>
+        <th>Actions</th>
+      </thead>
+      <tbody>
+        @for(post of blogPosts; track $index) {
+        <tr class="border-b text-center border-b-gray-400 p-2">
+          <td class="font-semibold">
+            {{post.TITLE}}
+          </td>
+          <td >
+            <div class="flex flex-wrap gap-2 justify-center items-center">
+              @for(category of post.CATEGORY; track $index) {
+                <span class="rounded-full px-2 bg-gray-400">
+                               {{category}}
+
+                           </span>
+
+              }
+            </div>
+
+          </td>
+          <td>
+            {{post.DATE_ADDED | date}}
+          </td>
+
+        </tr>
+        }
+      </tbody>
+    </table>
+
+  </div>
+</div>
