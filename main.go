@@ -108,7 +108,8 @@ import (
 						NAME TEXT,
 						AMOUNT NUMERIC,
 						UNIT TEXT,
-						HEADER text
+						HEADER text,
+						SORT_ORDER int
 							)`
 
 			_, err = db.Exec(context.Background(), recipeQuery)
@@ -433,12 +434,12 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			BODY  template.HTML
 			DATE_ADDED string
 			CATEGORY string
-			INGREDIENT_LIST map[string][]INGREDIENT
+			INGREDIENT_LIST []INGREDIENT_LIST
 			INSTRUCTIONS []INSTRUCTION
 		}
 
 		var blog BLOG_POST
-		var ingredientList = make(map[string][]INGREDIENT)
+		var ingredientList []INGREDIENT_LIST
 		var instructions []INSTRUCTION
 
 		slug := g.Param("slug")
@@ -476,9 +477,10 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			})
 			return
 		}
-		ingredientsQuery := `SELECT I.NAME, I.AMOUNT,I.UNIT, I.HEADER
-									FROM BLOG_INGREDIENTS I
-									where I.BLOG_ID = $1`
+		ingredientsQuery := ` select header, json_agg(json_build_object('name', name, 'amount', amount, 'unit', unit)) as ingredients from blog_ingredients
+							where blog_id = $1
+							group by header, sort_order
+							sort by sort_order`
 
 		ingredientRows, err := db.Query(context.Background(),ingredientsQuery, blog.ID)
 
@@ -491,9 +493,9 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		defer ingredientRows.Close()
 
 		for ingredientRows.Next() {
-			var ingredient INGREDIENT
+			var rawJson json.RawMessage
 			var header string
-			err := ingredientRows.Scan(&ingredient.NAME,&ingredient.AMOUNT,&ingredient.UNIT, &header)
+			err := ingredientRows.Scan( &header, &rawJson)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan ingredient"})
@@ -501,15 +503,18 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 
+		var ingredients []INGREDIENT
+		err = json.Unmarshal(rawJson, &ingredients)
 
-		existingHeader := ingredientList[header]
 
-		if existingHeader == nil {
-			ingredientList[header] = append(existingHeader, ingredient)
-		// ingredients[existingHeaderIndex].INGREDIENTS = append(ingredients[existingHeaderIndex].INGREDIENTS, ingredient )
-		}else {
-			ingredientList[header] = append(ingredientList[header], ingredient)
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to unmarshall ingredient"})
+			log.Print(err)
+			return
 		}
+
+		ingredientList = append(ingredientList,INGREDIENT_LIST{HEADER: &header, INGREDIENTS: ingredients } )
+
 
 		}
 
@@ -591,6 +596,7 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		type INGREDIENT_LIST struct {
 			HEADER string
 			INGREDIENTS []INGREDIENT
+			ORDER int
 		}
 
 		type INSTRUCTION struct {
@@ -697,13 +703,13 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		// }
 
-		recipeQuery := `INSERT INTO BLOG_INGREDIENTS (BLOG_ID, NAME, AMOUNT, UNIT, HEADER)
-						VALUES ($1,$2, $3, $4, $5)`
+		recipeQuery := `INSERT INTO BLOG_INGREDIENTS (BLOG_ID, NAME, AMOUNT, UNIT, HEADER, SORT_ORDER)
+						VALUES ($1,$2, $3, $4, $5, $6)`
 
 		for _, r := range post.INGREDIENTS {
 
 			for _, c := range r.INGREDIENTS {
-			_, err := db.Exec( context.Background(),recipeQuery, id, c.NAME, c.AMOUNT, c.UNIT, r.HEADER )
+			_, err := db.Exec( context.Background(),recipeQuery, id, c.NAME, c.AMOUNT, c.UNIT, r.HEADER, r.ORDER )
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert recipes"})
 				log.Print(err)

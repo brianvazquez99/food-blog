@@ -459,7 +459,7 @@
 
 
   </nav>
-  <main class="container mx-auto">
+<main class="container mx-auto">
     <article itemscope itemtype="https://schema.org/Article">
       <div id="thumbnail">
         <img src="/api/getThumbnail/{{ .ID }}" alt="{{ .TITLE }} thumbnail" itemprop="image" height="200px"
@@ -559,16 +559,16 @@
               <span> Ingredients</span>
             </div>
             <div class="p-2">
-              {{range $key, $value := .INGREDIENT_LIST}}
+              {{range .INGREDIENT_LIST}}
               <dl>
-                {{if $key}}
+                {{if .HEADER}}
                 <dt>
                   <h3>{{$key}}</h3>
                 </dt>
                 {{end}}
-                {{range $value}}
+                {{range .INGREDIENTS}}
               <dd class="border-b border-b-gray-300">
-                <p> <span data-base="{{.AMOUNT}}" class="amount">{{.AMOUNT}}</span>{{.UNIT}} {{.NAME}}</p>
+                <p> <span data-base="{{.AMOUNT}}" class="amount">{{.AMOUNT}}</span> {{.UNIT}} {{.NAME}}</p>
               </dd>
                 {{end}}
               </dl>

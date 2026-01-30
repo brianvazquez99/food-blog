@@ -28,6 +28,7 @@ type INGREDIENT = {
 type INGREDIENT_LIST = {
   HEADER:string
   INGREDIENTS: INGREDIENT[]
+  ORDER:number
 }
 type INSTRUCTION = {
   ORDER: number;
@@ -190,7 +191,7 @@ unloadNotification($event: BeforeUnloadEvent) {
   }
 
   addHeader(event:string) {
-    this.ingredients.set([...this.ingredients(), {HEADER: event, INGREDIENTS:[]}])
+    this.ingredients.set([...this.ingredients(), {HEADER: event, INGREDIENTS:[], ORDER: this.ingredients().length}])
     console.log(event)
   }
 
@@ -201,6 +202,9 @@ unloadNotification($event: BeforeUnloadEvent) {
       const okToDelete =confirm('Deleting The header will delete the subitems, are you sure you want to delete it?')
       if(okToDelete) {
         this.ingredients().splice(index, 1)
+        this.ingredients().forEach((el, i) => {
+          el.ORDER = i + 1
+        })
         this.ingredients.set([...this.ingredients()])
       }
     }
