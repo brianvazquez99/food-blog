@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"html/template"
 
@@ -494,7 +495,7 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		for ingredientRows.Next() {
 			var rawJson json.RawMessage
-			var header string
+			var header sql.NullString
 			err := ingredientRows.Scan( &header, &rawJson)
 
 		if err != nil {
@@ -513,7 +514,15 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			return
 		}
 
-		ingredientList = append(ingredientList,INGREDIENT_LIST{HEADER: &header, INGREDIENTS: ingredients } )
+		var newHeader *string = nil
+
+		if header.Valid {
+			newHeader = &header.String
+		}else{
+			newHeader = nil
+		}
+
+		ingredientList = append(ingredientList,INGREDIENT_LIST{ HEADER: newHeader, INGREDIENTS: ingredients } )
 
 
 		}
