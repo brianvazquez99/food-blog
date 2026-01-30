@@ -480,7 +480,7 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		ingredientsQuery := ` select header, json_agg(json_build_object('name', name, 'amount', amount, 'unit', unit)) as ingredients from blog_ingredients
 							where blog_id = $1
 							group by header, sort_order
-							sort by sort_order`
+							order by sort_order`
 
 		ingredientRows, err := db.Query(context.Background(),ingredientsQuery, blog.ID)
 
