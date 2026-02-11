@@ -91,6 +91,15 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4768908417337693"
      crossorigin="anonymous"></script>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-STN7RFEJQF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-STN7RFEJQF');
+</script>
 
 <link rel="stylesheet" href="/main-styles.css">
 <link href="https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap" rel="stylesheet">
@@ -107,7 +116,7 @@
     class="flex border-b border-b-gray-300 justify-between  items-center relative  px-8 py-4">
 
     <div routerLink="" class="hover:cursor-pointer">
-      <img src="/assets/mailan circular logo.avif" height="65px" width="65px" alt="logo">
+      <img fetchpriority="high" src="/assets/mailan circular logo.avif" height="65px" width="65px" alt="logo">
     </div>
 
     <div class="lg:hidden relative">
