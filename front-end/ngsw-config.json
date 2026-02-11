@@ -5,6 +5,8 @@
     "/**",
     "!/api/**",
     "!/about",
+    "!/privacy-policy",
+    "!/terms-and-condition",
     "!/blogDetails/**",
     "!/main-styles.css/**",
     "!/assets/**"
