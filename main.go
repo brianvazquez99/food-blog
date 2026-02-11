@@ -205,6 +205,8 @@ r.Use(func(c *gin.Context) {
 
 	r.GET("/blogDetails/:slug", getBlogDetails(ctx, db))
 	r.GET("/about", getAbout)
+	r.GET("/privacy-policy", getPrivacyPolicy)
+	r.GET("/terms-and-conditions", getTerms)
 
 
 	r.GET("/main-styles.css", func(c *gin.Context) {
@@ -590,6 +592,14 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 func getAbout(g *gin.Context) {
 	g.HTML(http.StatusOK, "about.html", nil)
+}
+
+func getPrivacyPolicy(g *gin.Context) {
+	g.HTML(http.StatusOK, "privacy_policy.html", nil)
+}
+
+func getTerms(g *gin.Context) {
+	g.HTML(http.StatusOK, "privacy_policy.html", nil)
 }
 
 func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
