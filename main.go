@@ -599,7 +599,7 @@ func getPrivacyPolicy(g *gin.Context) {
 }
 
 func getTerms(g *gin.Context) {
-	g.HTML(http.StatusOK, "privacy_policy.html", nil)
+	g.HTML(http.StatusOK, "terms_condition.html", nil)
 }
 
 func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
