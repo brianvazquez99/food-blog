@@ -6,7 +6,7 @@
     "!/api/**",
     "!/about",
     "!/privacy-policy",
-    "!/terms-and-condition",
+    "!/terms-and-conditions",
     "!/blogDetails/**",
     "!/main-styles.css/**",
     "!/assets/**"
