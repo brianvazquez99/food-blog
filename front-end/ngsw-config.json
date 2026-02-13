@@ -8,6 +8,7 @@
     "!/privacy-policy",
     "!/terms-and-conditions",
     "!/blogDetails/**",
+    "!/contact/**",
     "!/main-styles.css/**",
     "!/assets/**"
   ],
@@ -35,6 +36,17 @@
           "/assests/**",
           "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-cache",
+      "urls": ["/api/getBlogs/**"],
+      "cacheConfig": {
+        "maxAge": "1h",
+        "strategy": "performance",
+        "maxSize": 4
       }
     }
   ]

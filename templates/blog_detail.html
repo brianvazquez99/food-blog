@@ -15,14 +15,14 @@
 
   <link rel="canonical" href="https://mailan-home-bakery.onrender.com/{{ .SLUG }}">
 
-   <link rel="icon" type="image/jpeg" href="/assets/mailan circular logo.jpg">
+  <link rel="icon" type="image/jpeg" href="/assets/mailan circular logo.jpg">
 
 
   <meta property="og:type" content="article">
   <meta property="og:title" content="{{ .TITLE }}">
   <meta property="og:image" content="https://mailan-home-bakery.onrender.com/api/getThumbnail/{{ .ID }}">
   <meta property="og:url" content="https://mailan-home-bakery.onrender.com/{{ .SLUG }}">
-  <meta property="og:site_name" content="My Blog">
+  <meta property="og:site_name" content="Mailan Home Bakery">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{{ .TITLE }}">
@@ -60,21 +60,22 @@
     }
 
     li p {
-    display: inline;      /* Make the <p> act like text, not block */
-    margin: 0;
+      display: inline;
+      /* Make the <p> act like text, not block */
+      margin: 0;
     }
 
 
 
 
     #body {
-        white-space: normal;
-    word-break: normal;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    padding: 40px;
-    line-height: 1.6;
-    hyphens: none;
+      white-space: normal;
+      word-break: normal;
+      overflow-wrap: break-word;
+      hyphens: auto;
+      padding: 40px;
+      line-height: 1.6;
+      hyphens: none;
     }
 
     @media screen and (max-width:768px) {
@@ -87,19 +88,19 @@
       margin-top: 20px;
       margin-bottom: 20px;
     }
-    @view-transition {
-  navigation: auto;
-  }
 
+    @view-transition {
+      navigation: auto;
+    }
   </style>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4768908417337693"
-     crossorigin="anonymous"></script>
+    crossorigin="anonymous"></script>
 </head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-STN7RFEJQF"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag() { dataLayer.push(arguments); }
   gtag('js', new Date());
 
   gtag('config', 'G-STN7RFEJQF');
@@ -111,7 +112,8 @@
 
 
 
-<link href="/assets/navbar.js" as="script" rel="preload"  ></link>
+<link href="/assets/navbar.js" as="script" rel="preload">
+</link>
 
 <script src="/assets/navbar.js" defer></script>
 
@@ -157,7 +159,13 @@
                 Recipes
               </a>
             </li>
-            <!-- <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li> -->
+            <li routerLinkActive="text-amber-800"
+              class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
+              <a href="https://mailanhomebakery.com/contact">
+
+                Contact
+              </a>
+            </li>
             <li class="flex gap-2">
               <a href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
                 <svg width="25px" height="25px" viewBox="0 0 24 24" fill="#3B2F2F" xmlns="http://www.w3.org/2000/svg">
@@ -245,7 +253,13 @@
           Recipes
         </a>
       </li>
-      <!-- <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li> -->
+      <li routerLinkActive="text-amber-800"
+        class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
+        <a href="https://mailanhomebakery.com/contact">
+
+          Contact
+        </a>
+      </li>
       <li class="flex gap-2">
         <a href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
           <svg width="25px" height="25px" viewBox="0 0 24 24" fill="#3B2F2F" xmlns="http://www.w3.org/2000/svg">
@@ -286,7 +300,7 @@
             </g>
           </svg>
         </a>
-              <a href="https://www.pinterest.com/mailanhomebakery" target="_blank">
+        <a href="https://www.pinterest.com/mailanhomebakery" target="_blank">
           <svg width="25px" height="25px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -366,7 +380,7 @@
 
 
   </nav>
-<main class="container mx-auto">
+  <main class="container mx-auto">
     <article itemscope itemtype="https://schema.org/Article">
       <div id="thumbnail">
         <img src="/api/getThumbnail/{{ .ID }}" alt="{{ .TITLE }} thumbnail" itemprop="image" height="200px"
@@ -474,9 +488,9 @@
                 </dt>
                 {{end}}
                 {{range .INGREDIENTS}}
-              <dd class="border-b border-b-gray-300">
-                <p> <span data-base="{{.AMOUNT}}" class="amount">{{.AMOUNT}}</span> {{.UNIT}} {{.NAME}}</p>
-              </dd>
+                <dd class="border-b border-b-gray-300">
+                  <p> <span data-base="{{.AMOUNT}}" class="amount">{{.AMOUNT}}</span> {{.UNIT}} {{.NAME}}</p>
+                </dd>
                 {{end}}
               </dl>
 
