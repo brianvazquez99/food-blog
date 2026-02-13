@@ -7,8 +7,8 @@
     "!/about",
     "!/privacy-policy",
     "!/terms-and-conditions",
+    "!/contact",
     "!/blogDetails/**",
-    "!/contact/**",
     "!/main-styles.css/**",
     "!/assets/**"
   ],
@@ -42,7 +42,7 @@
   "dataGroups": [
     {
       "name": "api-cache",
-      "urls": ["/api/getBlogs/**"],
+      "urls": ["/api/getBlogs**"],
       "cacheConfig": {
         "maxAge": "1h",
         "strategy": "performance",
