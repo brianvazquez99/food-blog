@@ -2,10 +2,11 @@ import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BlogService } from '../../../blog-service';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dash',
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './admin-dash.html',
   styleUrl: './admin-dash.css'
 })

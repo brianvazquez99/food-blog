@@ -5,19 +5,20 @@ import {
   DestroyRef,
   ElementRef,
   inject,
+  OnDestroy,
   OnInit,
   signal,
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { BlogService } from '../../../blog-service';
 import { RECIPE } from '../../../types';
 
-import { DomSanitizer } from '@angular/platform-browser';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, of, tap } from 'rxjs';
+import { DomSanitizer } from '@angular/platform-browser';
+import { catchError, of, Subscription, tap } from 'rxjs';
 
 type INGREDIENT = {
   NAME: string | null;
@@ -46,7 +47,7 @@ type INSTRUCTION = {
     '(click)': 'closeCat'
   }
 })
-export class AdminBlogDetail implements OnInit  {
+export class AdminBlogDetail implements OnInit, OnDestroy  {
   destroy = inject(DestroyRef);
 
   post = signal<
@@ -72,7 +73,7 @@ export class AdminBlogDetail implements OnInit  {
 
   http = inject(HttpClient);
 
-  router = inject(Router);
+  router = inject(ActivatedRoute);
 
   blogService = inject(BlogService);
 
@@ -145,8 +146,18 @@ tap(val => {if (val) {
 }
 })), {initialValue: []})
 
+private paramSub!:Subscription
 
 ngOnInit(): void {
+
+  this.paramSub =  this.router.queryParamMap.subscribe((params) => {
+    const slug = params.get("slug")
+    console.log("slug", slug)
+    if(slug) {
+      this.getExistingBlog(slug)
+    }
+  })
+
   const blog = localStorage.getItem('blog_post')
   const instructions = localStorage.getItem('blog_instructions')
   const ingredients = localStorage.getItem('blog_ingredients')
@@ -160,6 +171,17 @@ ngOnInit(): void {
   if(ingredients) {
     this.ingredients.set(JSON.parse(ingredients))
   }
+}
+
+
+getExistingBlog(slug:string) {
+  this.http.get(`/api/blogDetailsJson/${slug}`).subscribe({
+    next:(data:any) => {
+       this.post.set({...data})
+       this.instructions.set(data.INSTRUCTIONS)
+       this.ingredients.set(data.INGREDIENTS)
+    },
+  })
 }
 
 
@@ -365,5 +387,9 @@ unloadNotification($event: BeforeUnloadEvent) {
 
   openAddCat() {
     this.addCat()?.nativeElement.showModal();
+  }
+
+  ngOnDestroy(): void {
+    this.paramSub.unsubscribe()
   }
 }
