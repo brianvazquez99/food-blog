@@ -1,4 +1,4 @@
-<div class="home-layout h-full w-full">
+<div class="home-layout h-full w-full ">
   <nav style="background-color: #FAF3E3;"
     class="flex border-b border-b-gray-300 justify-between  items-center relative  px-8 py-4">
 
@@ -31,8 +31,13 @@
             </li>
             <li routerLink="recipes" routerLinkActive="text-amber-800"
               class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Recipes</li>
-            <!-- <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li> -->
-            <li class="flex gap-2">
+       <li routerLinkActive="text-amber-800"
+              class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
+              <a href="/contact">
+
+                Contact
+              </a>
+            </li>               <li class="flex gap-2">
               <a href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
                 <svg width="25px" height="25px" viewBox="0 0 24 24" fill="#3B2F2F" xmlns="http://www.w3.org/2000/svg">
                   <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -110,8 +115,13 @@
       </li>
       <li routerLink="recipes" routerLinkActive="text-amber-800"
         class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Recipes</li>
-      <!-- <li class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">Contact</li> -->
-      <li class="flex gap-2">
+       <li routerLinkActive="text-amber-800"
+              class="hover:underline text-xl transition-all hover:cursor-pointer charcoal title">
+              <a href="/contact">
+
+                Contact
+              </a>
+            </li>         <li class="flex gap-2">
         <a href="https://www.facebook.com/people/Mailan-Home-Bakery/61555549815641/#" target="_blank">
           <svg width="25px" height="25px" viewBox="0 0 24 24" fill="#3B2F2F" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -263,5 +273,16 @@
 
   </div>
 
+  <footer class="bg-black w-full text-white font-semibold flex gap-2 items-center p-4">
+    <div>
+      &copy; Mailan Home Bakery
+    </div>
 
+      <a class="border-r border-r-white px-2"  href="/privacy-policy">Privacy Policy</a>
+     <a  class="border-r border-r-white px-2" href="/terms-and-conditions">
+      Terms & Conditions
+     </a>
+
+
+</footer>
 </div>

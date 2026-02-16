@@ -1,11 +1,9 @@
 .home-layout {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
 }
 
-.home-body {
-  grid-row: 2/2;
-}
+
 
 .search-bar {
 animation: slideDown 0.35s ease-out forwards;

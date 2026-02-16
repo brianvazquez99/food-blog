@@ -5,6 +5,9 @@
     "/**",
     "!/api/**",
     "!/about",
+    "!/privacy-policy",
+    "!/terms-and-conditions",
+    "!/contact",
     "!/blogDetails/**",
     "!/main-styles.css/**",
     "!/assets/**"
@@ -33,6 +36,17 @@
           "/assests/**",
           "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "api-cache",
+      "urls": ["/api/getBlogs**"],
+      "cacheConfig": {
+        "maxAge": "1h",
+        "strategy": "performance",
+        "maxSize": 4
       }
     }
   ]
