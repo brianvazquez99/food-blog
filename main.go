@@ -575,6 +575,166 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 	}
 }
 
+func getBlogDetailsJson(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
+
+	return func (g *gin.Context) {
+		type INGREDIENT struct {
+			NAME string
+			AMOUNT string
+			UNIT string
+		}
+		type INSTRUCTION struct {
+			ORDER int64
+			CONTENT string
+		}
+
+			type INGREDIENT_LIST struct {
+			HEADER *string
+			INGREDIENTS []INGREDIENT
+		}
+
+
+		type BLOG_POST struct {
+			TITLE string
+			ID int64
+			SLUG string
+			SERVINGS string
+			PREP_TIME string
+			COOK_TIME string
+			BODY  string
+			DATE_ADDED string
+			CATEGORY string
+			INGREDIENT_LIST []INGREDIENT_LIST
+			INSTRUCTIONS []INSTRUCTION
+		}
+
+		var blog BLOG_POST
+		var ingredients []INGREDIENT_LIST
+		var instructions []INSTRUCTION
+
+		slug := g.Param("slug")
+
+ {
+
+		blog.SLUG = slug
+
+		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'MM/DD/YYYY') AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME
+				FROM BLOG_POSTS
+				WHERE SLUG = $1`
+
+		row := db.QueryRow(context.Background(),query,slug)
+
+		var rawBody string;
+
+		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME)
+
+
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				g.HTML(http.StatusNotFound, "404.html", gin.H{
+					"slug": slug,
+				})
+				return
+			}
+
+			log.Println("Query error:", err)
+			g.JSON(http.StatusInternalServerError, gin.H{
+				"message": "Failed to fetch blog",
+			})
+			return
+		}
+		ingredientsQuery := `SELECT I.NAME, I.AMOUNT,I.UNIT, I.HEADER
+									FROM BLOG_INGREDIENTS I
+									where I.BLOG_ID = $1`
+
+		ingredientRows, err := db.Query(context.Background(),ingredientsQuery, blog.ID)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
+			log.Print(err)
+			return
+		}
+
+		defer ingredientRows.Close()
+		for ingredientRows.Next() {
+			var ingredient INGREDIENT
+			var ingredientList INGREDIENT_LIST
+			err := ingredientRows.Scan(&ingredient.NAME,&ingredient.AMOUNT,&ingredient.UNIT, &ingredientList.HEADER)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan ingredient"})
+			log.Print(err)
+			return
+		}
+
+		existingHeaderIndex := slices.IndexFunc(ingredients, func(el INGREDIENT_LIST) bool {
+			return el.HEADER == ingredientList.HEADER
+		})
+
+		if existingHeaderIndex != -1 {
+		ingredients[existingHeaderIndex].INGREDIENTS = append(ingredients[existingHeaderIndex].INGREDIENTS, ingredient )
+		}else {
+			ingredientList.INGREDIENTS = append(ingredientList.INGREDIENTS, ingredient)
+		}
+
+		ingredients = append(ingredients, ingredientList)
+		}
+
+
+		instructionsQuery := `SELECT INSTRUCTION_ORDER, CONTENT
+							FROM BLOG_INSTRUCTIONS
+							WHERE BLOG_ID = $1
+							ORDER BY INSTRUCTION_ORDER`
+
+
+		instructionRows, err := db.Query(context.Background(),instructionsQuery, blog.ID)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
+			log.Print(err)
+			return
+		}
+
+		defer instructionRows.Close()
+		for instructionRows.Next() {
+			var instruction INSTRUCTION
+			err := instructionRows.Scan(&instruction.ORDER, &instruction.CONTENT)
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan instruction"})
+			log.Print(err)
+			return
+		}
+
+		instructions = append(instructions, instruction)
+		}
+
+
+
+		blog.BODY = rawBody
+
+		blog.INGREDIENT_LIST = ingredients
+		blog.INSTRUCTIONS = instructions
+
+
+		cache.Wait()
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message" : "Failed to scan row"})
+			return
+		}
+
+		g.JSON(http.StatusOK, blog)
+
+		}
+
+
+		// g.JSON(http.StatusOK, blog)
+
+
+	}
+}
+
 func getAbout(g *gin.Context) {
 	g.HTML(http.StatusOK, "about.html", nil)
 }

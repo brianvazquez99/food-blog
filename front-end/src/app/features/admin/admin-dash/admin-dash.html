@@ -1,28 +1,28 @@
-<div class="h-full w-full p-4">
-  <div id="title" class="text-start">
-    <span class="text-4xl title">
+<div class="h-full w-full lg:px-10 lg:py-4">
+  <div id="title" class="text-start mb-4">
+    <span class="text-4xl font-bold">
       Blog Posts
     </span>
-    <p>You Have {{blogPosts.length}} Posts</p>
+    <p class="text-gray-400">Manage your {{blogPosts.length}} Posts</p>
   </div>
-  <div id="table" class="w-full h-full border border-gray-300 rounded bg-white shadow-lg">
+  <div id="table" class="w-full h-[70%] border border-gray-300 rounded bg-white ">
     <table class="table table-auto w-full h-full border-collapse">
-      <thead class="border-b border-b-gray-500 text-gray-500">
-        <th>Title</th>
+      <thead class="border-b border-b-gray-500 text-gray-500 ">
+        <th class="p-4">Title</th>
         <th>Category</th>
         <th>Date Created</th>
         <th>Actions</th>
       </thead>
       <tbody>
         @for(post of blogPosts; track $index) {
-        <tr class="border-b text-center border-b-gray-400 p-2">
-          <td class="font-semibold">
+        <tr class="border-b text-center border-b-gray-400 ">
+          <td class="font-semibold text-lg">
             {{post.TITLE}}
           </td>
           <td >
             <div class="flex flex-wrap gap-2 justify-center items-center">
               @for(category of post.CATEGORY; track $index) {
-                <span class="rounded-full px-2 bg-gray-400">
+                <span class="rounded-full px-2 bg-yellow-400 text-purple-700 font-semibold text-sm">
                                {{category}}
 
                            </span>
@@ -33,6 +33,16 @@
           </td>
           <td>
             {{post.DATE_ADDED | date}}
+          </td>
+          <td>
+            <div class="flex items-center justify-center gap-2">
+              <span class="text-green-600 hover:cursor-pointer">
+                Edit
+              </span>
+              <span class="text-red-600 hover:cursor-pointer">
+                Delete
+              </span>
+            </div>
           </td>
 
         </tr>
