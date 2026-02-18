@@ -777,6 +777,7 @@ func getContact(g *gin.Context) {
 	g.HTML(http.StatusOK, "contact.html", nil)
 }
 
+
 func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 	return func(g *gin.Context) {
@@ -868,17 +869,36 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		}
 
 
+		trx, err := db.Begin(context.Background())
 
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured creating transaction"})
+			log.Print(err)
+			return
+		}
+
+		defer trx.Rollback(context.Background())
 
 		query := `
 				INSERT INTO BLOG_POSTS (TITLE, BODY, DATE_ADDED, THUMBNAIL, CATEGORY, SERVINGS, PREP_TIME, COOK_TIME, SLUG)
 	 			VALUES ($1,$2, NOW(), $3, $4, $5, $6, $7, $8)
+				ON CONFLICT (SLUG)
+				DO
+				UPDATE
+				SET TITLE = EXCLUDED.TITLE,
+				BODY = EXCLUDED.BODY,
+				DATE_UPDATED = NOW(),
+				THUMBNAIL = EXCLUDED.THUMBNAIL,
+				CATEGORY = EXCLUDED.CATEGORY,
+				SERVINGS = EXCLUDED.SERVINGS,
+				PREP_TIME = EXCLUDED.PREP_TIME,
+				COOK_TIME = EXCLUDED.COOK_TIME
 				RETURNING ID
 		`
 
 		var id int
 		// err = db.QueryRow(query, post.TITLE, post.BODY, bytes, post.CATEGORY).Scan(&id)
-		err = db.QueryRow(context.Background(),query, post.TITLE, post.BODY, bytes, post.CATEGORY,  post.SERVINGS,  post.PREP_TIME ,post.COOK_TIME, post.SLUG).Scan(&id)
+		err = trx.QueryRow(context.Background(),query, post.TITLE, post.BODY, bytes, post.CATEGORY,  post.SERVINGS,  post.PREP_TIME ,post.COOK_TIME, post.SLUG).Scan(&id)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
@@ -897,13 +917,27 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		// }
 
+
+
+
+
+		deleteRecipe := "DELETE FROM BLOG_INGREDIENTS WHERE BLOG_ID = $1"
+
+		_, err = trx.Exec(context.Background(), deleteRecipe, id)
+
+		if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to delete recipes"})
+				log.Print(err)
+				return
+		}
+
 		recipeQuery := `INSERT INTO BLOG_INGREDIENTS (BLOG_ID, NAME, AMOUNT, UNIT, HEADER, SORT_ORDER)
 						VALUES ($1,$2, $3, $4, $5, $6)`
 
 		for _, r := range post.INGREDIENTS {
 
 			for _, c := range r.INGREDIENTS {
-			_, err := db.Exec( context.Background(),recipeQuery, id, c.NAME, c.AMOUNT, c.UNIT, r.HEADER, r.ORDER )
+			_, err := trx.Exec( context.Background(),recipeQuery, id, c.NAME, c.AMOUNT, c.UNIT, r.HEADER, r.ORDER )
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert recipes"})
 				log.Print(err)
@@ -916,11 +950,22 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		}
 
+		deleteInstructions := "DELETE FROM BLOG_INSTRUCTIONS WHERE BLOG_ID = $1"
+
+		_, err = trx.Exec(context.Background(), deleteInstructions, id)
+
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to delete instructions"})
+				log.Print(err)
+				return
+			}
+
+
 		instructionQuery := `INSERT INTO BLOG_INSTRUCTIONS (BLOG_ID, INSTRUCTION_ORDER, CONTENT)
 						VALUES($1, $2, $3)`
 
 		for _, instruction := range post.INSTRUCTIONS {
-			_, err := db.Exec( context.Background(), instructionQuery,id, instruction.ORDER, instruction.CONTENT)
+			_, err := trx.Exec( context.Background(), instructionQuery,id, instruction.ORDER, instruction.CONTENT)
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert instruction"})
 				return
