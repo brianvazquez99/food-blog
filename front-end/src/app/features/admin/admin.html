@@ -1,5 +1,23 @@
 <div class="h-full w-full">
-  <nav class="p-2 border-b border-b-gray-300">
+  <div class="h-full w-full flex items-center justify-center">
+
+    <div class=" h-1/2 w-1/4 p-2 bg-white rounded-lg mx-auto shadow-lg">
+      <div class="text-center text-lg font-semibold">
+        Login
+      </div>
+      <div class="h-full w-full flex flex-col items-center justify-center">
+        <label for="pass">Password</label>
+        <input class="bg-gray-200 rounded-lg px-2 py-1" type="password" name="pass" id="pass">
+        <button class="rounded-lg w-1/4 mt-4 shadow-lg p-2 bg-green-500 text-white font-semibold">
+          Sign In
+        </button>
+      </div>
+    </div>
+
+
+
+  </div>
+  <!-- <nav class="p-2 border-b border-b-gray-300">
     <ul>
       <li routerLink="/admin" class="flex hover:cursor-pointer items-center gap-2">
         <svg width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#000000">
@@ -36,6 +54,6 @@
   <div class="h-full w-full container mx-auto">
     <router-outlet></router-outlet>
 
-  </div>
+  </div> -->
 
 </div>
