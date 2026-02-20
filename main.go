@@ -27,7 +27,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
-)
+	"food-blog/auth"
+_ "modernc.org/sqlite")
 
 		type BLOG struct {
 			TITLE        string
@@ -50,94 +51,94 @@ import (
 
 
 
-			database_url := os.Getenv("DATABASE_URL")
+			// database_url := os.Getenv("DATABASE_URL")
 
-			config, err := pgxpool.ParseConfig(database_url)
+			// config, err := pgxpool.ParseConfig(database_url)
 
-				// db, err := sql.Open("sqlite", "./blog.db")
+				db, err := sql.Open("sqlite", "./blog.db")
 
 
 				if err != nil {
 					log.Fatal(err)
 				}
 
-				db, err := pgxpool.NewWithConfig(context.Background(), config)
-				if err != nil {
-					log.Fatal(err)
-				}
+				// db, err := pgxpool.NewWithConfig(context.Background(), config)
+				// if err != nil {
+				// 	log.Fatal(err)
+				// }
 
 				defer db.Close()
 
-			blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
-						ID BIGSERIAL PRIMARY KEY,
-						TITLE TEXT,
-						BODY TEXT,
-						THUMBNAIL BYTEA,
-						SERVINGS TEXT,
-						PREP_TIME TEXT,
-						COOK_TIME TEXT,
-						DATE_ADDED DATE,
-						DATE_UPDATED DATE,
-						CATEGORY TEXT,
-						SLUG TEXT UNIQUE
-							)`
-
-			_, err = db.Exec(context.Background(), blogQuery)
-
-			// 			blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
-			// 			ID INTEGER PRIMARY KEY,
+			// blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
+			// 			ID BIGSERIAL PRIMARY KEY,
 			// 			TITLE TEXT,
 			// 			BODY TEXT,
-			// 			THUMBNAIL BLOB,
+			// 			THUMBNAIL BYTEA,
 			// 			SERVINGS TEXT,
 			// 			PREP_TIME TEXT,
 			// 			COOK_TIME TEXT,
 			// 			DATE_ADDED DATE,
 			// 			DATE_UPDATED DATE,
-			// 			CATEGORY TEXT
+			// 			CATEGORY TEXT,
+			// 			SLUG TEXT UNIQUE
 			// 				)`
 
-			// _, err = db.Exec( blogQuery)
+			// _, err = db.Exec(context.Background(), blogQuery)
+
+						blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
+						ID INTEGER PRIMARY KEY,
+						TITLE TEXT,
+						BODY TEXT,
+						THUMBNAIL BLOB,
+						SERVINGS TEXT,
+						PREP_TIME TEXT,
+						COOK_TIME TEXT,
+						DATE_ADDED DATE,
+						DATE_UPDATED DATE,
+						CATEGORY TEXT
+							)`
+
+			_, err = db.Exec( blogQuery)
 
 			if err != nil {
 				log.Print("error creating blog posts table")
 				panic(err)
 			}
 
-						recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
-						BLOG_ID BIGINT REFERENCES BLOG_POSTS(ID),
-						NAME TEXT,
-						AMOUNT NUMERIC,
-						UNIT TEXT,
-						HEADER text,
-						SORT_ORDER int
-							)`
-
-			_, err = db.Exec(context.Background(), recipeQuery)
-
-
 			// 			recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
-			// 						BLOG_ID INTEGER ,
-			// 						NAME TEXT,
-			// 						AMOUNT NUMERIC,
-			// 						UNIT TEXT,
-			// 						FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
-			// 						);`
+			// 			BLOG_ID BIGINT REFERENCES BLOG_POSTS(ID),
+			// 			NAME TEXT,
+			// 			AMOUNT NUMERIC,
+			// 			UNIT TEXT,
+			// 			HEADER text,
+			// 			SORT_ORDER int
+			// 				)`
 
-			// _, err = db.Exec(recipeQuery)
+			// _, err = db.Exec(context.Background(), recipeQuery)
+
+
+						recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
+									BLOG_ID INTEGER ,
+									NAME TEXT,
+									AMOUNT NUMERIC,
+									UNIT TEXT,
+									FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
+									);`
+
+			_, err = db.Exec(recipeQuery)
 
 			if err != nil {
 			log.Print("error creating ingredients  table")
 				panic(err)
 			}
 
-			instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
-						BLOG_ID BIGINT REFERENCES BLOG_POSTS(ID),
-						INSTRUCTION_ORDER NUMERIC,
-						CONTENT TEXT
-							)`
+			// instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
+			// 			BLOG_ID BIGINT REFERENCES BLOG_POSTS(ID),
+			// 			INSTRUCTION_ORDER NUMERIC,
+			// 			CONTENT TEXT
+			// 				)`
 
-			_, err = db.Exec(context.Background(), instructionsQuery)
+			// _, err = db.Exec(context.Background(), instructionsQuery)
 
 			// instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
 			// 			BLOG_ID INTEGER ,
@@ -166,15 +167,15 @@ import (
 
 
 
-	if err := db.Ping(context.Background()); err != nil {
-		panic(err)
-	}
+	// if err := db.Ping(context.Background()); err != nil {
+	// 	panic(err)
+	// }
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-		ctx := context.Background()
+		// ctx := context.Background()
 
 	r.LoadHTMLGlob("templates/*.html")
 
@@ -190,12 +191,13 @@ r.Use(func(c *gin.Context) {
 	lmt := tollbooth.NewLimiter(5, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Minute})
 
 	{
-        api.POST("/postBlog", uploadBlog(ctx, db))
-        api.GET("/getBlogs", getBlogs(ctx, db))
-        api.GET("/getCategories", getCategories(ctx, db))
-        api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
-        api.GET("/searchBlogs", searchBlogs(ctx, db))
-        api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
+        // api.POST("/postBlog", uploadBlog(ctx, db))
+        // api.GET("/getBlogs", getBlogs(ctx, db))
+        // api.GET("/getCategories", getCategories(ctx, db))
+        // api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
+        // api.GET("/searchBlogs", searchBlogs(ctx, db))
+        // api.POST("/admin", LimitMiddleware(lmt),  verifyAdminPass)
+        api.POST("/login", LimitMiddleware(lmt),  auth.Login)
     }
 
 	//adding for render health check
@@ -203,12 +205,12 @@ r.Use(func(c *gin.Context) {
     c.Status(http.StatusOK)
 	})
 
-	r.GET("/blogDetails/:slug", getBlogDetails(ctx, db))
-	r.GET("/blogDetailsJson/:slug", getBlogDetails(ctx, db))
-	r.GET("/about", getAbout)
-	r.GET("/privacy-policy", getPrivacyPolicy)
-	r.GET("/terms-and-conditions", getTerms)
-	r.GET("/contact", getContact)
+	// r.GET("/blogDetails/:slug", getBlogDetails(ctx, db))
+	// r.GET("/blogDetailsJson/:slug", getBlogDetails(ctx, db))
+	// r.GET("/about", getAbout)
+	// r.GET("/privacy-policy", getPrivacyPolicy)
+	// r.GET("/terms-and-conditions", getTerms)
+	// r.GET("/contact", getContact)
 
 
 	r.GET("/main-styles.css", func(c *gin.Context) {
@@ -269,8 +271,8 @@ r.Use(func(c *gin.Context) {
 	}
 
 
- r.Run("0.0.0.0:" + port)
-	// r.Run(":8080")
+//  r.Run("0.0.0.0:" + port)
+	r.Run(":8080")
 
 }
 
