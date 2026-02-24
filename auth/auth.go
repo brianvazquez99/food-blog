@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -59,6 +60,7 @@ func Login(g *gin.Context) {
 		g.Status(http.StatusOK)
 }
 
+
 func issueToken() (string , error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
@@ -69,6 +71,7 @@ func issueToken() (string , error) {
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Minute)),
 	})
 
+	// TODO:UPDATE SECRET STRING TO BE ENV VARIABLE
 	signedToken, err := token.SignedString([]byte("secret"))
 
 	if err != nil {
@@ -78,5 +81,97 @@ func issueToken() (string , error) {
 	}
 
 
+
+}
+
+// TODO:CREATE MIDDLEWARE FOR CHECKING TOKEM
+
+func CheckTokenMiddleware(g *gin.Context)  {
+
+	// secret := os.Getenv("secret")
+	secret := "secret"
+
+	token, err := g.Cookie("token")
+
+	if err != nil {
+		g.JSON(http.StatusForbidden, gin.H{"message": "No token!"})
+		return
+	}
+
+	parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
+
+	parsedToken, err := parser.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(t *jwt.Token) (any, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC);!ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Error parsing token"})
+		return
+	}
+
+	claims, ok := parsedToken.Claims.(*jwt.RegisteredClaims)
+		if !ok || !parsedToken.Valid {
+
+		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Invalid Token"})
+		return
+	}
+
+		if claims.ExpiresAt != nil && time.Now().After(claims.ExpiresAt.Time) {
+		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Token Expired!"})
+		return
+	}
+
+	log.Println(claims.ExpiresAt)
+	log.Println(parsedToken.Valid)
+
+	g.Next()
+
+}
+
+func CheckToken(g *gin.Context)  {
+
+	// secret := os.Getenv("secret")
+	secret := "secret"
+
+	token, err := g.Cookie("token")
+
+	if err != nil {
+		g.JSON(http.StatusForbidden, gin.H{"message": "No token!"})
+		return
+	}
+
+	parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
+
+	parsedToken, err := parser.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(t *jwt.Token) (any, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC);!ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		g.JSON(http.StatusForbidden, gin.H{"message": "Error parsing token"})
+		return
+	}
+
+	claims, ok := parsedToken.Claims.(*jwt.RegisteredClaims)
+		if !ok || !parsedToken.Valid {
+
+		g.JSON(http.StatusForbidden, gin.H{"message": "Invalid Token"})
+		return
+	}
+
+		if claims.ExpiresAt != nil && time.Now().After(claims.ExpiresAt.Time) {
+		g.JSON(http.StatusForbidden, gin.H{"message": "Token Expired!"})
+		return
+	}
+
+	log.Println(claims.ExpiresAt)
+	log.Println(parsedToken.Valid)
+
+	g.JSON(http.StatusOK, gin.H{"message":"token valid"})
 
 }
