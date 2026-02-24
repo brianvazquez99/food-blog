@@ -27,6 +27,25 @@ export class AdminDash {
     }
   )
 
+  copyPosts = [...this.blogPosts]
+
+  onSearch(search:Event) {
+
+    const input = search.target as HTMLInputElement
+    const searchString = input.value
+    console.log(searchString)
+    const filtered = this.blogPosts.filter(el => {
+      const title = el.TITLE as string
+      const index = title.indexOf(searchString)
+      if (index != -1) {
+        return el
+      }
+
+    })
+
+    this.copyPosts = filtered
+  }
+
 
 
 }
