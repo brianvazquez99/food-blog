@@ -181,6 +181,7 @@ getExistingBlog(slug:string) {
       const categoriesString = data.CATEGORY as string
       const catArray = categoriesString.split(',')
        this.post.set({...data, CATEGORY: catArray})
+       this.categories.set([...catArray])
        this.instructions.set(data.INSTRUCTIONS)
        this.ingredients.set(data.INGREDIENT_LIST)
     },

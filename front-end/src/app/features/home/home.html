@@ -7,9 +7,7 @@
   <div class="flex flex-wrap gap-10 p-3 justify-center">
     @for (item of blogService.posts(); track $index) {
       <a [href]="'/blogDetails/'+ item.SLUG"   class="flex items-center p-2 gap-2 flex-col hover:cursor-pointer transition-all h-full  rounded-lg">
-        <div class="rounded-lg">
-          <img [src]="'/api/getThumbnail/' + item.ID" height="200px" width="200px" alt="thumbnail">
-        </div>
+          <img class="h-[300px] w-[200px] object-cover" [src]="'/api/getThumbnail/' + item.ID" height="200px" width="200px" alt="thumbnail">
         <div class="text-center" style="width: 200px;">
           <span class="text-xl p-4 title" >{{item.TITLE}}</span>
         </div>

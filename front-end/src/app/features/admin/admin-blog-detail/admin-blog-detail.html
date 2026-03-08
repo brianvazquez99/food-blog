@@ -66,8 +66,12 @@
 
     <div class="flex mx-3 items-center justify-center-safe gap-xp-4">
       @if(post().ID && !imgSrc()) {
-  <img [src]="'/api/getThumbnail/' + post().ID" [alt]="post().TITLE +'thumbnail'" itemprop="image" height="400"
-          width="400">
+              <div class="w-full flex gap-6 flex-col items-center justify-center py-2">
+
+                <img [src]="'/api/getThumbnail/' + post().ID" [alt]="post().TITLE +'thumbnail'" itemprop="image" height="400"
+                  width="400">
+              </div>
+
       }
       @if (imgSrc()) {
 
