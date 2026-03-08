@@ -31,6 +31,7 @@ export class AdminDash {
       if (index != -1) {
         return el
       }
+      return
 
     })
 
