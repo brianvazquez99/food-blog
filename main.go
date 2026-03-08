@@ -639,7 +639,7 @@ func getBlogDetailsJson(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		blog.SLUG = slug
 
-		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'MM/DD/YYYY') AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME
+		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'MM/DD/YYYY') AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME, CATEGORY
 				FROM BLOG_POSTS
 				WHERE SLUG = $1`
 
@@ -647,7 +647,7 @@ func getBlogDetailsJson(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		var rawBody string;
 
-		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME)
+		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME, &blog.CATEGORY)
 
 
 		if err != nil {

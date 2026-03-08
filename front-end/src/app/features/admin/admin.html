@@ -14,17 +14,20 @@
         @if(errorMessage()) {
 
           <div class="text-center bg-red-100 rounded text-red-500 w-full break-all">
-            <p class="p-2">sretertwradsfklnaskjdfaksjdfadshfjasdhfadskjfhadsfhjadshfashdj</p>
+            <p class="p-2 text-center">{{errorMessage() }}</p>
 
           </div>
         }
+        <form >
         <div class="h-full w-full flex flex-col items-center justify-center">
-          <label for="pass">Password</label>
-          <input [(ngModel)]="password" class="bg-gray-200 rounded-lg px-2 py-1" type="password" name="pass" id="pass">
-          <button (click)="onLogin()" class="rounded-lg w-1/4 mt-4 shadow-lg p-2 bg-green-500 text-white font-semibold">
-            Sign In
-          </button>
-        </div>
+            <label for="pass">Password</label>
+            <input [(ngModel)]="password" class="bg-gray-200 rounded-lg px-2 py-1" type="password" name="pass" id="pass">
+            <button type="submit" (click)="onLogin()" class="rounded-lg w-1/4 mt-4 shadow-lg p-2 bg-green-500 text-white font-semibold">
+              Sign In
+            </button>
+
+          </div>
+        </form>
       </div>
 
     </div>

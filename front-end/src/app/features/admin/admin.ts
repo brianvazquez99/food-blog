@@ -1,3 +1,4 @@
+import { JsonPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -6,7 +7,7 @@ import { sign } from 'crypto';
 
 @Component({
   selector: 'app-admin',
-  imports: [RouterOutlet, RouterLink, FormsModule],
+  imports: [RouterOutlet, RouterLink, FormsModule, JsonPipe],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
@@ -44,7 +45,7 @@ export class Admin implements OnInit {
           this.isLoggedIn.set(true);
         },
         error: (err) => {
-          this.errorMessage.set(err);
+          this.errorMessage.set("There was an error logging in");
           this.isLoading.set(false);
         },
       });

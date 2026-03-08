@@ -178,7 +178,9 @@ ngOnInit(): void {
 getExistingBlog(slug:string) {
   this.http.get(`/api/blogDetailsJson/${slug}`).subscribe({
     next:(data:any) => {
-       this.post.set({...data})
+      const categoriesString = data.CATEGORY as string
+      const catArray = categoriesString.split(',')
+       this.post.set({...data, CATEGORY: catArray})
        this.instructions.set(data.INSTRUCTIONS)
        this.ingredients.set(data.INGREDIENTS)
     },

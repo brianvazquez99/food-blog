@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BlogService } from '../../../blog-service';
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { tap } from 'rxjs';
 import { RECIPE } from '../../../types';
