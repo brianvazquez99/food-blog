@@ -62,6 +62,7 @@ export class AdminBlogDetail implements OnInit, OnDestroy  {
     SERVINGS: null,
     PREP_TIME: null,
     COOK_TIME: null,
+    DATE_UPDATED: null
   });
 
   showToast = signal<boolean>(false);
