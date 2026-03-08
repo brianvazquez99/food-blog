@@ -182,7 +182,7 @@ getExistingBlog(slug:string) {
       const catArray = categoriesString.split(',')
        this.post.set({...data, CATEGORY: catArray})
        this.instructions.set(data.INSTRUCTIONS)
-       this.ingredients.set(data.INGREDIENTS)
+       this.ingredients.set(data.INGREDIENT_LIST)
     },
   })
 }
