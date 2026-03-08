@@ -47,6 +47,7 @@ func Login(g *gin.Context) {
 		}
 
 		token , err := issueToken()
+		refreshToken , err := issueRefreshToken()
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Error Generating Token"})
@@ -55,7 +56,10 @@ func Login(g *gin.Context) {
 		}
 
 		g.SetSameSite(http.SameSiteLaxMode)
-		g.SetCookie("token",token, int(time.Until(time.Now().Add(30 * time.Minute)).Seconds()), "/", "", true, true)
+		g.SetCookie("token",token, int(time.Until(time.Now().Add(60 * time.Minute)).Seconds()), "/", "", true, true)
+
+		g.SetSameSite(http.SameSiteLaxMode)
+		g.SetCookie("refreshToken",refreshToken, int(time.Until(time.Now().Add(24 * time.Hour)).Seconds()), "/", "", true, true)
 
 		g.Status(http.StatusOK)
 }
@@ -68,11 +72,33 @@ func issueToken() (string , error) {
 		Issuer: "MailanHomeBakery",
 		Audience: jwt.ClaimStrings{"MailanHomeBakeryClient"},
 		IssuedAt: jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Minute)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(60 * time.Minute)),
 	})
 
 	// TODO:UPDATE SECRET STRING TO BE ENV VARIABLE
 	signedToken, err := token.SignedString([]byte("secret"))
+
+	if err != nil {
+		return "", err
+	}else {
+		return signedToken, nil
+	}
+
+
+
+}
+func issueRefreshToken() (string , error) {
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		Subject: "AdminRefresh",
+		Issuer: "MailanHomeBakery",
+		Audience: jwt.ClaimStrings{"MailanHomeBakeryClient"},
+		IssuedAt: jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+	})
+
+	// TODO:UPDATE SECRET STRING TO BE ENV VARIABLE
+	signedToken, err := token.SignedString([]byte("refreshSecret"))
 
 	if err != nil {
 		return "", err
@@ -88,17 +114,71 @@ func issueToken() (string , error) {
 
 func CheckTokenMiddleware(g *gin.Context)  {
 
-	// secret := os.Getenv("secret")
-	secret := "secret"
+
 
 	token, err := g.Cookie("token")
 
 	if err != nil {
-		g.JSON(http.StatusForbidden, gin.H{"message": "No token!"})
+		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "No token!"})
 		return
 	}
 
+	parsedToken, err := parseToken(token)
+
+
+	if err != nil {
+		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Error parsing token"})
+		return
+	}
+
+	claims, ok := parsedToken.Claims.(*jwt.RegisteredClaims)
+
+	if !ok || !parsedToken.Valid {
+
+		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Invalid Token"})
+		return
+	}
+
+	if claims.ExpiresAt != nil && time.Now().After(claims.ExpiresAt.Time) {
+
+		//IF EXPIRED CHECK REFRSH TOKEN AND REFRESH
+
+		refreshToken, err := g.Cookie("refreshToken")
+
+		if err == nil {
+
+			parsedRefreshToken, _ := parseRefreshToken(refreshToken)
+
+			refreshClaims, refreshOk := parsedRefreshToken.Claims.(*jwt.RegisteredClaims)
+
+			//IF REFRESH TOKEN IS OK AND HAS NOT EXPRIRED YET, REFRESH TOKEN
+			if refreshOk && parsedToken.Valid && claims.ExpiresAt != nil && !time.Now().After(refreshClaims.ExpiresAt.Time) {
+				newToken, _ := issueToken()
+
+				g.SetSameSite(http.SameSiteLaxMode)
+				g.SetCookie("token",newToken, int(time.Until(time.Now().Add(60 * time.Minute)).Seconds()), "/", "", true, true)
+				g.Next()
+				return
+			}
+		}
+
+
+
+		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Token Expired!"})
+		return
+	}
+
+
+	g.Next()
+
+}
+
+func parseToken(token string) (*jwt.Token, error) {
 	parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
+
+	// TODO: REPLACE WITH ENV
+	// secret := os.Getenv("secret")
+	secret := "secret"
 
 	parsedToken, err := parser.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC);!ok {
@@ -107,27 +187,27 @@ func CheckTokenMiddleware(g *gin.Context)  {
 		return []byte(secret), nil
 	})
 
-	if err != nil {
-		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Error parsing token"})
-		return
-	}
+	return parsedToken, err
 
-	claims, ok := parsedToken.Claims.(*jwt.RegisteredClaims)
-		if !ok || !parsedToken.Valid {
 
-		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Invalid Token"})
-		return
-	}
+}
 
-		if claims.ExpiresAt != nil && time.Now().After(claims.ExpiresAt.Time) {
-		g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Token Expired!"})
-		return
-	}
+func parseRefreshToken(token string) (*jwt.Token, error) {
+	parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 
-	log.Println(claims.ExpiresAt)
-	log.Println(parsedToken.Valid)
+	// TODO: REPLACE WITH ENV
+	// secret := os.Getenv("refreshSecret")
+	secret := "refreshSecret"
 
-	g.Next()
+	parsedToken, err := parser.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(t *jwt.Token) (any, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC);!ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return []byte(secret), nil
+	})
+
+	return parsedToken, err
+
 
 }
 

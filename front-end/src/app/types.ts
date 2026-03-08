@@ -6,6 +6,7 @@ export type RECIPE = {
   THUMBNAIL: Blob | null,
   BODY: string | null,
   DATE_ADDED: string | null
+  DATE_UPDATED: string | null
   SLUG?:string
   CATEGORY: string[]
 }
