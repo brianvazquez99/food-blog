@@ -36,7 +36,7 @@
     </svg>
     <input (input)="onSearch($event)" class="bg-gray-100 rounded-lg outline-0 w-full px-2 py-1 placeholder:text-gray-500" placeholder="Search By Title" type="text" name="search" id="search">
   </div>
-  <div id="table" class="w-full h-[70%] overflow-auto border border-gray-300 rounded bg-white ">
+  <div id="table" class="w-full h-100 overflow-auto border border-gray-300 rounded bg-white ">
     <table class="table table-auto w-full h-full border-collapse">
       <thead class="border-b border-b-gray-500 text-gray-500 ">
         <th class="p-4">Title</th>
@@ -70,7 +70,7 @@
             {{post.DATE_UPDATED | date}}
           </td>
           <td>
-            <div class="flex items-center justify-center gap-2">
+            <div class="flex items-center justify-center gap-2 px-2">
               <span routerLink="edit" [queryParams]="{slug:blogService.getSlug(post.TITLE ?? '')}"  class="text-green-600 hover:cursor-pointer">
                 Edit
               </span>
