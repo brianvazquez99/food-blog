@@ -349,10 +349,19 @@ unloadNotification($event: BeforeUnloadEvent) {
       alert('Please Enter at least on Category');
       return;
     }
-    if (this.post().TITLE == null || this.post().BODY == null || this.thumbnail == null) {
-      alert('Not all content has been filled!');
+    if (this.post().TITLE == null ) {
+      alert('Please Provide a title');
       this.saving.set(false);
-
+      return;
+    }
+    else if (this.post().BODY == null ) {
+      alert('Please Enter some content for the blog');
+      this.saving.set(false);
+      return;
+    }
+    else if (this.thumbnail == null && this.post().ID == null ) {
+      alert('Please provide a thumbnail picture');
+      this.saving.set(false);
       return;
     }
 
