@@ -75,8 +75,8 @@ func issueToken() (string , error) {
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(60 * time.Minute)),
 	})
 
-	// TODO:UPDATE SECRET STRING TO BE ENV VARIABLE
-	signedToken, err := token.SignedString([]byte("secret"))
+	secret := os.Getenv("TOKEN_SECRET")
+	signedToken, err := token.SignedString([]byte(secret))
 
 	if err != nil {
 		return "", err
@@ -97,8 +97,8 @@ func issueRefreshToken() (string , error) {
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 	})
 
-	// TODO:UPDATE SECRET STRING TO BE ENV VARIABLE
-	signedToken, err := token.SignedString([]byte("refreshSecret"))
+	refreshSecrert := os.Getenv("REFRESH_SECRET")
+	signedToken, err := token.SignedString([]byte(refreshSecrert))
 
 	if err != nil {
 		return "", err
@@ -110,7 +110,6 @@ func issueRefreshToken() (string , error) {
 
 }
 
-// TODO:CREATE MIDDLEWARE FOR CHECKING TOKEM
 
 func CheckTokenMiddleware(g *gin.Context)  {
 
@@ -176,9 +175,7 @@ func CheckTokenMiddleware(g *gin.Context)  {
 func parseToken(token string) (*jwt.Token, error) {
 	parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 
-	// TODO: REPLACE WITH ENV
-	// secret := os.Getenv("secret")
-	secret := "secret"
+	secret := os.Getenv("TOKEN_SECRET")
 
 	parsedToken, err := parser.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC);!ok {
@@ -195,9 +192,7 @@ func parseToken(token string) (*jwt.Token, error) {
 func parseRefreshToken(token string) (*jwt.Token, error) {
 	parser := jwt.NewParser(jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 
-	// TODO: REPLACE WITH ENV
-	// secret := os.Getenv("refreshSecret")
-	secret := "refreshSecret"
+	secret := os.Getenv("REFRESH_SECRET")
 
 	parsedToken, err := parser.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC);!ok {
