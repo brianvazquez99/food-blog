@@ -198,7 +198,7 @@ r.Use(func(c *gin.Context) {
         api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
         api.GET("/searchBlogs", searchBlogs(ctx, db))
         api.POST("/login", LimitMiddleware(lmt),  auth.Login)
-		api.GET("/blogDetailsJson/:slug", getBlogDetails(ctx, db))
+		api.GET("/blogDetailsJson/:slug", getBlogDetailsJson(ctx, db))
     }
 
 	//adding for render health check
