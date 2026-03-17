@@ -974,6 +974,13 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			}
 		}
 
+		err = trx.Commit(context.Background())
+
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying commit"})
+			return
+		}
+
 		g.JSON(http.StatusOK, gin.H{"ID": id})
 
 	}
