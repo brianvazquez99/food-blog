@@ -146,7 +146,12 @@ func CheckTokenMiddleware(g *gin.Context)  {
 
 		if err == nil {
 
-			parsedRefreshToken, _ := parseRefreshToken(refreshToken)
+			parsedRefreshToken, err := parseRefreshToken(refreshToken)
+
+			if err != nil {
+			g.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Error parsing token"})
+			return
+			}
 
 			refreshClaims, refreshOk := parsedRefreshToken.Claims.(*jwt.RegisteredClaims)
 

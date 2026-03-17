@@ -237,10 +237,10 @@
         <a (click)="isSearchOpen.set(false)" [href]="'/blogDetails/'+ item.SLUG"
           class="flex hover:cursor-pointer flex-col">
           <div>
-            <img [src]="'/api/getThumbnail/' + item.ID" height="100" width="100" alt="thumbnail">
+            <img class="h-[100px] w-[100px] rounded" [src]="'/api/getThumbnail/' + item.ID" height="100" width="100" alt="thumbnail">
           </div>
           <div>
-            <span class="title">{{item.TITLE}}</span>
+            <span class="title text-center">{{item.TITLE}}</span>
           </div>
         </a>
         }

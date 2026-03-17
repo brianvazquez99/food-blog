@@ -1,5 +1,6 @@
 <dialog #addCat>
   <div class="bg-white px-2" (click)="$event.stopPropagation()">
+    <form ></form>
     <div class="border-b border-b-gray-300 p-2 flex justify-between">
       <span class="text-lg title">
         Add Category
@@ -13,7 +14,7 @@
       <input [(ngModel)]="newCat" type="text" class="px-2 border border-gray-300 rounded" name="newcat" id="newcat">
     </div>
     <div class="border-t border-t-gray-300 flex gap-2 py-2 items-center  justify-end">
-      <button class="px-2 py-1 rounded bg-red-400">
+      <button (click)="addCat.close()" class="px-2 py-1 rounded bg-red-400">
         Cancel
 
       </button>

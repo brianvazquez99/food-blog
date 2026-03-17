@@ -359,7 +359,7 @@ unloadNotification($event: BeforeUnloadEvent) {
       this.saving.set(false);
       return;
     }
-    else if (this.thumbnail == null && this.post().ID == null ) {
+    else if (this.thumbnail == null  ) {
       alert('Please provide a thumbnail picture');
       this.saving.set(false);
       return;
