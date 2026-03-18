@@ -13,7 +13,6 @@
 
   function debounce(func, timeout = 300) {
     let timer;
-    console.log('in debounce', func)
     return (...args) => {
       clearTimeout(timer)
       timer = setTimeout(() => { func.apply(this, args) }, timeout);
@@ -24,7 +23,6 @@
     event.stopPropagation()
     openHamburger()
     const container = document.getElementById("searchContainer")
-    console.log(container)
     if (container) {
       const isHidden = container.classList.contains('hidden')
       isHidden ? container.classList.remove('hidden') : container.classList.add('hidden')
@@ -34,7 +32,6 @@
 
 
   function onSearch(event) {
-    console.log(event)
     fetchSearchData(event)
 
   }
@@ -81,7 +78,6 @@
   }, 300);
 
   function fetchSearchData(searchString) {
-    console.log(searchString)
     if (searchString == '') return
     debouncedFetch(searchString)
 
