@@ -462,10 +462,10 @@
 
           <div class="flex flex-col">
 
-              <h2 class="ps-2"> Ingredients</h2>
+              <h2 class="p-2 m-0 bg-black text-white"> Ingredients</h2>
             <div class="p-2 flex flex-wrap justify-center">
               {{range .INGREDIENT_LIST}}
-              <dl class="w-1/2">
+              <dl class="text-center w-1/2">
                 {{if .HEADER}}
                 <dt>
                   <h3>{{.HEADER}}</h3>
@@ -485,7 +485,7 @@
           </div>
           <div class="flex flex-col">
 
-              <h2 class="ps-2"> Instructions</h2>
+              <h2 class="p-2 bg-black text-white"> Instructions</h2>
             <ol class="p-2 list-decimal" style="list-style-position: inside;">
               {{range .INSTRUCTIONS}}
               <li class="border-b m-2  border-b-gray-300">
