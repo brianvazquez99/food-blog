@@ -271,8 +271,8 @@ r.Use(func(c *gin.Context) {
 	}
 
 
-//  r.Run("0.0.0.0:" + port)
-	r.Run(":8080")
+ r.Run("0.0.0.0:" + port)
+	// r.Run(":8080")
 
 }
 
