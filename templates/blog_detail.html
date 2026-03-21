@@ -381,14 +381,9 @@
   </nav>
   <main class="container mx-auto">
     <article itemscope itemtype="https://schema.org/Article">
-      <div id="thumbnail">
-        <img fetchpriority="high" src="/api/getThumbnail/{{ .ID }}" alt="{{ .TITLE }} thumbnail" itemprop="image" height="200px"
-          width="500px">
-      </div>
-      <h1 id="title" class="title text-lg" itemprop="headline">{{ .TITLE }}</h1>
+           <h1 id="title" class="title text-lg" itemprop="headline">{{ .TITLE }}</h1>
       <h6 class="text-center">{{.DATE_ADDED}}</h6>
       <div class="flex py-4 gap-5 justify-center items-center">
-
 
         <div class="flex flex-col items-center gap-1">
           <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -426,7 +421,10 @@
 
         </div>
       </div>
-
+      <div id="thumbnail">
+        <img fetchpriority="high" src="/api/getThumbnail/{{ .ID }}" alt="{{ .TITLE }} thumbnail" itemprop="image" height="200px"
+          width="500px">
+      </div>
 
       <div onclick="jumpToRecipe()" class="flex justify-center my-2">
         <button class="hover:cursor-pointer rounded-lg bg-[#E4B52E]  font-semibold">
@@ -466,7 +464,7 @@
 
           <div class="flex flex-col">
 
-              <h2 class="p-2 m-0 bg-black text-white"> Ingredients</h2>
+              <h2 style="margin-top: 0;" class="p-2 bg-black text-white"> Ingredients</h2>
             <div class="p-2 flex flex-wrap justify-center">
               {{range .INGREDIENT_LIST}}
               <dl class="text-center w-1/2">
