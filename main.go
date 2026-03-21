@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"food-blog/auth"
 	"github.com/dgraph-io/ristretto/v2"
 	"github.com/didip/tollbooth/v7"
 	"github.com/didip/tollbooth/v7/limiter"
@@ -27,49 +28,45 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/crypto/bcrypt"
-	"food-blog/auth"
 )
 
-		type BLOG struct {
-			TITLE        string
-			BODY         template.HTML
-			CATEGORY 	*[]string
-			ID           int
-			DATE_ADDED   *string
-			DATE_UPDATED *string
-		}
+type BLOG struct {
+	TITLE        string
+	BODY         template.HTML
+	CATEGORY     *[]string
+	ID           int
+	DATE_ADDED   *string
+	DATE_UPDATED *string
+}
 
-		var cache *ristretto.Cache[string, any]
-		var re = regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
+var cache *ristretto.Cache[string, any]
+var re = regexp.MustCompile(`(?i)background-color\s*:\s*[^;"]+;?`)
 
+var cssFileName string
 
+func main() {
+	mime.AddExtensionType(".wasm", "application/wasm")
+	mime.AddExtensionType(".js", "text/javascript")
+	r := gin.Default()
 
-		func main() {
-				mime.AddExtensionType(".wasm", "application/wasm",)
-			mime.AddExtensionType(".js", "text/javascript")
-			r := gin.Default()
+	database_url := os.Getenv("DATABASE_URL")
 
+	config, err := pgxpool.ParseConfig(database_url)
 
+	// db, err := sql.Open("sqlite", "./blog.db")
 
-			database_url := os.Getenv("DATABASE_URL")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-			config, err := pgxpool.ParseConfig(database_url)
+	db, err := pgxpool.NewWithConfig(context.Background(), config)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-				// db, err := sql.Open("sqlite", "./blog.db")
+	defer db.Close()
 
-
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				db, err := pgxpool.NewWithConfig(context.Background(), config)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				defer db.Close()
-
-			blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
+	blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
 						ID BIGSERIAL PRIMARY KEY,
 						TITLE TEXT,
 						BODY TEXT,
@@ -83,29 +80,29 @@ import (
 						SLUG TEXT UNIQUE
 							)`
 
-			_, err = db.Exec(context.Background(), blogQuery)
+	_, err = db.Exec(context.Background(), blogQuery)
 
-						// blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
-						// ID INTEGER PRIMARY KEY,
-						// TITLE TEXT,
-						// BODY TEXT,
-						// THUMBNAIL BLOB,
-						// SERVINGS TEXT,
-						// PREP_TIME TEXT,
-						// COOK_TIME TEXT,
-						// DATE_ADDED DATE,
-						// DATE_UPDATED DATE,
-						// CATEGORY TEXT
-						// 	)`
+	// blogQuery := `CREATE TABLE IF NOT EXISTS BLOG_POSTS (
+	// ID INTEGER PRIMARY KEY,
+	// TITLE TEXT,
+	// BODY TEXT,
+	// THUMBNAIL BLOB,
+	// SERVINGS TEXT,
+	// PREP_TIME TEXT,
+	// COOK_TIME TEXT,
+	// DATE_ADDED DATE,
+	// DATE_UPDATED DATE,
+	// CATEGORY TEXT
+	// 	)`
 
-			// _, err = db.Exec( blogQuery)
+	// _, err = db.Exec( blogQuery)
 
-			if err != nil {
-				log.Print("error creating blog posts table")
-				panic(err)
-			}
+	if err != nil {
+		log.Print("error creating blog posts table")
+		panic(err)
+	}
 
-						recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
+	recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
 						BLOG_ID BIGINT REFERENCES BLOG_POSTS(ID),
 						NAME TEXT,
 						AMOUNT NUMERIC,
@@ -114,58 +111,52 @@ import (
 						SORT_ORDER int
 							)`
 
-			_, err = db.Exec(context.Background(), recipeQuery)
+	_, err = db.Exec(context.Background(), recipeQuery)
 
+	// recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
+	// 			BLOG_ID INTEGER ,
+	// 			NAME TEXT,
+	// 			AMOUNT NUMERIC,
+	// 			UNIT TEXT,
+	// 			FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
+	// 			);`
 
-						// recipeQuery := `CREATE TABLE IF NOT EXISTS BLOG_INGREDIENTS (
-						// 			BLOG_ID INTEGER ,
-						// 			NAME TEXT,
-						// 			AMOUNT NUMERIC,
-						// 			UNIT TEXT,
-						// 			FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
-						// 			);`
+	// _, err = db.Exec(recipeQuery)
 
-			// _, err = db.Exec(recipeQuery)
+	if err != nil {
+		log.Print("error creating ingredients  table")
+		panic(err)
+	}
 
-			if err != nil {
-			log.Print("error creating ingredients  table")
-				panic(err)
-			}
-
-			instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
+	instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
 						BLOG_ID BIGINT REFERENCES BLOG_POSTS(ID),
 						INSTRUCTION_ORDER NUMERIC,
 						CONTENT TEXT
 							)`
 
-			_, err = db.Exec(context.Background(), instructionsQuery)
+	_, err = db.Exec(context.Background(), instructionsQuery)
 
-			// instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
-			// 			BLOG_ID INTEGER ,
-			// 			INSTRUCTION_ORDER NUMERIC,
-			// 			CONTENT TEXT,
-			// 			FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
-			// 				)`
+	// instructionsQuery := `CREATE TABLE IF NOT EXISTS BLOG_INSTRUCTIONS (
+	// 			BLOG_ID INTEGER ,
+	// 			INSTRUCTION_ORDER NUMERIC,
+	// 			CONTENT TEXT,
+	// 			FOREIGN KEY (BLOG_ID) REFERENCES BLOG_POSTS(ID)
+	// 				)`
 
-			// _, err = db.Exec( instructionsQuery)
+	// _, err = db.Exec( instructionsQuery)
 
-			if err != nil {
-				log.Print("error creating instructions table")
-				panic(err)
-			}
+	if err != nil {
+		log.Print("error creating instructions table")
+		panic(err)
+	}
 
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
-			r.Use(gzip.Gzip(gzip.DefaultCompression))
-
-
-
-			cache, err = ristretto.NewCache(&ristretto.Config[string, any]{
-				NumCounters: 10,
-				MaxCost: 1 << 27,
-				BufferItems: 64,
-			})
-
-
+	cache, err = ristretto.NewCache(&ristretto.Config[string, any]{
+		NumCounters: 10,
+		MaxCost:     1 << 27,
+		BufferItems: 64,
+	})
 
 	if err := db.Ping(context.Background()); err != nil {
 		panic(err)
@@ -175,35 +166,34 @@ import (
 		log.Fatal(err)
 	}
 
-		ctx := context.Background()
+	ctx := context.Background()
 
 	r.LoadHTMLGlob("templates/*.html")
 
+	// Add this at the very top
+	r.Use(func(c *gin.Context) {
+		log.Printf("Incoming Request: %s %s", c.Request.Method, c.Request.URL.Path)
+		c.Next()
+	})
 
-// Add this at the very top
-r.Use(func(c *gin.Context) {
-    log.Printf("Incoming Request: %s %s", c.Request.Method, c.Request.URL.Path)
-    c.Next()
-})
-
-		    api := r.Group("/api")
+	api := r.Group("/api")
 
 	lmt := tollbooth.NewLimiter(5, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Minute})
 
 	{
-        api.POST("/postBlog", auth.CheckTokenMiddleware, uploadBlog(ctx, db))
+		api.POST("/postBlog", auth.CheckTokenMiddleware, uploadBlog(ctx, db))
 		api.GET("/verifyAdmin", auth.CheckToken)
-        api.GET("/getBlogs", getBlogs(ctx, db))
-        api.GET("/getCategories", getCategories(ctx, db))
-        api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
-        api.GET("/searchBlogs", searchBlogs(ctx, db))
-        api.POST("/login", LimitMiddleware(lmt),  auth.Login)
+		api.GET("/getBlogs", getBlogs(ctx, db))
+		api.GET("/getCategories", getCategories(ctx, db))
+		api.GET("/getThumbnail/:id", getThumbnail(ctx, db))
+		api.GET("/searchBlogs", searchBlogs(ctx, db))
+		api.POST("/login", LimitMiddleware(lmt), auth.Login)
 		api.GET("/blogDetailsJson/:slug", getBlogDetailsJson(ctx, db))
-    }
+	}
 
 	//adding for render health check
 	r.HEAD("/", func(c *gin.Context) {
-    c.Status(http.StatusOK)
+		c.Status(http.StatusOK)
 	})
 
 	r.GET("/blogDetails/:slug", getBlogDetails(ctx, db))
@@ -212,73 +202,68 @@ r.Use(func(c *gin.Context) {
 	r.GET("/terms-and-conditions", getTerms)
 	r.GET("/contact", getContact)
 
-
 	r.GET("/main-styles.css", func(c *gin.Context) {
-    dir := "front-end/dist/front-end/browser"
-    files, err := os.ReadDir(dir)
-    if err != nil {
-        c.Status(404)
-        return
-    }
-
-    for _, file := range files {
-        if strings.HasPrefix(file.Name(), "styles") && strings.HasSuffix(file.Name(), ".css") {
-            // Set the correct header so the browser knows it's CSS
-            c.Header("Content-Type", "text/css")
-            c.File(dir + "/" + file.Name())
-            return
-        }
-    }
-    c.Status(404)
-})
+		dir := "front-end/dist/front-end/browser"
+		
+		if cssFileName != "" {
+			c.Header("Content-Type", "text/css")
+			c.File(dir + "/" + cssFileName)
+			return
+		}
+		files, err := os.ReadDir(dir)
+		if err != nil {
+			c.Status(404)
+			return
+		}
 
 
+		for _, file := range files {
 
-
+			if strings.HasPrefix(file.Name(), "styles") && strings.HasSuffix(file.Name(), ".css") {
+				// Set the correct header so the browser knows it's CSS
+				cssFileName = file.Name()
+				c.Header("Content-Type", "text/css")
+				c.File(dir + "/" + file.Name())
+				return
+			}
+		}
+		c.Status(404)
+	})
 
 	r.Use(static.Serve("/", static.LocalFile("front-end/dist/front-end/browser", false)))
 
+	r.NoRoute(func(g *gin.Context) {
+		path := g.Request.URL.Path
+		log.Print("no route!!!")
+		log.Print(path)
+		// 1. If it's an API route that failed to match, return JSON
+		if strings.HasPrefix(path, "/api/") {
+			g.JSON(http.StatusNotFound, gin.H{"message": "API route not found", "path": path})
+			return
+		}
 
+		// 2. If it's a direct request for a file (like .js or .css) that doesn't exist
+		if strings.Contains(path, ".") {
+			g.Status(404)
+			return
+		}
 
+		g.File("front-end/dist/front-end/browser/index.html")
 
-
-
-		r.NoRoute(func(g *gin.Context) {
-			path := g.Request.URL.Path
-			log.Print("no route!!!")
-			log.Print(path)
-	// 1. If it's an API route that failed to match, return JSON
-    if strings.HasPrefix(path, "/api/") {
-        g.JSON(http.StatusNotFound, gin.H{"message": "API route not found", "path": path})
-        return
-    }
-
-    // 2. If it's a direct request for a file (like .js or .css) that doesn't exist
-    if strings.Contains(path, ".") {
-        g.Status(404)
-        return
-    }
-
-
-
-    g.File("front-end/dist/front-end/browser/index.html")
-
-		})
+	})
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "10000"
 	}
 
-
- r.Run("0.0.0.0:" + port)
+	r.Run("0.0.0.0:" + port)
 	// r.Run(":8080")
 
 }
 
-
 func getCategories(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
-	return func (g *gin.Context) {
+	return func(g *gin.Context) {
 
 		var categories []string
 		query := `SELECT DISTINCT CATEGORY
@@ -286,7 +271,7 @@ func getCategories(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		rows, err := db.Query(context.Background(), query)
 
-			if err != nil {
+		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching categories!"})
 			return
 		}
@@ -298,7 +283,7 @@ func getCategories(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 			err := rows.Scan(&category)
 
-					if err != nil {
+			if err != nil {
 				log.Print(err)
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "Error scanning rows!"})
 				return
@@ -307,11 +292,7 @@ func getCategories(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			categories = append(categories, category)
 		}
 
-
-
-		 g.JSON(http.StatusOK, categories)
-
-
+		g.JSON(http.StatusOK, categories)
 
 	}
 }
@@ -320,27 +301,25 @@ func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		recent := g.Query("recent")
 
-
 		var blogs []BLOG
 
 		var query string
 
 		if recent != "" {
 
-				 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), TO_CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
+			query = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), TO_CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC
 								LIMIT 3`
 
-		}else {
+		} else {
 
-			 query  = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), TO_CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
+			query = `SELECT TITLE, BODY, ID, TO_CHAR(DATE_ADDED, 'YYYY-MM-DD'), TO_CHAR(DATE_UPDATED, 'YYYY-MM-DD'), CATEGORY
 								FROM BLOG_POSTS
 								ORDER BY DATE_ADDED DESC`
 		}
 
-
-		rows, err := db.Query(context.Background(),query)
+		rows, err := db.Query(context.Background(), query)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Error fetching blogs!"})
@@ -377,15 +356,15 @@ func getBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 }
 
 func getThumbnail(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
-	return func (g *gin.Context) {
+	return func(g *gin.Context) {
 		id := g.Param("id")
 
 		var thumbNail []byte
 
 		cachedThumbnail, found := cache.Get(id + "-thumbnail")
 
-		if (found) {
-  g.Data(http.StatusOK, "image/jpeg",  cachedThumbnail.([]byte) )
+		if found {
+			g.Data(http.StatusOK, "image/jpeg", cachedThumbnail.([]byte))
 
 		}
 
@@ -393,7 +372,7 @@ func getThumbnail(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 				FROM BLOG_POSTS
 				WHERE ID = $1`
 
-		row := db.QueryRow(context.Background(),query, id)
+		row := db.QueryRow(context.Background(), query, id)
 
 		err := row.Scan(&thumbNail)
 
@@ -401,48 +380,45 @@ func getThumbnail(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "error getting thumbnail"})
 		}
 
+		g.Header("Content-Type", "image/jpeg")
+		g.Header("Content-Disposition", "inline; filename=image.jpg")
+		g.Header("Cache-Control", "public, max-age=2592000, immutable")
 
-	g.Header("Content-Type", "image/jpeg")
-	g.Header("Content-Disposition", "inline; filename=image.jpg")
-	g.Header("Cache-Control", "public, max-age=2592000, immutable")
+		g.Data(http.StatusOK, "image/jpeg", thumbNail)
 
-  	g.Data(http.StatusOK, "image/jpeg", thumbNail)
-
+	}
 }
-}
-
 
 func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
-	return func (g *gin.Context) {
+	return func(g *gin.Context) {
 		type INGREDIENT struct {
-			NAME string
+			NAME   string
 			AMOUNT string
-			UNIT string
+			UNIT   string
 		}
 		type INSTRUCTION struct {
-			ORDER int64
+			ORDER   int64
 			CONTENT string
 		}
 
-			type INGREDIENT_LIST struct {
-			HEADER *string
+		type INGREDIENT_LIST struct {
+			HEADER      *string
 			INGREDIENTS []INGREDIENT
 		}
 
-
 		type BLOG_POST struct {
-			TITLE string
-			ID int64
-			SLUG string
-			SERVINGS string
-			PREP_TIME string
-			COOK_TIME string
-			BODY  template.HTML
-			DATE_ADDED string
-			CATEGORY string
+			TITLE           string
+			ID              int64
+			SLUG            string
+			SERVINGS        string
+			PREP_TIME       string
+			COOK_TIME       string
+			BODY            template.HTML
+			DATE_ADDED      string
+			CATEGORY        string
 			INGREDIENT_LIST []INGREDIENT_LIST
-			INSTRUCTIONS []INSTRUCTION
+			INSTRUCTIONS    []INSTRUCTION
 		}
 
 		var blog BLOG_POST
@@ -453,179 +429,170 @@ func getBlogDetails(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		cachedBlog, found := cache.Get(slug)
 
-		if (found) {
-					g.HTML(http.StatusOK, "blog_detail.html", cachedBlog)
-		}else {
+		if found {
+			g.HTML(http.StatusOK, "blog_detail.html", cachedBlog)
+		} else {
 
-		blog.SLUG = slug
+			blog.SLUG = slug
 
-		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'MM/DD/YYYY') AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME
+			query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'MM/DD/YYYY') AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME
 				FROM BLOG_POSTS
 				WHERE SLUG = $1`
 
-		row := db.QueryRow(context.Background(),query,slug)
+			row := db.QueryRow(context.Background(), query, slug)
 
-		var rawBody string;
+			var rawBody string
 
-		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME)
+			err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME)
 
+			if err != nil {
+				if err == pgx.ErrNoRows {
+					g.HTML(http.StatusNotFound, "404.html", gin.H{
+						"slug": slug,
+					})
+					return
+				}
 
-		if err != nil {
-			if err == pgx.ErrNoRows {
-				g.HTML(http.StatusNotFound, "404.html", gin.H{
-					"slug": slug,
+				log.Println("Query error:", err)
+				g.JSON(http.StatusInternalServerError, gin.H{
+					"message": "Failed to fetch blog",
 				})
 				return
 			}
-
-			log.Println("Query error:", err)
-			g.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Failed to fetch blog",
-			})
-			return
-		}
-		ingredientsQuery := ` select header, json_agg(json_build_object('name', name, 'amount', amount, 'unit', unit)) as ingredients from blog_ingredients
+			ingredientsQuery := ` select header, json_agg(json_build_object('name', name, 'amount', amount, 'unit', unit)) as ingredients from blog_ingredients
 							where blog_id = $1
 							group by header, sort_order
 							order by sort_order`
 
-		ingredientRows, err := db.Query(context.Background(),ingredientsQuery, blog.ID)
+			ingredientRows, err := db.Query(context.Background(), ingredientsQuery, blog.ID)
 
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
-			log.Print(err)
-			return
-		}
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
+				log.Print(err)
+				return
+			}
 
-		defer ingredientRows.Close()
+			defer ingredientRows.Close()
 
-		for ingredientRows.Next() {
-			var rawJson json.RawMessage
-			var header sql.NullString
-			err := ingredientRows.Scan( &header, &rawJson)
+			for ingredientRows.Next() {
+				var rawJson json.RawMessage
+				var header sql.NullString
+				err := ingredientRows.Scan(&header, &rawJson)
 
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan ingredient"})
-			log.Print(err)
-			return
-		}
+				if err != nil {
+					g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan ingredient"})
+					log.Print(err)
+					return
+				}
 
-		var ingredients []INGREDIENT
-		err = json.Unmarshal(rawJson, &ingredients)
+				var ingredients []INGREDIENT
+				err = json.Unmarshal(rawJson, &ingredients)
 
+				if err != nil {
+					g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to unmarshall ingredient"})
+					log.Print(err)
+					return
+				}
 
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to unmarshall ingredient"})
-			log.Print(err)
-			return
-		}
+				var newHeader *string = nil
 
-		var newHeader *string = nil
+				if header.Valid {
+					newHeader = &header.String
+				} else {
+					newHeader = nil
+				}
 
-		if header.Valid {
-			newHeader = &header.String
-		}else{
-			newHeader = nil
-		}
+				ingredientList = append(ingredientList, INGREDIENT_LIST{HEADER: newHeader, INGREDIENTS: ingredients})
 
-		ingredientList = append(ingredientList,INGREDIENT_LIST{ HEADER: newHeader, INGREDIENTS: ingredients } )
+			}
 
-
-		}
-
-
-		instructionsQuery := `SELECT INSTRUCTION_ORDER, CONTENT
+			instructionsQuery := `SELECT INSTRUCTION_ORDER, CONTENT
 							FROM BLOG_INSTRUCTIONS
 							WHERE BLOG_ID = $1
 							ORDER BY INSTRUCTION_ORDER`
 
+			instructionRows, err := db.Query(context.Background(), instructionsQuery, blog.ID)
 
-		instructionRows, err := db.Query(context.Background(),instructionsQuery, blog.ID)
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
+				log.Print(err)
+				return
+			}
 
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
-			log.Print(err)
-			return
+			defer instructionRows.Close()
+			for instructionRows.Next() {
+				var instruction INSTRUCTION
+				err := instructionRows.Scan(&instruction.ORDER, &instruction.CONTENT)
+
+				if err != nil {
+					g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan instruction"})
+					log.Print(err)
+					return
+				}
+
+				instructions = append(instructions, instruction)
+			}
+
+			cleaned := re.ReplaceAllString(rawBody, "")
+			cleaned, err = NormalizeQuillHTML(rawBody)
+			if err != nil {
+				log.Println("html normalize error:", err)
+
+			}
+
+			blog.BODY = template.HTML(cleaned)
+
+			blog.INGREDIENT_LIST = ingredientList
+			blog.INSTRUCTIONS = instructions
+
+			cache.SetWithTTL(slug, &blog, int64(len(blog.BODY)), 10*time.Minute)
+
+			cache.Wait()
+
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to scan row"})
+				return
+			}
+
+			g.HTML(http.StatusOK, "blog_detail.html", blog)
+
 		}
-
-		defer instructionRows.Close()
-		for instructionRows.Next() {
-			var instruction INSTRUCTION
-			err := instructionRows.Scan(&instruction.ORDER, &instruction.CONTENT)
-
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan instruction"})
-			log.Print(err)
-			return
-		}
-
-		instructions = append(instructions, instruction)
-		}
-
-		cleaned := re.ReplaceAllString(rawBody, "")
-		cleaned, err = NormalizeQuillHTML(rawBody)
-		if err != nil {
-		log.Println("html normalize error:", err)
-
-		}
-
-		blog.BODY = template.HTML(cleaned)
-
-		blog.INGREDIENT_LIST = ingredientList
-		blog.INSTRUCTIONS = instructions
-
-		cache.SetWithTTL(slug, &blog, int64(len(blog.BODY)), 10 * time.Minute)
-
-		cache.Wait()
-
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message" : "Failed to scan row"})
-			return
-		}
-
-		g.HTML(http.StatusOK, "blog_detail.html", blog)
-
-		}
-
 
 		// g.JSON(http.StatusOK, blog)
-
 
 	}
 }
 
-
 func getBlogDetailsJson(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
-	return func (g *gin.Context) {
+	return func(g *gin.Context) {
 		type INGREDIENT struct {
-			NAME string
+			NAME   string
 			AMOUNT string
-			UNIT string
+			UNIT   string
 		}
 		type INSTRUCTION struct {
-			ORDER int64
+			ORDER   int64
 			CONTENT string
 		}
 
-			type INGREDIENT_LIST struct {
-			HEADER *string
+		type INGREDIENT_LIST struct {
+			HEADER      *string
 			INGREDIENTS []INGREDIENT
 		}
 
-
 		type BLOG_POST struct {
-			TITLE string
-			ID int64
-			SLUG string
-			SERVINGS string
-			PREP_TIME string
-			COOK_TIME string
-			BODY  string
-			DATE_ADDED string
-			CATEGORY string
+			TITLE           string
+			ID              int64
+			SLUG            string
+			SERVINGS        string
+			PREP_TIME       string
+			COOK_TIME       string
+			BODY            string
+			DATE_ADDED      string
+			CATEGORY        string
 			INGREDIENT_LIST []INGREDIENT_LIST
-			INSTRUCTIONS []INSTRUCTION
+			INSTRUCTIONS    []INSTRUCTION
 		}
 
 		var blog BLOG_POST
@@ -634,21 +601,17 @@ func getBlogDetailsJson(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		slug := g.Param("slug")
 
-
-
-
 		blog.SLUG = slug
 
 		query := `SELECT ID, TITLE, BODY, TO_CHAR(DATE_ADDED, 'MM/DD/YYYY') AS DATE_ADDED, SERVINGS, PREP_TIME, COOK_TIME, CATEGORY
 				FROM BLOG_POSTS
 				WHERE SLUG = $1`
 
-		row := db.QueryRow(context.Background(),query,slug)
+		row := db.QueryRow(context.Background(), query, slug)
 
-		var rawBody string;
+		var rawBody string
 
 		err := row.Scan(&blog.ID, &blog.TITLE, &rawBody, &blog.DATE_ADDED, &blog.SERVINGS, &blog.PREP_TIME, &blog.COOK_TIME, &blog.CATEGORY)
-
 
 		if err != nil {
 			if err == pgx.ErrNoRows {
@@ -669,7 +632,7 @@ func getBlogDetailsJson(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 							group by header, sort_order
 							order by sort_order`
 
-		ingredientRows, err := db.Query(context.Background(),ingredientsQuery, blog.ID)
+		ingredientRows, err := db.Query(context.Background(), ingredientsQuery, blog.ID)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
@@ -682,45 +645,41 @@ func getBlogDetailsJson(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		for ingredientRows.Next() {
 			var rawJson json.RawMessage
 			var header sql.NullString
-			err := ingredientRows.Scan( &header, &rawJson)
+			err := ingredientRows.Scan(&header, &rawJson)
 
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan ingredient"})
-			log.Print(err)
-			return
-		}
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan ingredient"})
+				log.Print(err)
+				return
+			}
 
-		var ingredients []INGREDIENT
-		err = json.Unmarshal(rawJson, &ingredients)
+			var ingredients []INGREDIENT
+			err = json.Unmarshal(rawJson, &ingredients)
 
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to unmarshall ingredient"})
+				log.Print(err)
+				return
+			}
 
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to unmarshall ingredient"})
-			log.Print(err)
-			return
-		}
+			var newHeader *string = nil
 
-		var newHeader *string = nil
+			if header.Valid {
+				newHeader = &header.String
+			} else {
+				newHeader = nil
+			}
 
-		if header.Valid {
-			newHeader = &header.String
-		}else{
-			newHeader = nil
-		}
-
-		ingredientList = append(ingredientList,INGREDIENT_LIST{ HEADER: newHeader, INGREDIENTS: ingredients } )
-
+			ingredientList = append(ingredientList, INGREDIENT_LIST{HEADER: newHeader, INGREDIENTS: ingredients})
 
 		}
-
 
 		instructionsQuery := `SELECT INSTRUCTION_ORDER, CONTENT
 							FROM BLOG_INSTRUCTIONS
 							WHERE BLOG_ID = $1
 							ORDER BY INSTRUCTION_ORDER`
 
-
-		instructionRows, err := db.Query(context.Background(),instructionsQuery, blog.ID)
+		instructionRows, err := db.Query(context.Background(), instructionsQuery, blog.ID)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to get ingredient rows"})
@@ -733,32 +692,23 @@ func getBlogDetailsJson(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			var instruction INSTRUCTION
 			err := instructionRows.Scan(&instruction.ORDER, &instruction.CONTENT)
 
-		if err != nil {
-			g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan instruction"})
-			log.Print(err)
-			return
+			if err != nil {
+				g.JSON(http.StatusInternalServerError, gin.H{"message": "failed to scan instruction"})
+				log.Print(err)
+				return
+			}
+
+			instructions = append(instructions, instruction)
 		}
-
-		instructions = append(instructions, instruction)
-		}
-
-
 
 		blog.BODY = rawBody
 
 		blog.INGREDIENT_LIST = ingredientList
 		blog.INSTRUCTIONS = instructions
 
-
-
-
-
-		g.JSON(http.StatusOK,  blog)
-
-
+		g.JSON(http.StatusOK, blog)
 
 		// g.JSON(http.StatusOK, blog)
-
 
 	}
 }
@@ -779,49 +729,48 @@ func getContact(g *gin.Context) {
 	g.HTML(http.StatusOK, "contact.html", nil)
 }
 
-
 func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 	return func(g *gin.Context) {
 
 		type INGREDIENT struct {
-			NAME string
+			NAME   string
 			AMOUNT string
-			UNIT string
+			UNIT   string
 		}
 
 		type INGREDIENT_LIST struct {
-			HEADER string
+			HEADER      string
 			INGREDIENTS []INGREDIENT
-			ORDER int
+			ORDER       int
 		}
 
 		type INSTRUCTION struct {
-			ORDER int64
+			ORDER   int64
 			CONTENT string
 		}
 
 		type BLOG_POST_FORM struct {
-			TITLE string
-			BODY  string
-			SERVINGS  string
-			PREP_TIME  string
-			COOK_TIME  string
-			CATEGORY string
-			INGREDIENTS string
+			TITLE        string
+			BODY         string
+			SERVINGS     string
+			PREP_TIME    string
+			COOK_TIME    string
+			CATEGORY     string
+			INGREDIENTS  string
 			INSTRUCTIONS string
-			SLUG string
+			SLUG         string
 		}
 		type BLOG_POST struct {
-			TITLE string
-			BODY  string
-			SERVINGS  string
-			PREP_TIME  string
-			COOK_TIME  string
-			CATEGORY string
-			INGREDIENTS []INGREDIENT_LIST
+			TITLE        string
+			BODY         string
+			SERVINGS     string
+			PREP_TIME    string
+			COOK_TIME    string
+			CATEGORY     string
+			INGREDIENTS  []INGREDIENT_LIST
 			INSTRUCTIONS []INSTRUCTION
-			SLUG string
+			SLUG         string
 		}
 
 		var postForm BLOG_POST_FORM
@@ -830,17 +779,17 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		err := g.ShouldBind(&postForm)
 
 		post = BLOG_POST{
-			TITLE: postForm.TITLE,
-			BODY: postForm.BODY,
-			CATEGORY: postForm.CATEGORY,
-			SERVINGS: postForm.SERVINGS,
+			TITLE:     postForm.TITLE,
+			BODY:      postForm.BODY,
+			CATEGORY:  postForm.CATEGORY,
+			SERVINGS:  postForm.SERVINGS,
 			PREP_TIME: postForm.PREP_TIME,
 			COOK_TIME: postForm.COOK_TIME,
-			SLUG: postForm.SLUG,
+			SLUG:      postForm.SLUG,
 		}
 
-		json.Unmarshal([]byte(postForm.INGREDIENTS, ), &post.INGREDIENTS)
-		json.Unmarshal([]byte(postForm.INSTRUCTIONS, ), &post.INSTRUCTIONS)
+		json.Unmarshal([]byte(postForm.INGREDIENTS), &post.INGREDIENTS)
+		json.Unmarshal([]byte(postForm.INSTRUCTIONS), &post.INSTRUCTIONS)
 
 		if err != nil {
 			g.JSON(http.StatusBadRequest, gin.H{"message": "Incorrect format to post blog!"})
@@ -856,7 +805,7 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		f, err := thumbNail.Open()
 
-			if err != nil {
+		if err != nil {
 			g.JSON(http.StatusBadRequest, gin.H{"message": "Unable to open thumbnail"})
 			return
 		}
@@ -869,7 +818,6 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 			g.JSON(http.StatusBadRequest, gin.H{"message": "Unable to read all thumbnail"})
 			return
 		}
-
 
 		trx, err := db.Begin(context.Background())
 
@@ -900,7 +848,7 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		var id int
 		// err = db.QueryRow(query, post.TITLE, post.BODY, bytes, post.CATEGORY).Scan(&id)
-		err = trx.QueryRow(context.Background(),query, post.TITLE, post.BODY, bytes, post.CATEGORY,  post.SERVINGS,  post.PREP_TIME ,post.COOK_TIME, post.SLUG).Scan(&id)
+		err = trx.QueryRow(context.Background(), query, post.TITLE, post.BODY, bytes, post.CATEGORY, post.SERVINGS, post.PREP_TIME, post.COOK_TIME, post.SLUG).Scan(&id)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
@@ -911,26 +859,20 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		// id, err := res.lastInsertId()
 
-
-
 		// if err != nil {
 		// 	g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to get the id"})
 		// 	return
 
 		// }
 
-
-
-
-
 		deleteRecipe := "DELETE FROM BLOG_INGREDIENTS WHERE BLOG_ID = $1"
 
 		_, err = trx.Exec(context.Background(), deleteRecipe, id)
 
 		if err != nil {
-				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to delete recipes"})
-				log.Print(err)
-				return
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to delete recipes"})
+			log.Print(err)
+			return
 		}
 
 		recipeQuery := `INSERT INTO BLOG_INGREDIENTS (BLOG_ID, NAME, AMOUNT, UNIT, HEADER, SORT_ORDER)
@@ -939,16 +881,14 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 		for _, r := range post.INGREDIENTS {
 
 			for _, c := range r.INGREDIENTS {
-			_, err := trx.Exec( context.Background(),recipeQuery, id, c.NAME, c.AMOUNT, c.UNIT, r.HEADER, r.ORDER )
-			if err != nil {
-				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert recipes"})
-				log.Print(err)
-				return
+				_, err := trx.Exec(context.Background(), recipeQuery, id, c.NAME, c.AMOUNT, c.UNIT, r.HEADER, r.ORDER)
+				if err != nil {
+					g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert recipes"})
+					log.Print(err)
+					return
+				}
+
 			}
-
-
-
-		}
 
 		}
 
@@ -956,18 +896,17 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 		_, err = trx.Exec(context.Background(), deleteInstructions, id)
 
-			if err != nil {
-				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to delete instructions"})
-				log.Print(err)
-				return
-			}
-
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to delete instructions"})
+			log.Print(err)
+			return
+		}
 
 		instructionQuery := `INSERT INTO BLOG_INSTRUCTIONS (BLOG_ID, INSTRUCTION_ORDER, CONTENT)
 						VALUES($1, $2, $3)`
 
 		for _, instruction := range post.INSTRUCTIONS {
-			_, err := trx.Exec( context.Background(), instructionQuery,id, instruction.ORDER, instruction.CONTENT)
+			_, err := trx.Exec(context.Background(), instructionQuery, id, instruction.ORDER, instruction.CONTENT)
 			if err != nil {
 				g.JSON(http.StatusInternalServerError, gin.H{"message": "an error occured trying to Iinsert instruction"})
 				return
@@ -987,16 +926,15 @@ func uploadBlog(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 }
 
-
 func searchBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 	type BLOG_SEARCH struct {
-		ID int
+		ID    int
 		TITLE string
-		SLUG string
+		SLUG  string
 	}
 
-	return func (g *gin.Context) {
+	return func(g *gin.Context) {
 
 		var searchResults []BLOG_SEARCH
 
@@ -1008,7 +946,7 @@ func searchBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 				from BLOG_POSTS
 				WHERE UPPER(TITLE) LIKE $1`
 
-		rows, err := db.Query(context.Background(),query, searchTerm)
+		rows, err := db.Query(context.Background(), query, searchTerm)
 
 		if err != nil {
 			g.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch search"})
@@ -1030,43 +968,39 @@ func searchBlogs(c context.Context, db *pgxpool.Pool) gin.HandlerFunc {
 
 			searchResults = append(searchResults, blog)
 
+		}
+
+		g.JSON(http.StatusOK, searchResults)
+
 	}
-
-	g.JSON(http.StatusOK, searchResults)
-
-
-	}
-
 
 }
 
-
 func verifyAdminPass(g *gin.Context) {
 
-		type PASS struct {
-			PASSWORD string
-		}
+	type PASS struct {
+		PASSWORD string
+	}
 
-		var pass PASS
+	var pass PASS
 
-		actualPass := os.Getenv("FOOD_BLOG_ADMIN_PASS")
-		err := g.BindJSON(&pass)
+	actualPass := os.Getenv("FOOD_BLOG_ADMIN_PASS")
+	err := g.BindJSON(&pass)
 
-		if err != nil {
-			g.JSON(http.StatusBadRequest, gin.H{"message": "invalid params"})
-			return
-		}
+	if err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"message": "invalid params"})
+		return
+	}
 
-		err = bcrypt.CompareHashAndPassword([]byte(actualPass), []byte(pass.PASSWORD))
+	err = bcrypt.CompareHashAndPassword([]byte(actualPass), []byte(pass.PASSWORD))
 
-
-		if (err == nil) {
-			g.JSON(http.StatusOK, gin.H{"message": "success"})
-			return
-		}else {
-			g.JSON(http.StatusForbidden, gin.H{"message": "you do not have access!!"})
-			return
-		}
+	if err == nil {
+		g.JSON(http.StatusOK, gin.H{"message": "success"})
+		return
+	} else {
+		g.JSON(http.StatusForbidden, gin.H{"message": "you do not have access!!"})
+		return
+	}
 }
 
 func LimitMiddleware(lmt *limiter.Limiter) gin.HandlerFunc {
@@ -1082,8 +1016,6 @@ func LimitMiddleware(lmt *limiter.Limiter) gin.HandlerFunc {
 		c.Next()
 	}
 
-
-
 }
 
 func NormalizeQuillHTML(input string) (string, error) {
@@ -1097,7 +1029,7 @@ func NormalizeQuillHTML(input string) (string, error) {
 		// Normalize text nodes
 		if n.Type == html.TextNode {
 			n.Data = strings.ReplaceAll(n.Data, "\u00A0", " ")
-			n.Data =  strings.ReplaceAll(n.Data, "&nbsp;", " ")
+			n.Data = strings.ReplaceAll(n.Data, "&nbsp;", " ")
 		}
 
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
